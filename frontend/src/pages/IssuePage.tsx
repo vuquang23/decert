@@ -1,5 +1,5 @@
-import NavBar from "../components/NavBar";
-import { useParams, Link } from "react-router-dom";
+import NavBar from "components/NavBar";
+import { Link, useParams } from "react-router-dom";
 
 const itemsPerPage = 5;
 

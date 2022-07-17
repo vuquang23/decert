@@ -1,5 +1,5 @@
+import { ReactComponent as Logo } from "assets/global.svg";
 import { useNavigate } from "react-router-dom";
-import { ReactComponent as Logo } from "../assets/global.svg";
 
 const NavBar = (props: { isConnected?: boolean; transparent?: boolean }) => {
   const navigate = useNavigate();

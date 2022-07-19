@@ -8,33 +8,64 @@ const NavBar = ({ transparent }: { transparent?: boolean }) => {
   const background =
     typeof transparent === "undefined" || transparent === false
       ? "bg-dark"
+      : isConnected
+      ? "bg-dark-sm"
       : "";
 
   return (
-    <nav className={`navbar navbar-dark ${background} z-index-2 py-4`}>
+    <nav
+      className={`navbar navbar-expand-sm navbar-dark ${background} z-index-2 py-4`}
+    >
       <div className="container">
         <Link to="/" className="navbar-brand fw-bold">
           <Logo className="d-inline-block align-text-bottom" /> DECERT
         </Link>
-        <ul className="navbar-nav">
-          <li className="nav-item">
-            <Link
-              to="/collections/1"
-              className={`nav-link fw-semibold ${isConnected ? "" : "d-none"}`}
-            >
-              Certificates
-            </Link>
-          </li>
-        </ul>
-        <button
-          className={`btn btn-outline-light ${isConnected ? "d-none" : ""}`}
-          type="button"
-          onClick={() => metaMask.connectToMetaMask()}
-        >
-          Connect to MetaMask
-        </button>
+        {isConnected ? <ConnectedNav /> : <NotConnectedNav />}
       </div>
     </nav>
+  );
+};
+
+const ConnectedNav = () => (
+  <>
+    <button
+      className="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbar-collapse"
+    >
+      <span className="navbar-toggler-icon"></span>
+    </button>
+    <div className="collapse navbar-collapse" id="navbar-collapse">
+      <ul className="navbar-nav ms-auto">
+        <li className="nav-item">
+          <Link to="/collections/1" className="nav-link fw-semibold">
+            Certificates
+          </Link>
+        </li>
+      </ul>
+      <div className="input-group w-auto ms-sm-3">
+        <span className="input-group-text">
+          <strong>50</strong>&nbsp;USDT
+        </span>
+        <button className="btn btn-outline-light" type="button">
+          <i className="bi bi-plus-lg" />
+        </button>
+      </div>
+    </div>
+  </>
+);
+
+const NotConnectedNav = () => {
+  const metaMask = useMetaMask();
+  return (
+    <button
+      className="btn btn-outline-light ms-auto"
+      type="button"
+      onClick={() => metaMask.connectToMetaMask()}
+    >
+      Connect to MetaMask
+    </button>
   );
 };
 

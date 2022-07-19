@@ -26,35 +26,43 @@ const NavBar = ({ transparent }: { transparent?: boolean }) => {
   );
 };
 
-const ConnectedNav = () => (
-  <>
-    <button
-      className="navbar-toggler"
-      type="button"
-      data-bs-toggle="collapse"
-      data-bs-target="#navbar-collapse"
-    >
-      <span className="navbar-toggler-icon"></span>
-    </button>
-    <div className="collapse navbar-collapse" id="navbar-collapse">
-      <ul className="navbar-nav ms-auto">
-        <li className="nav-item">
-          <Link to="/collections/1" className="nav-link fw-semibold">
-            Certificates
-          </Link>
-        </li>
-      </ul>
-      <div className="input-group w-auto ms-sm-3">
-        <span className="input-group-text">
-          <strong>50</strong>&nbsp;USDT
-        </span>
-        <button className="btn btn-outline-light" type="button">
-          <i className="bi bi-plus-lg" />
-        </button>
+const ConnectedNav = () => {
+  const metaMask = useMetaMask();
+  return (
+    <>
+      <button
+        className="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbar-collapse"
+      >
+        <span className="navbar-toggler-icon"></span>
+      </button>
+      <div className="collapse navbar-collapse" id="navbar-collapse">
+        <ul className="navbar-nav ms-auto">
+          <li className="nav-item">
+            <Link to="/collections/1" className="nav-link fw-semibold">
+              Certificates
+            </Link>
+          </li>
+        </ul>
+        <div className="input-group w-auto ms-sm-3">
+          <span className="input-group-text text-light bg-transparent">
+            {metaMask.account.substring(0, 5) +
+              "..." +
+              metaMask.account.substring(metaMask.account.length - 4)}
+          </span>
+          <span className="input-group-text">
+            <strong>50</strong>&nbsp;USDT
+          </span>
+          <button className="btn btn-success" type="button">
+            <i className="bi bi-plus-lg" />
+          </button>
+        </div>
       </div>
-    </div>
-  </>
-);
+    </>
+  );
+};
 
 const NotConnectedNav = () => {
   const metaMask = useMetaMask();

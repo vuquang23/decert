@@ -28,7 +28,7 @@ const MetaMaskProvider = ({ children }: { children: ReactElement }) => {
     navigateToCollections: boolean = false
   ) => {
     if (account !== undefined) {
-      setAccount(account[0]);
+      setAccount(account);
       setIsIssuer(true);
       if (navigateToCollections) {
         navigate("/collections/1");

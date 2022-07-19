@@ -3,10 +3,22 @@ import { Link, useParams } from "react-router-dom";
 
 const itemsPerPage = 5;
 
-const certificateCollections = Array.from(Array(30).keys(), (_, index) => ({
-  certificateName: `Sinh viên ${index} tốt`,
-  quantity: 30,
-}));
+interface CertificateCollection {
+  certificateName: string;
+  address: string;
+  issued: number;
+  revoked: number;
+}
+
+const certificateCollections: CertificateCollection[] = Array.from(
+  Array(30).keys(),
+  (_, index) => ({
+    certificateName: `Sinh viên ${index} tốt`,
+    address: "",
+    issued: 30,
+    revoked: 20,
+  })
+);
 
 const numOfPages = Math.ceil(certificateCollections.length / itemsPerPage);
 
@@ -23,16 +35,15 @@ const CollectionsPage = () => {
 };
 
 const Table = ({ page }: { page: number }) => {
-  const firstCol = "col-7";
-  const secondCol = "col-2";
-  const thirdCol = "col-3 d-flex";
+  const columnsClassName = ["col-6", "col-2", "col-2", "col-2 d-flex"];
   return (
     <>
       <div className="card border-0">
         <div className="card-body row fw-bold align-items-center d-none d-md-flex">
-          <div className={firstCol}>Certificate name</div>
-          <div className={secondCol}>Issued</div>
-          <div className={thirdCol} />
+          <div className={columnsClassName[0]}>Certificate name</div>
+          <div className={columnsClassName[1]}>Issued</div>
+          <div className={columnsClassName[2]}>Revoked</div>
+          <div className={columnsClassName[3]} />
         </div>
       </div>
       {certificateCollections
@@ -43,11 +54,8 @@ const Table = ({ page }: { page: number }) => {
         .map((item, index) => (
           <Row
             key={index}
-            firstCol={firstCol}
-            secondCol={secondCol}
-            thirdCol={thirdCol}
-            certificateName={item.certificateName}
-            quantity={item.quantity}
+            columnsClassName={columnsClassName}
+            certCollection={item}
           />
         ))}
       <Pagination page={page} />
@@ -56,33 +64,33 @@ const Table = ({ page }: { page: number }) => {
 };
 
 const Row = ({
-  firstCol,
-  secondCol,
-  thirdCol,
-  certificateName,
-  quantity,
+  columnsClassName,
+  certCollection,
 }: {
-  firstCol: string;
-  secondCol: string;
-  thirdCol: string;
-  certificateName: string;
-  quantity: number;
+  columnsClassName: string[];
+  certCollection: CertificateCollection;
 }) => (
   <div className="card my-1">
     <div className="card-body row align-items-center d-none d-md-flex">
-      <div className={firstCol}>{certificateName}</div>
-      <div className={secondCol}>{quantity}</div>
-      <div className={thirdCol}>
+      <div className={columnsClassName[0]}>
+        {certCollection.certificateName}
+      </div>
+      <div className={columnsClassName[1]}>{certCollection.issued}</div>
+      <div className={columnsClassName[2]}>{certCollection.revoked}</div>
+      <div className={columnsClassName[3]}>
         <Actions />
       </div>
     </div>
     <div className="card-body d-block d-md-none">
-      <h3 className="fw-bold pt-3">{certificateName}</h3>
+      <h3 className="fw-bold pt-3">{certCollection.certificateName}</h3>
       <div className="row align-items-center row justify-content-between">
-        <div className="col-6 pb-2 pb-sm-0">
-          <strong>Issued:</strong> {quantity}
+        <div className="col-6 col-sm-3 pb-2 pb-sm-0">
+          <strong>Issued:</strong> {certCollection.issued}
         </div>
-        <div className="col-7 col-sm-6 d-flex">
+        <div className="col-6 col-sm-3 pb-2 pb-sm-0">
+          <strong>Revoked:</strong> {certCollection.revoked}
+        </div>
+        <div className="col-6 d-flex">
           <Actions />
         </div>
       </div>
@@ -96,7 +104,7 @@ const Actions = () => (
       <i className="bi bi-plus-lg" />
     </button>
     <button type="button" className="btn btn-outline-dark">
-      <i className="bi bi-list-ul" />
+      <i className="bi bi-wallet2" />
     </button>
   </div>
 );

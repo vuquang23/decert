@@ -1,5 +1,5 @@
 import { ReactComponent as Logo } from "assets/global.svg";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { useMetaMask } from "./MetaMaskProvider";
 
 const NavBar = ({ transparent }: { transparent?: boolean }) => {
@@ -41,21 +41,38 @@ const ConnectedNav = () => {
       <div className="collapse navbar-collapse" id="navbar-collapse">
         <ul className="navbar-nav ms-auto">
           <li className="nav-item">
-            <Link to="/collections/1" className="nav-link fw-semibold">
+            <NavLink
+              to="/collections"
+              className={`nav-link fw-semibold ${({
+                isActive,
+              }: {
+                isActive: boolean;
+              }) => (isActive ? "active" : "")}`}
+            >
               Certificates
-            </Link>
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink
+              to="/wallet"
+              className={`nav-link fw-semibold ${({
+                isActive,
+              }: {
+                isActive: boolean;
+              }) => (isActive ? "active" : "")}`}
+            >
+              Wallet
+            </NavLink>
           </li>
         </ul>
-        <div className="input-group w-auto ms-sm-3">
+        <hr className="border-light d-block d-sm-none" />
+        <div className="input-group w-auto ms-sm-2">
           <span className="input-group-text text-light bg-transparent font-monospace">
             {metaMask.accountShort}
           </span>
           <span className="input-group-text">
             <strong>50</strong>&nbsp;USDT
           </span>
-          <button className="btn btn-success" type="button">
-            <i className="bi bi-plus-lg" />
-          </button>
         </div>
       </div>
     </>

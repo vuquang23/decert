@@ -38,7 +38,7 @@ const MetaMaskProvider = ({ children }: { children: ReactElement }) => {
       setAccount(account);
       setIsIssuer(true);
       if (navigateToCollections) {
-        navigate("/collections/1");
+        navigate("/collections");
       }
     } else {
       setAccount("");

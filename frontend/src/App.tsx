@@ -3,13 +3,11 @@ import CollectionsPage from "pages/CollectionsPage";
 import HomePage from "pages/HomePage";
 import { Navigate, Route, Routes } from "react-router-dom";
 
-// TODO:
-
 const App = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />
     <Route
-      path="/collections/:page"
+      path="/collections"
       element={
         <RequiredMetaMask>
           <CollectionsPage />

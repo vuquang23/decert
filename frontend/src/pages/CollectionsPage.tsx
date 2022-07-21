@@ -1,10 +1,8 @@
 import { Popover } from "bootstrap";
 import { getShortAccount } from "components/MetaMaskProvider";
 import NavBar from "components/NavBar";
-import { LegacyRef, useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
-
-const itemsPerPage = 5;
+import { LegacyRef, useEffect, useRef, useState } from "react";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 interface CertificateCollection {
   certificateName: string;
@@ -13,7 +11,7 @@ interface CertificateCollection {
   revoked: number;
 }
 
-const certificateCollections: CertificateCollection[] = Array.from(
+const certCollections: CertificateCollection[] = Array.from(
   Array(30).keys(),
   (_, index) => ({
     certificateName: `Sinh viên ${index} tốt`,
@@ -23,21 +21,65 @@ const certificateCollections: CertificateCollection[] = Array.from(
   })
 );
 
-const numOfPages = Math.ceil(certificateCollections.length / itemsPerPage);
-
 const CollectionsPage = () => {
-  const { page } = useParams();
+  const [searchQuery, setSearchQuery] = useState("");
   return (
     <>
       <NavBar />
       <div className="container mt-5">
-        <Table page={parseInt(page!)} />
+        <Header onSubmit={(searchQuery) => setSearchQuery(searchQuery)} />
+        <Table
+          certCollections={certCollections.filter(
+            (e) =>
+              searchQuery.length === 0 ||
+              e.certificateName.toLowerCase().trim().includes(searchQuery)
+          )}
+        />
       </div>
     </>
   );
 };
 
-const Table = ({ page }: { page: number }) => {
+interface Inputs {
+  searchQuery: string;
+}
+
+const Header = ({ onSubmit }: { onSubmit: (searchQuery: string) => void }) => {
+  const { register, handleSubmit } = useForm<Inputs>();
+  const submitHandler: SubmitHandler<Inputs> = ({ searchQuery }) =>
+    onSubmit(searchQuery);
+
+  return (
+    <div className="row align-items-center mb-5">
+      <div className="col-12 col-md-8">
+        <h1 className="display-4">Certificate Collections</h1>
+      </div>
+      <div className="col-12 col-md-4">
+        <form className="input-group" onSubmit={handleSubmit(submitHandler)}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Collection name..."
+            {...register("searchQuery")}
+          />
+          <button className="btn btn-success fw-semibold" type="submit">
+            Search
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+const itemsPerPage = 5;
+
+const Table = ({
+  certCollections,
+}: {
+  certCollections: CertificateCollection[];
+}) => {
+  const [page, setPage] = useState(1);
+  const numOfPages = Math.ceil(certCollections.length / itemsPerPage);
   const columnsClassName = ["col-6", "col-2", "col-2", "col-2 d-flex"];
   return (
     <>
@@ -49,7 +91,7 @@ const Table = ({ page }: { page: number }) => {
           <div className={columnsClassName[3]} />
         </div>
       </div>
-      {certificateCollections
+      {certCollections
         .slice(
           (page - 1) * itemsPerPage,
           (page - 1) * itemsPerPage + itemsPerPage
@@ -61,7 +103,11 @@ const Table = ({ page }: { page: number }) => {
             certCollection={item}
           />
         ))}
-      <Pagination page={page} />
+      <Pagination
+        page={page}
+        numOfPages={numOfPages}
+        setPage={(page) => setPage(page)}
+      />
     </>
   );
 };
@@ -105,16 +151,14 @@ const Actions = ({
   certCollection,
 }: {
   certCollection: CertificateCollection;
-}) => {
-  return (
-    <div className="btn-group ms-sm-auto">
-      <button type="button" className="btn btn-outline-dark">
-        <i className="bi bi-plus-lg" />
-      </button>
-      <ContractAddressButton certCollection={certCollection} />
-    </div>
-  );
-};
+}) => (
+  <div className="btn-group ms-sm-auto">
+    <button type="button" className="btn btn-outline-dark">
+      <i className="bi bi-plus-lg" />
+    </button>
+    <ContractAddressButton certCollection={certCollection} />
+  </div>
+);
 
 const ContractAddressButton = ({
   certCollection,
@@ -135,6 +179,7 @@ const ContractAddressButton = ({
       }
     );
   });
+
   return (
     <button
       type="button"
@@ -167,13 +212,21 @@ const ContractAddressButton = ({
   );
 };
 
-const Pagination = ({ page }: { page: number }) => (
+const Pagination = ({
+  page,
+  numOfPages,
+  setPage,
+}: {
+  page: number;
+  numOfPages: number;
+  setPage: (page: number) => void;
+}) => (
   <ul className="pagination mt-4 justify-content-center">
     {page > 1 ? (
       <li className="page-item">
-        <Link to={`/collections/${page - 1}`} className="page-link">
+        <button className="page-link" onClick={() => setPage(page - 1)}>
           Previous
-        </Link>
+        </button>
       </li>
     ) : null}
     {Array.from(Array(numOfPages + 1).keys())
@@ -183,16 +236,16 @@ const Pagination = ({ page }: { page: number }) => (
           key={value}
           className={`page-item ${value === page ? "active" : ""}`}
         >
-          <Link to={`/collections/${value}`} className="page-link">
+          <button className="page-link" onClick={() => setPage(value)}>
             {value}
-          </Link>
+          </button>
         </li>
       ))}
     {page < numOfPages ? (
       <li className="page-item">
-        <Link to={`/collections/${page + 1}`} className="page-link">
+        <button className="page-link" onClick={() => setPage(page + 1)}>
           Next
-        </Link>
+        </button>
       </li>
     ) : null}
   </ul>

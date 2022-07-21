@@ -4,14 +4,21 @@ import Web3 from "web3";
 
 interface MetaMask {
   account: string;
+  accountShort: string;
   isIssuer: boolean;
   connectToMetaMask: () => void;
 }
+
+const getShortAccount = (account: string) =>
+  account.substring(0, 5) + "..." + account.substring(account.length - 4);
 
 const web3 = new Web3(Web3.givenProvider);
 
 const MetaMaskContext = React.createContext<MetaMask>({
   account: "",
+  get accountShort() {
+    return getShortAccount(this.account);
+  },
   isIssuer: false,
   connectToMetaMask: function () {
     web3.eth.requestAccounts((_error, account) => (this.account = account[0]));
@@ -42,6 +49,9 @@ const MetaMaskProvider = ({ children }: { children: ReactElement }) => {
 
   const context: MetaMask = {
     account: account,
+    get accountShort() {
+      return getShortAccount(this.account);
+    },
     isIssuer: isIssuer,
     connectToMetaMask: () =>
       web3.eth.requestAccounts((_error, account) =>
@@ -52,6 +62,7 @@ const MetaMaskProvider = ({ children }: { children: ReactElement }) => {
   return <MetaMaskContext.Provider value={context} children={children} />;
 };
 
-export const useMetaMask = () => useContext(MetaMaskContext);
+const useMetaMask = () => useContext(MetaMaskContext);
 
 export default MetaMaskProvider;
+export { getShortAccount, useMetaMask };

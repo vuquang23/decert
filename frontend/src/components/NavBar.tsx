@@ -47,10 +47,8 @@ const ConnectedNav = () => {
           </li>
         </ul>
         <div className="input-group w-auto ms-sm-3">
-          <span className="input-group-text text-light bg-transparent">
-            {metaMask.account.substring(0, 5) +
-              "..." +
-              metaMask.account.substring(metaMask.account.length - 4)}
+          <span className="input-group-text text-light bg-transparent font-monospace">
+            {metaMask.accountShort}
           </span>
           <span className="input-group-text">
             <strong>50</strong>&nbsp;USDT

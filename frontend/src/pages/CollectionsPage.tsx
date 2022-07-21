@@ -1,4 +1,7 @@
+import { Popover } from "bootstrap";
+import { getShortAccount } from "components/MetaMaskProvider";
 import NavBar from "components/NavBar";
+import { LegacyRef, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 
 const itemsPerPage = 5;
@@ -14,7 +17,7 @@ const certificateCollections: CertificateCollection[] = Array.from(
   Array(30).keys(),
   (_, index) => ({
     certificateName: `Sinh viên ${index} tốt`,
-    address: "",
+    address: `0xb${index}a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
     issued: 30,
     revoked: 20,
   })
@@ -78,7 +81,7 @@ const Row = ({
       <div className={columnsClassName[1]}>{certCollection.issued}</div>
       <div className={columnsClassName[2]}>{certCollection.revoked}</div>
       <div className={columnsClassName[3]}>
-        <Actions />
+        <Actions certCollection={certCollection} />
       </div>
     </div>
     <div className="card-body d-block d-md-none">
@@ -91,23 +94,78 @@ const Row = ({
           <strong>Revoked:</strong> {certCollection.revoked}
         </div>
         <div className="col-6 d-flex">
-          <Actions />
+          <Actions certCollection={certCollection} />
         </div>
       </div>
     </div>
   </div>
 );
 
-const Actions = () => (
-  <div className="btn-group ms-sm-auto">
-    <button type="button" className="btn btn-outline-dark">
-      <i className="bi bi-plus-lg" />
-    </button>
-    <button type="button" className="btn btn-outline-dark">
+const Actions = ({
+  certCollection,
+}: {
+  certCollection: CertificateCollection;
+}) => {
+  return (
+    <div className="btn-group ms-sm-auto">
+      <button type="button" className="btn btn-outline-dark">
+        <i className="bi bi-plus-lg" />
+      </button>
+      <ContractAddressButton certCollection={certCollection} />
+    </div>
+  );
+};
+
+const ContractAddressButton = ({
+  certCollection,
+}: {
+  certCollection: CertificateCollection;
+}) => {
+  const popoverRef =
+    useRef<HTMLButtonElement>() as LegacyRef<HTMLButtonElement>;
+
+  useEffect(() => {
+    new Popover(
+      (popoverRef as React.MutableRefObject<HTMLButtonElement>).current,
+      {
+        html: true,
+        sanitize: false,
+        container: "body",
+        trigger: "focus",
+      }
+    );
+  });
+  return (
+    <button
+      type="button"
+      className="btn btn-outline-dark"
+      data-bs-toggle="popover"
+      data-bs-title="Contract address"
+      data-bs-content={`
+          <div class="d-flex align-items-center">
+            <div class="font-monospace me-2">
+              ${getShortAccount(certCollection.address)}
+            </div>
+            <button
+              type="button"
+              class="btn btn-light"
+              onclick="navigator.clipboard.writeText('${
+                certCollection.address
+              }')"
+              >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14 " height="14" fill="currentColor" class="bi bi-clipboard align-baseline" viewBox="0 0 16 16">
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+              </svg>
+            </button>
+          </div>
+        `}
+      ref={popoverRef}
+    >
       <i className="bi bi-wallet2" />
     </button>
-  </div>
-);
+  );
+};
 
 const Pagination = ({ page }: { page: number }) => (
   <ul className="pagination mt-4 justify-content-center">

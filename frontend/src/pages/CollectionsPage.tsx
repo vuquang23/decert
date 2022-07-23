@@ -23,17 +23,25 @@ const certCollections: CertificateCollection[] = Array.from(
 
 const CollectionsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
   return (
     <>
       <NavBar />
       <div className="container mt-5">
-        <Header onSubmit={(searchQuery) => setSearchQuery(searchQuery)} />
+        <Header
+          onSubmit={(searchQuery) => {
+            setSearchQuery(searchQuery);
+            setPage(1);
+          }}
+        />
         <Table
           certCollections={certCollections.filter(
             (e) =>
               searchQuery.length === 0 ||
               e.certificateName.toLowerCase().trim().includes(searchQuery)
           )}
+          page={page}
+          setPage={(page) => setPage(page)}
         />
       </div>
     </>
@@ -75,10 +83,13 @@ const itemsPerPage = 5;
 
 const Table = ({
   certCollections,
+  page,
+  setPage,
 }: {
   certCollections: CertificateCollection[];
+  page: number;
+  setPage: (page: number) => void;
 }) => {
-  const [page, setPage] = useState(1);
   const numOfPages = Math.ceil(certCollections.length / itemsPerPage);
   const columnsClassName = ["col-6", "col-2", "col-2", "col-2 d-flex"];
   return (
@@ -103,11 +114,7 @@ const Table = ({
             certCollection={item}
           />
         ))}
-      <Pagination
-        page={page}
-        numOfPages={numOfPages}
-        setPage={(page) => setPage(page)}
-      />
+      <Pagination page={page} numOfPages={numOfPages} setPage={setPage} />
     </>
   );
 };

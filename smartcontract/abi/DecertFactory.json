@@ -20,11 +20,6 @@
                 "type": "address"
             },
             {
-                "internalType": "address",
-                "name": "_delegatedSigner",
-                "type": "address"
-            },
-            {
                 "internalType": "string",
                 "name": "_name",
                 "type": "string"

@@ -7,12 +7,11 @@ contract DecertFactory {
     event DecertCreated(address indexed _scAddress);
 
     function CreateNewDecertCollection(
-        address _issuer, 
-        address _delegatedSigner,
+        address _issuer,
         string memory _name,
-        string memory _symbol  
+        string memory _symbol
     ) public virtual {
-        Decert decert = new Decert(_issuer, _delegatedSigner, _name, _symbol);
+        Decert decert = new Decert(_issuer, _name, _symbol);
         emit DecertCreated(address(decert));
     }
 }

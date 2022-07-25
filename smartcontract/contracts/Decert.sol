@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/utils/Context.sol";
 
 contract Decert is Context, ERC721NTEnumarable {
     address public issuer;
-    address public delegatedSigner;
 
     uint256 private _certPtr;
     uint256 private _batchSize;
@@ -15,6 +14,8 @@ contract Decert is Context, ERC721NTEnumarable {
         address issuer;
         address recipient;
         bytes32 certHash;
+        string link;
+        uint256 issuedAt;
     }
 
     mapping(uint256 => Certificate) private _certData;
@@ -24,25 +25,21 @@ contract Decert is Context, ERC721NTEnumarable {
     struct RevokedStatus {
         bool isRevoked;
         string reason;
+        uint256 revokedAt;
     }
 
     mapping(uint256 => RevokedStatus) private _revokedStatus;
 
     constructor(
-        address _issuer, 
-        address _delegatedSigner,
+        address _issuer,
         string memory _name,
-        string memory _symbol    
+        string memory _symbol
     ) ERC721Nontransferable(_name, _symbol) {
         issuer = _issuer;
-        delegatedSigner = _delegatedSigner;
     }
 
-    modifier onlySigner() {
-        require(
-            _msgSender() == delegatedSigner,
-            "ONLY_SIGNER_ALLOWED"
-        );
+    modifier onlyIssuer() {
+        require(_msgSender() == issuer, "ONLY_ISSUER");
         _;
     }
 
@@ -50,7 +47,12 @@ contract Decert is Context, ERC721NTEnumarable {
         return _batchSize;
     }
 
-    function certData(uint256 _tokenID) public view virtual returns (Certificate memory) {
+    function certData(uint256 _tokenID)
+        public
+        view
+        virtual
+        returns (Certificate memory)
+    {
         require(!_isRevoked(_tokenID), "CERTIFICATE_REVOKED");
         return _certData[_tokenID];
     }
@@ -59,31 +61,45 @@ contract Decert is Context, ERC721NTEnumarable {
         return _hashToID[_certHash];
     }
 
-    function revokedStatus(uint256 _revokedTokenID) public view virtual returns (RevokedStatus memory) {
+    function revokedStatus(uint256 _revokedTokenID)
+        public
+        view
+        virtual
+        returns (RevokedStatus memory)
+    {
         return _revokedStatus[_revokedTokenID];
     }
 
-    function setBatchSize(uint256 _newBatchSize) public onlySigner {
+    function setBatchSize(uint256 _newBatchSize) public onlyIssuer {
         _batchSize = _newBatchSize;
     }
 
-    function revokeCertificate(uint256[] memory _tokenID, string memory _reason) public virtual onlySigner {
+    function revokeCertificate(
+        uint256[] memory _tokenID,
+        string memory _reason,
+        uint256 revokedAt
+    ) public virtual onlyIssuer {
         require(_tokenID.length <= batchSize(), "EXCEED_BATCH_SIZE");
 
-        for (uint i = 0; i < _tokenID.length; i++) {
+        for (uint256 i = 0; i < _tokenID.length; i++) {
             require(super._exists(_tokenID[i]), "TOKEN_NOT_EXISTED");
             require(!_isRevoked(_tokenID[i]), "CERTIFICATE_REVOKED");
 
             _revokedStatus[_tokenID[i]] = RevokedStatus({
-                isRevoked: true, 
-                reason: _reason
+                isRevoked: true,
+                reason: _reason,
+                revokedAt: revokedAt
             });
 
             _burn(_tokenID[i]);
         }
     }
 
-    function batchMint(Certificate[] memory _certificate) public virtual onlySigner {
+    function batchMint(Certificate[] memory _certificate)
+        public
+        virtual
+        onlyIssuer
+    {
         require(_certificate.length <= batchSize(), "EXCEED_BATCH_SIZE");
 
         for (uint256 i = 0; i < _certificate.length; i++) {
@@ -95,7 +111,10 @@ contract Decert is Context, ERC721NTEnumarable {
         }
     }
 
-    function _mint(Certificate memory _cert, uint256 _tokenID) internal virtual {
+    function _mint(Certificate memory _cert, uint256 _tokenID)
+        internal
+        virtual
+    {
         super._mint(_cert.recipient, _tokenID);
 
         _certData[_tokenID] = _cert;

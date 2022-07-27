@@ -40,3 +40,15 @@ func Debugln(ctx *gin.Context, params ...interface{}) {
 	msg := "[" + prefix.(string) + "]" + fmt.Sprintln(params...)
 	log.Debug(msg)
 }
+
+func Errorln(ctx *gin.Context, params ...interface{}) {
+	prefix, _ := ctx.Get(constants.Prefix)
+	msg := "[" + prefix.(string) + "]" + fmt.Sprintln(params...)
+	log.Error(msg)
+}
+
+func Errorf(ctx *gin.Context, format string, params ...interface{}) {
+	prefix, _ := ctx.Get(constants.Prefix)
+	msg := fmt.Sprintf("["+prefix.(string)+"]"+format, params...)
+	log.Error(msg)
+}

@@ -1,6 +1,7 @@
 import { Popover } from "bootstrap";
 import { getShortAccount } from "components/MetaMaskProvider";
 import NavBar from "components/NavBar";
+import { Row, Table } from "components/Table";
 import { LegacyRef, useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
@@ -34,7 +35,7 @@ const CollectionsPage = () => {
             setPage(1);
           }}
         />
-        <Table
+        <CollectionsTable
           certCollections={certCollections.filter(
             (e) =>
               searchQuery.length === 0 ||
@@ -48,11 +49,11 @@ const CollectionsPage = () => {
   );
 };
 
-interface Inputs {
-  searchQuery: string;
-}
-
 const Header = ({ onSubmit }: { onSubmit: (searchQuery: string) => void }) => {
+  interface Inputs {
+    searchQuery: string;
+  }
+
   const { register, handleSubmit } = useForm<Inputs>();
   const submitHandler: SubmitHandler<Inputs> = ({ searchQuery }) =>
     onSubmit(searchQuery);
@@ -93,9 +94,7 @@ const Header = ({ onSubmit }: { onSubmit: (searchQuery: string) => void }) => {
   );
 };
 
-const itemsPerPage = 5;
-
-const Table = ({
+const CollectionsTable = ({
   certCollections,
   page,
   setPage,
@@ -104,68 +103,57 @@ const Table = ({
   page: number;
   setPage: (page: number) => void;
 }) => {
-  const numOfPages = Math.ceil(certCollections.length / itemsPerPage);
   const columnsClassName = ["col-5", "col-2", "col-2", "col-3 d-flex"];
   return (
-    <>
-      <div className="card border-0">
-        <div className="card-body row fw-bold align-items-center d-none d-md-flex">
-          <div className={columnsClassName[0]}>Certificate name</div>
-          <div className={columnsClassName[1]}>Issued</div>
-          <div className={columnsClassName[2]}>Revoked</div>
-          <div className={columnsClassName[3]} />
-        </div>
-      </div>
-      {certCollections
-        .slice(
-          (page - 1) * itemsPerPage,
-          (page - 1) * itemsPerPage + itemsPerPage
-        )
-        .map((item, index) => (
-          <Row
-            key={index}
-            columnsClassName={columnsClassName}
-            certCollection={item}
-          />
-        ))}
-      <Pagination page={page} numOfPages={numOfPages} setPage={setPage} />
-    </>
+    <Table
+      columnHeaders={["Certificate name", "Issued", "Revoked", ""]}
+      columnsClassName={columnsClassName}
+      itemsPerPage={5}
+      page={page}
+      setPage={setPage}
+      rows={certCollections.map((item, index) => (
+        <Collection
+          key={index}
+          columnsClassName={columnsClassName}
+          certCollection={item}
+        />
+      ))}
+    />
   );
 };
 
-const Row = ({
+const Collection = ({
   columnsClassName,
   certCollection,
 }: {
   columnsClassName: string[];
   certCollection: CertificateCollection;
 }) => (
-  <div className="card my-1">
-    <div className="card-body row align-items-center d-none d-md-flex">
-      <div className={columnsClassName[0]}>
-        {certCollection.certificateName}
-      </div>
-      <div className={columnsClassName[1]}>{certCollection.issued}</div>
-      <div className={columnsClassName[2]}>{certCollection.revoked}</div>
-      <div className={columnsClassName[3]}>
-        <Actions certCollection={certCollection} />
-      </div>
-    </div>
-    <div className="card-body d-block d-md-none">
-      <h3 className="fw-bold pt-3">{certCollection.certificateName}</h3>
-      <div className="row align-items-center row justify-content-between">
-        <div className="col-6 col-sm-3 pb-2 pb-sm-0">
-          <strong>Issued:</strong> {certCollection.issued}
+  <Row
+    columnsClassName={columnsClassName}
+    columnsValue={[
+      certCollection.certificateName,
+      certCollection.issued.toString(),
+      certCollection.revoked.toString(),
+      <Actions certCollection={certCollection} />,
+    ]}
+    compactContent={
+      <>
+        <h3 className="fw-bold pt-3">{certCollection.certificateName}</h3>
+        <div className="row align-items-center row justify-content-between">
+          <div className="col-6 col-sm-3 pb-2 pb-sm-0">
+            <strong>Issued:</strong> {certCollection.issued}
+          </div>
+          <div className="col-6 col-sm-3 pb-2 pb-sm-0">
+            <strong>Revoked:</strong> {certCollection.revoked}
+          </div>
+          <div className="col-6 d-flex">
+            <Actions certCollection={certCollection} />
+          </div>
         </div>
-        <div className="col-6 col-sm-3 pb-2 pb-sm-0">
-          <strong>Revoked:</strong> {certCollection.revoked}
-        </div>
-        <div className="col-6 d-flex">
-          <Actions certCollection={certCollection} />
-        </div>
-      </div>
-    </div>
-  </div>
+      </>
+    }
+  />
 );
 
 const Actions = ({
@@ -235,44 +223,5 @@ const ContractAddressButton = ({
     </button>
   );
 };
-
-const Pagination = ({
-  page,
-  numOfPages,
-  setPage,
-}: {
-  page: number;
-  numOfPages: number;
-  setPage: (page: number) => void;
-}) => (
-  <ul className="pagination mt-4 justify-content-center">
-    {page > 1 ? (
-      <li className="page-item">
-        <button className="page-link" onClick={() => setPage(page - 1)}>
-          Previous
-        </button>
-      </li>
-    ) : null}
-    {Array.from(Array(numOfPages + 1).keys())
-      .slice(Math.max(1, page - 1), Math.max(1, page - 1) + 3)
-      .map((value) => (
-        <li
-          key={value}
-          className={`page-item ${value === page ? "active" : ""}`}
-        >
-          <button className="page-link" onClick={() => setPage(value)}>
-            {value}
-          </button>
-        </li>
-      ))}
-    {page < numOfPages ? (
-      <li className="page-item">
-        <button className="page-link" onClick={() => setPage(page + 1)}>
-          Next
-        </button>
-      </li>
-    ) : null}
-  </ul>
-);
 
 export default CollectionsPage;

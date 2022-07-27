@@ -31,6 +31,9 @@ func (api *collectionApi) getCollections(ctx *gin.Context) {
 
 	log.Debugln(ctx, "hello", "my", "fen")
 	log.Debugf(ctx, "%d %d %s", 2, 3, "1200")
+
+	log.Errorln(ctx, "hello", "my", "fen")
+	log.Errorf(ctx, "%d %d %s", 2, 3, "1200")
 	// example
 	transformers.ResponseOK(ctx, "Hello Hoang Tung")
 }

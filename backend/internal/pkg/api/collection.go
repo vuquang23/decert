@@ -3,9 +3,12 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 
+	"decert/internal/pkg/constants"
 	"decert/internal/pkg/errors"
 	"decert/internal/pkg/services"
 	"decert/internal/pkg/transformers"
+	"decert/internal/pkg/utils/log"
+	"decert/internal/pkg/utils/uuid"
 )
 
 type collectionApi struct {
@@ -24,6 +27,10 @@ func (api *collectionApi) setupRoute(rg *gin.RouterGroup) {
 }
 
 func (api *collectionApi) getCollections(ctx *gin.Context) {
+	ctx.Set(constants.Prefix, uuid.MsgWithUUID("get-collections"))
+
+	log.Debugln(ctx, "hello", "my", "fen")
+	log.Debugf(ctx, "%d %d %s", 2, 3, "1200")
 	// example
 	transformers.ResponseOK(ctx, "Hello Hoang Tung")
 }

@@ -14,6 +14,7 @@ import (
 	"decert/internal/pkg/config"
 	"decert/internal/pkg/migrations"
 	_ "decert/internal/pkg/transformers"
+	_ "decert/internal/pkg/utils/log"
 )
 
 func main() {

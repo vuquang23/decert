@@ -14,7 +14,7 @@ func newHealthApi() *healthApi {
 }
 
 func (a *healthApi) setupRoute(rg *gin.RouterGroup) {
-	rg.GET("/", func(c *gin.Context) {
+	rg.GET("", func(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusOK, "OK")
 	})
 }

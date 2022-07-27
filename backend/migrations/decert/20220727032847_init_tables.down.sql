@@ -1,2 +1,3 @@
-DROP IF EXISTS `certs`;
-DROP IF EXISTS `collections`;
+DROP TABLE IF EXISTS `certs`;
+
+DROP TABLE IF EXISTS `collections`;

@@ -13,6 +13,7 @@ import (
 	"decert/internal/pkg/components"
 	"decert/internal/pkg/config"
 	"decert/internal/pkg/migrations"
+	_ "decert/internal/pkg/transformers"
 )
 
 func main() {

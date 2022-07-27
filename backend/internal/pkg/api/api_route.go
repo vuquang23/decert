@@ -1,6 +1,8 @@
 package api
 
 import (
+	"decert/internal/pkg/services"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +13,12 @@ type IAPI interface {
 func AddRouterV1(server *gin.Engine) {
 	// API v1
 	v1 := server.Group("/api/v1")
+
 	addApi(newHealthApi(), "/health", v1)
+
+	addApi(newCollectionApi(
+		services.CollectionServiceInstance(),
+	), "/collections", v1)
 }
 
 func addApi(api IAPI, path string, rg *gin.RouterGroup) {

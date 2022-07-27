@@ -7,7 +7,7 @@ import (
 
 type RestError struct {
 	HttpCode      int64    `json:"-"`
-	Code          string   `json:"code"`
+	Code          int64    `json:"code"`
 	Message       string   `json:"message"`
 	ErrorEntities []string `json:"errorEntities"`
 	RootCause     error    `json:"-"`
@@ -15,7 +15,7 @@ type RestError struct {
 
 func (e *RestError) Error() string {
 	return fmt.Sprintf(
-		"API Error: {Code: %s, Message: %s, ErrorEntities: %v, RootCause: %v}",
+		"API Error: {Code: %d, Message: %s, ErrorEntities: %v, RootCause: %v}",
 		e.Code,
 		e.Message,
 		e.ErrorEntities,
@@ -23,7 +23,7 @@ func (e *RestError) Error() string {
 	)
 }
 
-func NewRestError(httpCode int64, code string, message string, errorEntities []string, rootCause error) *RestError {
+func NewRestError(httpCode int64, code int64, message string, errorEntities []string, rootCause error) *RestError {
 	return &RestError{
 		HttpCode:      httpCode,
 		Code:          code,

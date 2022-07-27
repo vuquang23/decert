@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/urfave/cli/v2"
 
 	"decert/internal/pkg/builder"
@@ -17,7 +18,7 @@ import (
 func main() {
 	flagUp := "up"
 	flagDown := "down"
-	defaultMigrationDir := "migrations/decert"
+	defaultMigrationDir := "file://./migrations/decert"
 
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -68,6 +69,7 @@ func main() {
 					m, err := migrations.NewMigration(defaultMigrationDir)
 					if err != nil {
 						fmt.Println("Can not create migration " + err.Error())
+						return err
 					}
 					if up != -1 {
 						return m.MigrateUp(up)

@@ -58,22 +58,36 @@ const Header = ({ onSubmit }: { onSubmit: (searchQuery: string) => void }) => {
     onSubmit(searchQuery);
 
   return (
-    <div className="row align-items-center mb-5">
-      <div className="col-12 col-md-8">
+    <div className="row align-items-center mb-5 gx-1">
+      <div className="col-12 col-md-8 col-lg-7">
         <h1 className="display-4">Certificate Collections</h1>
       </div>
-      <div className="col-12 col-md-4">
-        <form className="input-group" onSubmit={handleSubmit(submitHandler)}>
-          <input
-            type="text"
-            className="form-control"
-            placeholder="Collection name..."
-            {...register("searchQuery")}
-          />
-          <button className="btn btn-success fw-semibold" type="submit">
-            Search
-          </button>
-        </form>
+      <div className="col-12 col-md-4 col-lg-5">
+        <div className="row gx-1">
+          <div className="col-10 col-xl-8">
+            <form
+              className="input-group"
+              onSubmit={handleSubmit(submitHandler)}
+            >
+              <button className="btn btn-outline-secondary" type="submit">
+                <i className="bi bi-search d-inline d-lg-none" />
+                <span className="d-none d-lg-inline">Search</span>
+              </button>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Collection name..."
+                {...register("searchQuery")}
+              />
+            </form>
+          </div>
+          <div className="col-2 col-xl-4">
+            <button className="btn btn-success w-100 px-0" type="button">
+              <i className="bi bi-plus-lg d-inline d-xl-none" />
+              <span className="d-none d-xl-inline">New collection</span>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -91,7 +105,7 @@ const Table = ({
   setPage: (page: number) => void;
 }) => {
   const numOfPages = Math.ceil(certCollections.length / itemsPerPage);
-  const columnsClassName = ["col-6", "col-2", "col-2", "col-2 d-flex"];
+  const columnsClassName = ["col-5", "col-2", "col-2", "col-3 d-flex"];
   return (
     <>
       <div className="card border-0">
@@ -162,6 +176,9 @@ const Actions = ({
   <div className="btn-group ms-sm-auto">
     <button type="button" className="btn btn-outline-dark">
       <i className="bi bi-plus-lg" />
+    </button>
+    <button type="button" className="btn btn-outline-dark">
+      <i className="bi bi-list" />
     </button>
     <ContractAddressButton certCollection={certCollection} />
   </div>

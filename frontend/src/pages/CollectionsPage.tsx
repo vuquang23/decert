@@ -1,3 +1,8 @@
+import {
+  CertificateCollection,
+  create,
+  readAll,
+} from "api/certificate-collections";
 import { Popover } from "bootstrap";
 import BootstrapSwal from "components/BootstrapSwal";
 import { getShortAccount } from "components/MetaMaskProvider";
@@ -6,44 +11,26 @@ import { LegacyRef, useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Swal from "sweetalert2";
 
-interface CertificateCollection {
-  certificateName: string;
-  address: string;
-  issued: number;
-  revoked: number;
-  createdDate: Date;
-}
-
-const newCertCollection = (n: number | string) =>
-  typeof n === "number"
-    ? {
-        certificateName: `Sinh viên ${n} tốt`,
-        address: `0xb${n}a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
-        issued: 30,
-        revoked: 20,
-        createdDate: new Date(Date.now()),
-      }
-    : {
-        certificateName: n,
-        address: `0xb${
-          Math.floor(Math.random() * 100) + 31
-        }a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
-        issued: 30,
-        revoked: 20,
-        createdDate: new Date(Date.now()),
-      };
-
-const certificateCollections: CertificateCollection[] = Array.from(
-  Array(30).keys(),
-  (_, index) => newCertCollection(index)
-);
-
 const CollectionsPage = () => {
-  const [certCollections, setSearchCollections] = useState(
-    certificateCollections
+  const [certCollections, setCertCollections] = useState(
+    [] as CertificateCollection[]
   );
+  useEffect(() => {
+    readAll().then((value) => setCertCollections(value));
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+  const getCertCollView = () =>
+    certCollections
+      .filter(
+        (e) =>
+          searchQuery.length === 0 ||
+          e.certificateName
+            .toLowerCase()
+            .trim()
+            .includes(searchQuery.toLocaleLowerCase().trim())
+      )
+      .sort((c1, c2) => c2.createdDate.getTime() - c1.createdDate.getTime());
 
   return (
     <>
@@ -53,19 +40,11 @@ const CollectionsPage = () => {
           setPage(1);
         }}
         addCertCollection={(certCollection: CertificateCollection) =>
-          setSearchCollections([certCollection, ...certCollections])
+          setCertCollections([certCollection, ...certCollections])
         }
       />
       <CollectionsTable
-        certCollections={certCollections
-          .filter(
-            (e) =>
-              searchQuery.length === 0 ||
-              e.certificateName.toLowerCase().trim().includes(searchQuery.toLocaleLowerCase().trim())
-          )
-          .sort(
-            (c1, c2) => c2.createdDate.getTime() - c1.createdDate.getTime()
-          )}
+        certCollections={getCertCollView()}
         page={page}
         setPage={(page) => setPage(page)}
       />
@@ -81,6 +60,35 @@ const Header = ({
 }: {
   onSearchSubmit: (searchQuery: string) => void;
   addCertCollection: (certCollection: CertificateCollection) => void;
+}) => (
+  <div className="row align-items-center mb-5 gx-1">
+    <div className="col-12 col-md-8 col-lg-7">
+      <h1 className="display-4">Certificate Collections</h1>
+    </div>
+    <div className="col-12 col-md-4 col-lg-5">
+      <div className="row gx-1">
+        <div className="col-10 col-xl-8">
+          <SearchForm onSearchSubmit={onSearchSubmit} />
+        </div>
+        <div className="col-2 col-xl-4">
+          <button
+            className="btn btn-success w-100 px-0"
+            type="button"
+            onClick={() => createCollectionModal(addCertCollection)}
+          >
+            <i className="bi bi-plus-lg d-inline d-xl-none" />
+            <span className="d-none d-xl-inline">New collection</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const SearchForm = ({
+  onSearchSubmit,
+}: {
+  onSearchSubmit: (searchQuery: string) => void;
 }) => {
   interface Inputs {
     searchQuery: string;
@@ -91,42 +99,22 @@ const Header = ({
     onSearchSubmit(searchQuery);
 
   return (
-    <div className="row align-items-center mb-5 gx-1">
-      <div className="col-12 col-md-8 col-lg-7">
-        <h1 className="display-4">Certificate Collections</h1>
-      </div>
-      <div className="col-12 col-md-4 col-lg-5">
-        <div className="row gx-1">
-          <div className="col-10 col-xl-8">
-            <form
-              className="input-group"
-              onSubmit={handleSubmit(submitHandler)}
-            >
-              <button className="btn btn-outline-secondary" type="submit">
-                <i className="bi bi-search d-inline d-lg-none" />
-                <span className="d-none d-lg-inline">Search</span>
-              </button>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Collection name..."
-                {...register("searchQuery")}
-              />
-            </form>
-          </div>
-          <div className="col-2 col-xl-4">
-            <button
-              className="btn btn-success w-100 px-0"
-              type="button"
-              onClick={() => createCollectionModal(addCertCollection)}
-            >
-              <i className="bi bi-plus-lg d-inline d-xl-none" />
-              <span className="d-none d-xl-inline">New collection</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <form
+      className="input-group"
+      onSubmit={handleSubmit(submitHandler)}
+      onBlur={handleSubmit(submitHandler)}
+    >
+      <button className="btn btn-outline-secondary" type="submit">
+        <i className="bi bi-search d-inline d-lg-none" />
+        <span className="d-none d-lg-inline">Search</span>
+      </button>
+      <input
+        type="text"
+        className="form-control"
+        placeholder="Collection name..."
+        {...register("searchQuery")}
+      />
+    </form>
   );
 };
 
@@ -134,22 +122,16 @@ const createCollectionModal = (
   addCertCollection: (certCollection: CertificateCollection) => void
 ) =>
   BootstrapSwal.fire({
-    // Layout
     title: "Enter your new collection name",
     input: "text",
     confirmButtonText: "Create",
     showLoaderOnConfirm: true,
     backdrop: true,
 
-    // Input Validator
     inputValidator: (result) =>
       result.length === 0 ? "Collection name cannot be empty" : null,
 
-    // Confirm action
-    preConfirm: (collectionName) =>
-      new Promise((resolve, _reject) => setTimeout(resolve, 2000)).then((_) =>
-        newCertCollection(collectionName)
-      ),
+    preConfirm: (collectionName) => create(collectionName),
     allowOutsideClick: () => !Swal.isLoading(),
   }).then((result) => {
     if (result.isConfirmed) {

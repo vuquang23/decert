@@ -8,14 +8,13 @@ const App = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />
     <Route
-      path="/collections"
       element={
         <RequiredMetaMask>
           <PageLayout />
         </RequiredMetaMask>
       }
     >
-      <Route index element={<CollectionsPage />} />
+      <Route path="/collections" element={<CollectionsPage />} />
     </Route>
   </Routes>
 );

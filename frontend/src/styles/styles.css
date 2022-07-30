@@ -30,3 +30,7 @@
     background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
   }
 }
+
+.animation-none {
+  animation: none;
+}

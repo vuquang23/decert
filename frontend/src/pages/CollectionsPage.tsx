@@ -1,62 +1,94 @@
 import { Popover } from "bootstrap";
+import BootstrapSwal from "components/BootstrapSwal";
 import { getShortAccount } from "components/MetaMaskProvider";
-import NavBar from "components/NavBar";
 import { Row, Table } from "components/Table";
 import { LegacyRef, useEffect, useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 
 interface CertificateCollection {
   certificateName: string;
   address: string;
   issued: number;
   revoked: number;
+  createdDate: Date;
 }
 
-const certCollections: CertificateCollection[] = Array.from(
+const newCertCollection = (n: number | string) =>
+  typeof n === "number"
+    ? {
+        certificateName: `Sinh viên ${n} tốt`,
+        address: `0xb${n}a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
+        issued: 30,
+        revoked: 20,
+        createdDate: new Date(Date.now()),
+      }
+    : {
+        certificateName: n,
+        address: `0xb${
+          Math.floor(Math.random() * 100) + 31
+        }a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
+        issued: 30,
+        revoked: 20,
+        createdDate: new Date(Date.now()),
+      };
+
+const certificateCollections: CertificateCollection[] = Array.from(
   Array(30).keys(),
-  (_, index) => ({
-    certificateName: `Sinh viên ${index} tốt`,
-    address: `0xb${index}a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
-    issued: 30,
-    revoked: 20,
-  })
+  (_, index) => newCertCollection(index)
 );
 
 const CollectionsPage = () => {
+  const [certCollections, setSearchCollections] = useState(
+    certificateCollections
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
+
   return (
     <>
-      <NavBar />
-      <div className="container mt-5">
-        <Header
-          onSubmit={(searchQuery) => {
-            setSearchQuery(searchQuery);
-            setPage(1);
-          }}
-        />
-        <CollectionsTable
-          certCollections={certCollections.filter(
+      <Header
+        onSearchSubmit={(searchQuery) => {
+          setSearchQuery(searchQuery);
+          setPage(1);
+        }}
+        addCertCollection={(certCollection: CertificateCollection) =>
+          setSearchCollections([certCollection, ...certCollections])
+        }
+      />
+      <CollectionsTable
+        certCollections={certCollections
+          .filter(
             (e) =>
               searchQuery.length === 0 ||
-              e.certificateName.toLowerCase().trim().includes(searchQuery)
+              e.certificateName.toLowerCase().trim().includes(searchQuery.toLocaleLowerCase().trim())
+          )
+          .sort(
+            (c1, c2) => c2.createdDate.getTime() - c1.createdDate.getTime()
           )}
-          page={page}
-          setPage={(page) => setPage(page)}
-        />
-      </div>
+        page={page}
+        setPage={(page) => setPage(page)}
+      />
     </>
   );
 };
 
-const Header = ({ onSubmit }: { onSubmit: (searchQuery: string) => void }) => {
+//#region Header
+
+const Header = ({
+  onSearchSubmit,
+  addCertCollection,
+}: {
+  onSearchSubmit: (searchQuery: string) => void;
+  addCertCollection: (certCollection: CertificateCollection) => void;
+}) => {
   interface Inputs {
     searchQuery: string;
   }
 
   const { register, handleSubmit } = useForm<Inputs>();
   const submitHandler: SubmitHandler<Inputs> = ({ searchQuery }) =>
-    onSubmit(searchQuery);
+    onSearchSubmit(searchQuery);
 
   return (
     <div className="row align-items-center mb-5 gx-1">
@@ -83,7 +115,11 @@ const Header = ({ onSubmit }: { onSubmit: (searchQuery: string) => void }) => {
             </form>
           </div>
           <div className="col-2 col-xl-4">
-            <button className="btn btn-success w-100 px-0" type="button">
+            <button
+              className="btn btn-success w-100 px-0"
+              type="button"
+              onClick={() => createCollectionModal(addCertCollection)}
+            >
               <i className="bi bi-plus-lg d-inline d-xl-none" />
               <span className="d-none d-xl-inline">New collection</span>
             </button>
@@ -93,6 +129,42 @@ const Header = ({ onSubmit }: { onSubmit: (searchQuery: string) => void }) => {
     </div>
   );
 };
+
+const createCollectionModal = (
+  addCertCollection: (certCollection: CertificateCollection) => void
+) =>
+  BootstrapSwal.fire({
+    // Layout
+    title: "Enter your new collection name",
+    input: "text",
+    confirmButtonText: "Create",
+    showLoaderOnConfirm: true,
+    backdrop: true,
+
+    // Input Validator
+    inputValidator: (result) =>
+      result.length === 0 ? "Collection name cannot be empty" : null,
+
+    // Confirm action
+    preConfirm: (collectionName) =>
+      new Promise((resolve, _reject) => setTimeout(resolve, 2000)).then((_) =>
+        newCertCollection(collectionName)
+      ),
+    allowOutsideClick: () => !Swal.isLoading(),
+  }).then((result) => {
+    if (result.isConfirmed) {
+      BootstrapSwal.fire({
+        icon: "success",
+        title: `Collection "${result.value!.certificateName}" created!"`,
+        showConfirmButton: false,
+        showCloseButton: true,
+      }).then(() => addCertCollection(result.value!));
+    }
+  });
+
+//#endregion
+
+//#region Collections Table
 
 const CollectionsTable = ({
   certCollections,
@@ -198,30 +270,33 @@ const ContractAddressButton = ({
       className="btn btn-outline-dark"
       data-bs-toggle="popover"
       data-bs-title="Contract address"
-      data-bs-content={`
-          <div class="d-flex align-items-center">
-            <div class="font-monospace me-2">
-              ${getShortAccount(certCollection.address)}
-            </div>
-            <button
-              type="button"
-              class="btn btn-light"
-              onclick="navigator.clipboard.writeText('${
-                certCollection.address
-              }')"
-              >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14 " height="14" fill="currentColor" class="bi bi-clipboard align-baseline" viewBox="0 0 16 16">
-                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
-                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
-              </svg>
-            </button>
-          </div>
-        `}
+      data-bs-content={contractAddressPopoverHTML(certCollection.address)}
       ref={popoverRef}
     >
       <i className="bi bi-wallet2" />
     </button>
   );
 };
+
+const contractAddressPopoverHTML = (address: string) =>
+  `
+    <div class="d-flex align-items-center">
+      <div class="font-monospace me-2">
+        ${getShortAccount(address)}
+      </div>
+      <button
+        type="button"
+        class="btn btn-light"
+        onclick="navigator.clipboard.writeText('${address}')"
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" width="14 " height="14" fill="currentColor" class="bi bi-clipboard align-baseline" viewBox="0 0 16 16">
+          <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+          <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+        </svg>
+      </button>
+    </div>
+  `;
+
+//#endregion
 
 export default CollectionsPage;

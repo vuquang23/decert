@@ -1,6 +1,7 @@
 import { useMetaMask } from "components/MetaMaskProvider";
 import CollectionsPage from "pages/CollectionsPage";
 import HomePage from "pages/HomePage";
+import PageLayout from "pages/PageLayout";
 import { Navigate, Route, Routes } from "react-router-dom";
 
 const App = () => (
@@ -10,19 +11,18 @@ const App = () => (
       path="/collections"
       element={
         <RequiredMetaMask>
-          <CollectionsPage />
+          <PageLayout />
         </RequiredMetaMask>
       }
-    />
+    >
+      <Route index element={<CollectionsPage />} />
+    </Route>
   </Routes>
 );
 
 const RequiredMetaMask = ({ children }: { children: JSX.Element }) => {
   const metaMask = useMetaMask();
-  if (metaMask.account.length === 0) {
-    return <Navigate to="/" />;
-  }
-  return children;
+  return metaMask.account.length === 0 ? <Navigate to="/" /> : children;
 };
 
 export default App;

@@ -4,8 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useMetaMask } from "./MetaMaskProvider";
 
 const NavBar = ({ transparent }: { transparent?: boolean }) => {
-  const metaMask = useMetaMask();
-  const isConnected = metaMask.account.length > 0;
+  const isConnected = useMetaMask().account.length > 0;
   const background =
     typeof transparent === "undefined" || transparent === false
       ? "bg-dark"

@@ -12,27 +12,28 @@ const Table = ({
   page: number;
   itemsPerPage: number;
   setPage: (page: number) => void;
-}) => {
-  const numOfPages = Math.ceil(rows.length / itemsPerPage);
-  return (
-    <>
-      <div className="card border-0">
-        <div className="card-body row fw-bold align-items-center d-none d-md-flex">
-          {columnHeaders.map((header, index) => (
-            <div key={index} className={columnsClassName[index]}>
-              {header}
-            </div>
-          ))}
-        </div>
+}) => (
+  <>
+    <div className="card border-0">
+      <div className="card-body row fw-bold align-items-center d-none d-md-flex">
+        {columnHeaders.map((header, index) => (
+          <div key={index} className={columnsClassName[index]}>
+            {header}
+          </div>
+        ))}
       </div>
-      {rows.slice(
-        (page - 1) * itemsPerPage,
-        (page - 1) * itemsPerPage + itemsPerPage
-      )}
-      <Pagination page={page} numOfPages={numOfPages} setPage={setPage} />
-    </>
-  );
-};
+    </div>
+    {rows.slice(
+      (page - 1) * itemsPerPage,
+      (page - 1) * itemsPerPage + itemsPerPage
+    )}
+    <Pagination
+      page={page}
+      numOfPages={Math.ceil(rows.length / itemsPerPage)}
+      setPage={setPage}
+    />
+  </>
+);
 
 const Row = ({
   columnsClassName,

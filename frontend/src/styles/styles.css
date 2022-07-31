@@ -34,3 +34,13 @@
 .animation-none {
   animation: none;
 }
+
+.crop {
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  object-position: center;
+}
+
+.flex-grow-2 {
+  flex-grow: 2 !important;
+}

@@ -67,4 +67,5 @@ const MetaMaskProvider = ({ children }: { children: ReactElement }) => {
 const useMetaMask = () => useContext(MetaMaskContext);
 
 export default MetaMaskProvider;
+export type { MetaMask };
 export { getShortAccount, useMetaMask };

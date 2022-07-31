@@ -1,28 +1,33 @@
+import { MetaMask } from "components/MetaMaskProvider";
+
 interface CertificateCollection {
-  certificateName: string;
+  id: number;
+  title: string;
   address: string;
+  issuer: string;
   issued: number;
   revoked: number;
-  createdDate: Date;
 }
 
 const newCertCollection = (n: number | string) =>
   typeof n === "number"
     ? {
-        certificateName: `Sinh viên ${n} tốt`,
+        id: Math.random() * 100,
+        title: `Sinh viên ${n} tốt`,
         address: `0xb${n}a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
+        issuer: "",
         issued: 30,
         revoked: 20,
-        createdDate: new Date(Date.now()),
       }
     : {
-        certificateName: n,
+        id: Math.random() * 100,
+        title: n,
         address: `0xb${
           Math.floor(Math.random() * 100) + 31
         }a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
+        issuer: "",
         issued: 30,
         revoked: 20,
-        createdDate: new Date(Date.now()),
       };
 
 const mockData: CertificateCollection[] = Array.from(
@@ -30,13 +35,12 @@ const mockData: CertificateCollection[] = Array.from(
   (_, index) => newCertCollection(index)
 );
 
-const create = async (name: string) => {
+const create = async (metaMask: MetaMask, name: string) => {
   mockData.push(newCertCollection(name));
-  console.log(mockData[-1]);
   return mockData.at(-1);
 };
 
-const readAll = () => Promise.resolve(mockData);
+const readAll = (issuer: string) => Promise.resolve(mockData);
 
 export type { CertificateCollection };
 export { create, readAll };

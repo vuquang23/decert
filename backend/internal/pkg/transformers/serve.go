@@ -1,11 +1,14 @@
 package transformers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 
 	"decert/internal/pkg/constants"
+	"decert/internal/pkg/dto"
+	"decert/internal/pkg/entity"
 	"decert/internal/pkg/errors"
 )
 
@@ -22,5 +25,37 @@ func ResponseOK(ctx *gin.Context, data interface{}) {
 }
 
 func ResponseErr(ctx *gin.Context, err *errors.RestError) {
+	fmt.Println(ctx)
 	ctx.AbortWithStatusJSON(int(err.HttpCode), err)
+}
+
+func ToCRUDCreateCollection(reqBody dto.CreateCollectionRequest) entity.CRUDCreateCollection {
+	return entity.CRUDCreateCollection{
+		TxHash:   reqBody.TxHash,
+		Platform: reqBody.Platform,
+	}
+}
+
+func ToCRUDGetCollections(reqParams dto.GetCollectionsRequest) entity.CRUDGetCollections {
+	return entity.CRUDGetCollections{
+		Issuer: reqParams.Issuer,
+		Limit:  reqParams.Limit,
+		Offset: reqParams.Offset,
+	}
+}
+
+func ToCollectionResponses(collections []*entity.Collection) []*dto.CollectionResponse {
+	ret := []*dto.CollectionResponse{}
+	for _, c := range collections {
+		ret = append(ret, &dto.CollectionResponse{
+			ID:                c.ID,
+			CollectionName:    c.Title,
+			CollectionSymbol:  c.Symbol,
+			CollectionAddress: c.Address,
+			Issuer:            c.Issuer,
+			TotalIssued:       uint64(c.TotalIssued),
+			TotalRevoked:      uint64(c.TotalRevoked),
+		})
+	}
+	return ret
 }

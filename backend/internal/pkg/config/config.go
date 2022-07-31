@@ -7,9 +7,10 @@ import (
 
 //config contains all global config of application
 type config struct {
-	Env  string     `env:"ENV"`
-	Http HttpConfig `envPrefix:"HTTP_"`
-	DB   DBConfig   `envPrefix:"DB_"`
+	Env        string           `env:"ENV"`
+	Http       HttpConfig       `envPrefix:"HTTP_"`
+	DB         DBConfig         `envPrefix:"DB_"`
+	Blockchain BlockchainConfig `envPrefix:"BLC_"`
 }
 
 var cfg *config
@@ -18,8 +19,9 @@ var cfg *config
 func Instance() *config {
 	if cfg == nil {
 		cfg = &config{
-			Http: HttpConfig{},
-			DB:   DBConfig{},
+			Http:       HttpConfig{},
+			DB:         DBConfig{},
+			Blockchain: BlockchainConfig{},
 		}
 	}
 	return cfg

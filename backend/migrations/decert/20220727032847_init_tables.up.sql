@@ -18,7 +18,8 @@ CREATE TABLE `collections` (
     `address` VARCHAR(128) NOT NULL,
     `total_issued` int NOT NULL,
     `total_revoked` int NOT NULL,
-    `issuer` VARCHAR(128) NOT NULL
+    `issuer` VARCHAR(128) NOT NULL,
+    `created_at` DATETIME NOT NULL
 );
 
 ALTER TABLE

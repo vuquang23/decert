@@ -1,3 +1,0 @@
-http:
-  BindAddress: ":8080"
-  Mode: debug #(debug,release,test)

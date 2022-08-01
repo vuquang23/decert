@@ -1,4 +1,7 @@
+import Center from "components/Center";
 import NavBar from "components/NavBar";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => (
   <div className="vh-100">
@@ -8,23 +11,49 @@ const HomePage = () => (
   </div>
 );
 
-const MainContent = () => (
-  <div className="h-100 w-100 fixed-top z-index-1 homepage-bg">
-    <div className="container position-absolute top-50 start-50 translate-middle">
-      <h1 className="display-2 text-light text-center mb-4">Decert Verifier</h1>
-      <div className="input-group input-group-lg">
-        <input
-          type="text"
-          className="form-control"
-          placeholder="Certificate URL"
-        />
-        <button className="btn btn-success" type="button">
-          <span className="mx-3 fw-bold">Verify</span>
-        </button>
+interface Inputs {
+  searchQuery: string;
+}
+
+const MainContent = () => {
+  const navigate = useNavigate();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<Inputs>();
+  const submitHandler: SubmitHandler<Inputs> = ({ searchQuery }) =>
+    navigate(`certificate/${searchQuery.match(/\d+$/g)?.at(0)}`);
+
+  return (
+    <Center className="h-100 w-100 fixed-top z-index-1 homepage-bg">
+      <div className="container">
+        <h1 className="display-2 text-light text-center mb-4">
+          Decert Verifier
+        </h1>
+        <form
+          className="input-group input-group-lg"
+          onSubmit={handleSubmit(submitHandler)}
+        >
+          <input
+            type="text"
+            className={`form-control ${
+              typeof errors.searchQuery !== "undefined" ? "is-invalid" : ""
+            }`}
+            placeholder="Certificate URL or Certificate ID"
+            {...register("searchQuery", {
+              required: true,
+              pattern: /^((http:\/\/localhost:3000\/certificate\/\d+)|(\d+))$/g,
+            })}
+          />
+          <button className="btn btn-success" type="submit">
+            <span className="mx-3 fw-bold">Verify</span>
+          </button>
+        </form>
       </div>
-    </div>
-  </div>
-);
+    </Center>
+  );
+};
 
 const ImageAttribution = () => {
   const authorUrl =

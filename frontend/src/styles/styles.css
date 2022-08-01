@@ -44,3 +44,35 @@
 .flex-grow-2 {
   flex-grow: 2 !important;
 }
+
+.hover-shadow {
+  transition: box-shadow 0.5s;
+}
+
+.hover-shadow:hover {
+  /* https://www.w3schools.com/css/css3_shadows.asp */
+  box-shadow: 0 10px 16px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%) !important;
+}
+
+.bd-callout {
+  padding: 1.25rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  background-color: var(--bd-callout-bg, var(--bs-gray-100));
+  border-left: 0.25rem solid var(--bd-callout-border, var(--bs-gray-300));
+}
+
+.bd-callout-success {
+  /* --bs-teal */
+  --bd-callout-bg: rgba(32, 201, 151, 0.075);
+  --bd-callout-border: rgba(32, 201, 151, 0.5);
+}
+
+.bd-callout-danger {
+  --bd-callout-bg: rgba(var(--bs-danger-rgb), 0.075);
+  --bd-callout-border: rgba(var(--bs-danger-rgb), 0.5);
+}
+
+.h-85 {
+  height: 85%;
+}

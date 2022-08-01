@@ -12,7 +12,7 @@ interface CertificateCollection {
 const newCertCollection = (n: number | string) =>
   typeof n === "number"
     ? {
-        id: Math.random() * 100,
+        id: Math.floor(Math.random() * 100),
         title: `Sinh viên ${n} tốt`,
         address: `0xb${n}a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7`,
         issuer: "",
@@ -20,7 +20,7 @@ const newCertCollection = (n: number | string) =>
         revoked: 20,
       }
     : {
-        id: Math.random() * 100,
+        id: Math.floor(Math.random() * 100),
         title: n,
         address: `0xb${
           Math.floor(Math.random() * 100) + 31

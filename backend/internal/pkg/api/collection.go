@@ -64,6 +64,7 @@ func (api *collectionApi) createCollection(ctx *gin.Context) {
 		return
 	}
 
+	
 	if err := api.collectionSvc.CreateCollection(ctx,
 		transformers.ToCRUDCreateCollection(reqBody),
 	); err != nil {

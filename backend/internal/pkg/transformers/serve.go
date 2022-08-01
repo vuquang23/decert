@@ -29,6 +29,24 @@ func ResponseErr(ctx *gin.Context, err *errors.RestError) {
 	ctx.AbortWithStatusJSON(int(err.HttpCode), err)
 }
 
+func ToCRUDCreateCertificate(reqBody dto.CreateCertificateRequest) entity.CRUDCreateCertificate {
+	return entity.CRUDCreateCertificate{
+		CollectionId:	reqBody.CollectionId,
+		CertData:		entity.CertDataType{
+							CertTitle: reqBody.CertData.CertTitle,
+							Issuer: reqBody.CertData.Issuer,
+							Receiver: reqBody.CertData.Receiver,
+							Description: reqBody.CertData.Description,
+							IssuedAt: reqBody.CertData.IssuedAt.Time,
+							ExpiredAt: reqBody.CertData.ExpiredAt.Time,
+							CertImage: reqBody.CertData.CertImage,
+							Platform: reqBody.CertData.Platform,
+						},
+		TxHash:   		reqBody.TxHash,
+		Platform: 		reqBody.Platform,
+	}
+}
+
 func ToCRUDCreateCollection(reqBody dto.CreateCollectionRequest) entity.CRUDCreateCollection {
 	return entity.CRUDCreateCollection{
 		TxHash:   reqBody.TxHash,

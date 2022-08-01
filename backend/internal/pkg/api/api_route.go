@@ -19,6 +19,10 @@ func AddRouterV1(server *gin.Engine) {
 	addApi(newCollectionApi(
 		services.CollectionServiceInstance(),
 	), "/collections", v1)
+
+	addApi(newCertificateApi(
+		services.CertificateServiceInstance(),
+	), "/certs", v1)
 }
 
 func addApi(api IAPI, path string, rg *gin.RouterGroup) {

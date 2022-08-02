@@ -4,7 +4,7 @@ import {
   readAll,
 } from "api/certificate-collections";
 import { Popover } from "bootstrap";
-import BootstrapSwal from "components/BootstrapSwal";
+import { BootstrapSwal } from "components/BootstrapSwal";
 import HeaderSearch, { searchByTitle } from "components/HeaderSearch";
 import {
   getShortAccount,

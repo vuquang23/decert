@@ -1,3 +1,4 @@
+import { MetaMask } from "components/MetaMaskProvider";
 import { arrayFromSize, DelayedPromise } from "helper";
 
 interface Certificate {
@@ -62,5 +63,13 @@ const readAll = ({
   collectionId?: number;
 }) => DelayedPromise(mockData);
 
+const revoke = async (metaMask: MetaMask, id: number) => {
+  const cert = mockData.find((cert) => cert.id === id);
+  if (typeof cert !== "undefined") {
+    cert.revokedAt = today;
+  }
+  return read(id);
+};
+
 export type { Certificate };
-export { read, readAll, isExpired, verify, VerifyState };
+export { read, readAll, revoke, isExpired, verify, VerifyState };

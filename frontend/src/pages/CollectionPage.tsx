@@ -1,12 +1,14 @@
-import { Certificate, isExpired, readAll } from "api/certificate";
+import { Certificate, isExpired, readAll, revoke } from "api/certificate";
 import { CertificateCollection, read } from "api/certificate-collections";
-import { getShortAccount } from "components/MetaMaskProvider";
+import { BootstrapSwalDanger } from "components/BootstrapSwal";
+import { getShortAccount, useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table } from "components/Table";
 import { arrayFromSize } from "helper";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 
 enum CertFilter {
   All,
@@ -15,6 +17,8 @@ enum CertFilter {
   Revoked,
 }
 
+const ChangeCounterContext = createContext(() => {});
+
 const CollectionPage = () => {
   const navigate = useNavigate();
   const { collectionId } = useParams();
@@ -22,7 +26,9 @@ const CollectionPage = () => {
   const [filter, setFilter] = useState(1);
   const [collection, setCollection] = useState<CertificateCollection>();
   const [certs, setCerts] = useState<Certificate[]>();
+  const [changeCounter, setChangeCounter] = useState(0);
   useEffect(() => {
+    setCerts(undefined);
     read(parseInt(collectionId!))
       .then((collection) => {
         setCollection(collection);
@@ -30,10 +36,12 @@ const CollectionPage = () => {
       })
       .then((certs) => setCerts(certs))
       .catch(() => navigate("/notfound"));
-  });
+  }, [changeCounter, collectionId, navigate]);
 
   return (
-    <>
+    <ChangeCounterContext.Provider
+      value={() => setChangeCounter((prev) => prev + 1)}
+    >
       <Header
         collection={collection}
         onFilterSubmit={(filter) => setFilter(filter)}
@@ -45,7 +53,7 @@ const CollectionPage = () => {
         page={page}
         setPage={(page) => setPage(page)}
       />
-    </>
+    </ChangeCounterContext.Provider>
   );
 };
 
@@ -105,10 +113,10 @@ const CertsTable = ({
   page: number;
   setPage: (page: number) => void;
 }) => {
-  const columnsClassName = ["col-3", "col-2", "col-2", "col-5"];
+  const columnsClassName = ["col-3", "col-2", "col-2", "col-4", "col-1 d-flex"];
   return (
     <Table
-      columnHeaders={["Receiver", "Issued at", "Expired at", "Description"]}
+      columnHeaders={["Receiver", "Issued at", "Expired at", "Description", ""]}
       columnsClassName={columnsClassName}
       itemsPerPage={5}
       page={page}
@@ -170,11 +178,25 @@ const Cert = ({
         {cert.expiredAt.toDateString()}
       </div>,
       <div className="text-truncate">{cert.description}</div>,
+      typeof cert.revokedAt === "undefined" ? (
+        <RevokeButton cert={cert} />
+      ) : (
+        <></>
+      ),
     ]}
     compactContent={
       <>
+        <div className="row">
+          <div className="col-10">
+            <strong>Receiver:</strong> <Receiver cert={cert} />
+          </div>
+          {typeof cert.revokedAt === "undefined" && (
+            <div className="col-2">
+              <RevokeButton cert={cert} />
+            </div>
+          )}
+        </div>
         <p>
-          <strong>Receiver:</strong> <Receiver cert={cert} />
           <br />
           <strong>Issued at:</strong> {cert.issuedAt.toDateString()}
           <br />
@@ -188,6 +210,34 @@ const Cert = ({
     }
   />
 );
+
+const RevokeButton = ({ cert }: { cert: Certificate }) => {
+  const updateChangeCounter = useContext(ChangeCounterContext);
+  const metaMask = useMetaMask();
+  return (
+    <button
+      className="btn btn-outline-danger ms-auto"
+      onClick={() =>
+        BootstrapSwalDanger.fire({
+          title: "Do you want to revoke this certificate?",
+          showConfirmButton: true,
+          showCancelButton: true,
+          showLoaderOnConfirm: true,
+          backdrop: true,
+          icon: "warning",
+          preConfirm: () => revoke(metaMask, cert.id),
+          allowOutsideClick: () => !Swal.isLoading(),
+        }).then((result) => {
+          if (result.isConfirmed) {
+            updateChangeCounter();
+          }
+        })
+      }
+    >
+      <i className="bi bi-trash3" />
+    </button>
+  );
+};
 
 const Receiver = ({ cert }: { cert: Certificate }) => (
   <>

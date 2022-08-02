@@ -76,3 +76,13 @@
 .h-85 {
   height: 85%;
 }
+
+/* https://css-tricks.com/line-clampin/ */
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: var(--word-break, "none");
+  overflow: hidden;
+  hyphens: auto;
+}

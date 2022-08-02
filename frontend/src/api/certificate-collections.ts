@@ -1,4 +1,5 @@
 import { MetaMask } from "components/MetaMaskProvider";
+import { arrayFromSize, DelayedPromise } from "helper";
 
 interface CertificateCollection {
   id: number;
@@ -30,17 +31,17 @@ const newCertCollection = (n: number | string) =>
         revoked: 20,
       };
 
-const mockData: CertificateCollection[] = Array.from(
-  Array(30).keys(),
-  (_, index) => newCertCollection(index)
+const mockData: CertificateCollection[] = arrayFromSize(30, (index) =>
+  newCertCollection(index)
 );
 
 const create = async (metaMask: MetaMask, name: string) => {
   mockData.push(newCertCollection(name));
+  await DelayedPromise(0);
   return mockData.at(-1);
 };
 
-const readAll = (issuer: string) => Promise.resolve(mockData);
+const readAll = (issuer: string) => DelayedPromise(mockData);
 
 export type { CertificateCollection };
 export { create, readAll };

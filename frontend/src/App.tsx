@@ -1,6 +1,7 @@
 import { useMetaMask } from "components/MetaMaskProvider";
 import CertificatePage from "pages/CertificatePage";
 import CollectionsPage from "pages/CollectionsPage";
+import DefaultErrorPage from "pages/ErrorPage";
 import HomePage from "pages/HomePage";
 import NotFoundPage from "pages/NotFoundPage";
 import PageLayout from "pages/PageLayout";
@@ -21,6 +22,7 @@ const App = () => (
       <Route path="/wallet" element={<WalletPage />} />
     </Route>
     <Route path="/certificate/:certId" element={<CertificatePage />} />
+    <Route path="/error" element={<DefaultErrorPage />} />
     <Route path="*" element={<NotFoundPage />} />
   </Routes>
 );

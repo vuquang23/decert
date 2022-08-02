@@ -9,4 +9,9 @@ const delayPromise = async <T>(promise: Promise<T>, ms: number) => {
   return promise;
 };
 
-export { DelayedPromise };
+const arrayFromSize = <T>(
+  size: number,
+  elementGenerate: (index: number) => T
+) => Array.from(Array(size).keys(), (_, index) => elementGenerate(index));
+
+export { DelayedPromise, arrayFromSize };

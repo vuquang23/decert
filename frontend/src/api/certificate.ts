@@ -1,4 +1,4 @@
-import { DelayedPromise } from "./helper";
+import { arrayFromSize, DelayedPromise } from "helper";
 
 interface Certificate {
   id: number;
@@ -14,7 +14,7 @@ interface Certificate {
 
 const today = new Date(Date.now());
 
-const mockData: Certificate[] = Array.from(Array(30).keys(), (_, index) => ({
+const mockData: Certificate[] = arrayFromSize(30, (index) => ({
   id: Math.floor(Math.random() * 100),
   title: `Sinh viên ${index} tốt`,
   receiver: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
@@ -53,7 +53,7 @@ const read = (id: number) =>
     })
   );
 
-const readAll = (receiver: string) => Promise.resolve(mockData);
+const readAll = (receiver: string) => DelayedPromise(mockData);
 
 export type { Certificate };
 export { read, readAll, isExpired, verify, VerifyState };

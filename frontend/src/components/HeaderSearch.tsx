@@ -103,7 +103,7 @@ const SearchForm = ({
         placeholder={placeholder}
         {...register("searchQuery")}
       />
-      {Array.isArray(filters) ? (
+      {Array.isArray(filters) && (
         <select className="form-select" {...register("filter")}>
           {filters.map((option, index) => (
             <option key={index} value={option}>
@@ -111,7 +111,7 @@ const SearchForm = ({
             </option>
           ))}
         </select>
-      ) : null}
+      )}
     </form>
   );
 };

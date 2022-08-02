@@ -11,17 +11,22 @@ import {
   MetaMask,
   useMetaMask,
 } from "components/MetaMaskProvider";
-import { Row, Table } from "components/Table";
+import ParagraphPlaceholder from "components/ParagraphPlaceholder";
+import { PlaceholderRow, Row, Table } from "components/Table";
+import { arrayFromSize } from "helper";
 import { LegacyRef, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const CollectionsPage = () => {
   const metaMask = useMetaMask();
-  const [certCollections, setCertCollections] = useState<
-    CertificateCollection[]
-  >([]);
+  const navigate = useNavigate();
+  const [certCollections, setCertCollections] =
+    useState<CertificateCollection[]>();
   useEffect(() => {
-    readAll(metaMask.account).then((value) => setCertCollections(value));
+    readAll(metaMask.account)
+      .then((value) => setCertCollections(value))
+      .catch(() => navigate("/error"));
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
@@ -37,22 +42,27 @@ const CollectionsPage = () => {
         }}
         buttonText="New collection"
         buttonIconName="plus-lg"
-        buttonOnClick={() =>
-          createCollectionModal(metaMask, (cc: CertificateCollection) =>
-            setCertCollections([cc, ...certCollections])
-          )
+        buttonOnClick={
+          typeof certCollections !== "undefined"
+            ? () =>
+                createCollectionModal(metaMask, (cc: CertificateCollection) =>
+                  setCertCollections([cc, ...certCollections])
+                )
+            : () => {}
         }
       />
       <CollectionsTable
-        certCollections={searchByTitle(certCollections, searchQuery)}
+        certCollections={
+          typeof certCollections !== "undefined"
+            ? searchByTitle(certCollections, searchQuery)
+            : undefined
+        }
         page={page}
         setPage={(page) => setPage(page)}
       />
     </>
   );
 };
-
-//#region Header
 
 const createCollectionModal = (
   metaMask: MetaMask,
@@ -81,8 +91,6 @@ const createCollectionModal = (
     }
   });
 
-//#endregion
-
 //#region Collections Table
 
 const CollectionsTable = ({
@@ -90,25 +98,35 @@ const CollectionsTable = ({
   page,
   setPage,
 }: {
-  certCollections: CertificateCollection[];
+  certCollections?: CertificateCollection[];
   page: number;
   setPage: (page: number) => void;
 }) => {
+  const itemsPerPage = 5;
   const columnsClassName = ["col-5", "col-2", "col-2", "col-3 d-flex"];
   return (
     <Table
       columnHeaders={["Certificate name", "Issued", "Revoked", ""]}
       columnsClassName={columnsClassName}
-      itemsPerPage={5}
+      itemsPerPage={itemsPerPage}
       page={page}
       setPage={setPage}
-      rows={certCollections.map((item, index) => (
-        <Collection
-          key={index}
-          columnsClassName={columnsClassName}
-          certCollection={item}
-        />
-      ))}
+      rows={
+        typeof certCollections !== "undefined"
+          ? certCollections.map((item, index) => (
+              <Collection
+                key={index}
+                columnsClassName={columnsClassName}
+                certCollection={item}
+              />
+            ))
+          : arrayFromSize(itemsPerPage, (index) => (
+              <CollectionPlaceholder
+                key={index}
+                columnsClassName={columnsClassName}
+              />
+            ))
+      }
     />
   );
 };
@@ -215,6 +233,22 @@ const contractAddressPopoverHTML = (address: string) =>
       </button>
     </div>
   `;
+
+const CollectionPlaceholder = ({
+  columnsClassName,
+}: {
+  columnsClassName: string[];
+}) => (
+  <PlaceholderRow
+    columnsClassName={columnsClassName}
+    compactContent={
+      <>
+        <div className="h3 placeholder col-4 pt-3" />
+        <ParagraphPlaceholder />
+      </>
+    }
+  />
+);
 
 //#endregion
 

@@ -1,3 +1,5 @@
+import { getRandomCol } from "components/ParagraphPlaceholder";
+
 const Table = ({
   columnHeaders,
   columnsClassName,
@@ -54,6 +56,25 @@ const Row = ({
   </div>
 );
 
+const RowPlaceholder = ({
+  columnsClassName,
+  compactContent,
+}: {
+  columnsClassName: string[];
+  compactContent: JSX.Element;
+}) => (
+  <div className="card my-1 placeholder-glow">
+    <div className="card-body row align-items-center d-none d-md-flex">
+      {columnsClassName.map((_, index) => (
+        <div key={index} className={columnsClassName[index]}>
+          <span className={`placeholder col-${getRandomCol()}`} />
+        </div>
+      ))}
+    </div>
+    <div className="card-body d-block d-md-none" children={compactContent} />
+  </div>
+);
+
 const Pagination = ({
   page,
   numOfPages,
@@ -64,13 +85,13 @@ const Pagination = ({
   setPage: (page: number) => void;
 }) => (
   <ul className="pagination mt-4 justify-content-center">
-    {page > 1 ? (
+    {page > 1 && (
       <li className="page-item">
         <button className="page-link" onClick={() => setPage(page - 1)}>
           Previous
         </button>
       </li>
-    ) : null}
+    )}
     {Array.from(Array(numOfPages + 1).keys())
       .slice(Math.max(1, page - 1), Math.max(1, page - 1) + 3)
       .map((value) => (
@@ -83,14 +104,14 @@ const Pagination = ({
           </button>
         </li>
       ))}
-    {page < numOfPages ? (
+    {page < numOfPages && (
       <li className="page-item">
         <button className="page-link" onClick={() => setPage(page + 1)}>
           Next
         </button>
       </li>
-    ) : null}
+    )}
   </ul>
 );
 
-export { Table, Row, Pagination };
+export { Table, Row, RowPlaceholder as PlaceholderRow, Pagination };

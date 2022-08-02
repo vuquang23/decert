@@ -1,18 +1,23 @@
 import { Certificate, isExpired, readAll } from "api/certificate";
 import HeaderSearch, { Inputs, searchByTitle } from "components/HeaderSearch";
 import { useMetaMask } from "components/MetaMaskProvider";
+import ParagraphPlaceholder from "components/ParagraphPlaceholder";
+import { arrayFromSize } from "helper";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const WalletPage = () => {
-  const [certs, setCerts] = useState<Certificate[]>([]);
+  const navigate = useNavigate();
+  const [certs, setCerts] = useState<Certificate[]>();
   const [searchInputs, setSearchInputs] = useState<Inputs>({
     searchQuery: "",
     filter: "Valid",
   });
   const { account } = useMetaMask();
   useEffect(() => {
-    readAll(account).then((value) => setCerts(value));
+    readAll(account)
+      .then((value) => setCerts(value))
+      .catch(() => navigate("/error"));
   });
 
   return (
@@ -25,20 +30,22 @@ const WalletPage = () => {
         onSearchSubmit={(inputs) => setSearchInputs(inputs)}
       />
       <div className="row gy-5 mb-5">
-        {searchByTitle(certs, searchInputs.searchQuery)
-          .filter((cert) => {
-            switch (searchInputs.filter) {
-              case "Valid":
-                return !isExpired(cert);
-              case "Expired":
-                return isExpired(cert);
-              default:
-                return true;
-            }
-          })
-          .map((cert, index) => (
-            <CertificateCard key={index} cert={cert} />
-          ))}
+        {typeof certs !== "undefined"
+          ? searchByTitle(certs, searchInputs.searchQuery)
+              .filter((cert) => {
+                switch (searchInputs.filter) {
+                  case "Valid":
+                    return !isExpired(cert);
+                  case "Expired":
+                    return isExpired(cert);
+                  default:
+                    return true;
+                }
+              })
+              .map((cert, index) => <CertificateCard key={index} cert={cert} />)
+          : arrayFromSize(8, (index) => (
+              <CertificateCardPlaceholder key={index} />
+            ))}
       </div>
     </>
   );
@@ -66,11 +73,25 @@ const CertificateCard = ({ cert }: { cert: Certificate }) => {
             <br />
             <strong>Expired at:</strong> {cert.expiredAt.toDateString()}
           </p>
-          <p className="card-text">{cert.description}</p>
+          <p className="card-text line-clamp">{cert.description}</p>
         </div>
       </div>
     </div>
   );
 };
+
+const CertificateCardPlaceholder = () => (
+  <div className="col-12 col-sm-6 col-md-4 col-lg-3">
+    <div className="card placeholder-glow">
+      <div className="card-img-top placeholder" />
+      <div className="card-body">
+        <div className="h5 card-title placeholder col-4" />
+        <div className="card-text">
+          <ParagraphPlaceholder />
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 export default WalletPage;

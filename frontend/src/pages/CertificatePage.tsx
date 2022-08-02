@@ -1,5 +1,6 @@
 import { Certificate, read, verify, VerifyState } from "api/certificate";
 import Center from "components/Center";
+import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -31,7 +32,7 @@ const CertificatePage = () => {
             {typeof cert !== "undefined" ? (
               <img
                 className="rounded shadow mh-100 mw-100"
-                src={cert?.imgUrl}
+                src={cert.imgUrl}
                 alt="Certificate"
               />
             ) : (
@@ -156,19 +157,8 @@ const CalloutPlaceholder = () => (
 const CertificateContentPlaceholder = () => (
   <div className="placeholder-glow">
     <CalloutPlaceholder />
-    <h2>
-      <span className="placeholder col-4" />
-    </h2>
-    <p className="lead">
-      {Array.from(Array(5).keys(), (_, index) => (
-        <span
-          key={index}
-          className={`placeholder col-${
-            Math.floor(Math.random() * 12) + 1
-          } me-2`}
-        />
-      ))}
-    </p>
+    <div className="h2 placeholder col-4" />
+    <ParagraphPlaceholder />
   </div>
 );
 

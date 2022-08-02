@@ -15,8 +15,10 @@ const WalletPage = () => {
   });
   const { account } = useMetaMask();
   useEffect(() => {
-    readAll(account)
-      .then((value) => setCerts(value))
+    readAll({ receiver: account })
+      .then((value) =>
+        setCerts(value.filter((cert) => typeof cert.revokedAt === "undefined"))
+      )
       .catch(() => navigate("/error"));
   });
 

@@ -43,5 +43,13 @@ const create = async (metaMask: MetaMask, name: string) => {
 
 const readAll = (issuer: string) => DelayedPromise(mockData);
 
+const read = (id: number) =>
+  DelayedPromise(
+    new Promise<CertificateCollection>((resolve, reject) => {
+      const result = mockData.find((collection) => collection.id === id);
+      return typeof result !== "undefined" ? resolve(result) : reject();
+    })
+  );
+
 export type { CertificateCollection };
-export { create, readAll };
+export { create, readAll, read };

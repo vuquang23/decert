@@ -1,5 +1,6 @@
 import { useMetaMask } from "components/MetaMaskProvider";
 import CertificatePage from "pages/CertificatePage";
+import CollectionPage from "pages/CollectionPage";
 import CollectionsPage from "pages/CollectionsPage";
 import DefaultErrorPage from "pages/ErrorPage";
 import HomePage from "pages/HomePage";
@@ -18,7 +19,10 @@ const App = () => (
         </RequiredMetaMask>
       }
     >
-      <Route path="/collections" element={<CollectionsPage />} />
+      <Route path="/collections">
+        <Route index element={<CollectionsPage />} />
+        <Route path=":collectionId" element={<CollectionPage />} />
+      </Route>
       <Route path="/wallet" element={<WalletPage />} />
     </Route>
     <Route path="/certificate/:certId" element={<CertificatePage />} />

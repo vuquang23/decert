@@ -114,4 +114,4 @@ const Pagination = ({
   </ul>
 );
 
-export { Table, Row, RowPlaceholder as PlaceholderRow, Pagination };
+export { Table, Row, RowPlaceholder, Pagination };

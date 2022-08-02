@@ -8,7 +8,7 @@ interface Certificate {
   issuedAt: Date;
   expiredAt: Date;
   imgUrl: string;
-  revokeAt?: Date;
+  revokedAt?: Date;
   revokeReason?: String;
 }
 
@@ -23,6 +23,7 @@ const mockData: Certificate[] = arrayFromSize(30, (index) => ({
   expiredAt: new Date(
     new Date(today).setDate(today.getDate() + Math.floor(Math.random() * 3))
   ),
+  revokedAt: Math.random() > 0.7 ? today : undefined,
   imgUrl: "https://picsum.photos/620/877",
 }));
 
@@ -53,7 +54,13 @@ const read = (id: number) =>
     })
   );
 
-const readAll = (receiver: string) => DelayedPromise(mockData);
+const readAll = ({
+  receiver,
+  collectionId,
+}: {
+  receiver?: string;
+  collectionId?: number;
+}) => DelayedPromise(mockData);
 
 export type { Certificate };
 export { read, readAll, isExpired, verify, VerifyState };

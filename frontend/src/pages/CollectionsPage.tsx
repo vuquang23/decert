@@ -12,7 +12,7 @@ import {
   useMetaMask,
 } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
-import { PlaceholderRow, Row, Table } from "components/Table";
+import { Row, RowPlaceholder, Table } from "components/Table";
 import { arrayFromSize } from "helper";
 import { LegacyRef, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -169,17 +169,24 @@ const Actions = ({
   certCollection,
 }: {
   certCollection: CertificateCollection;
-}) => (
-  <div className="btn-group ms-sm-auto">
-    <button type="button" className="btn btn-outline-dark">
-      <i className="bi bi-plus-lg" />
-    </button>
-    <button type="button" className="btn btn-outline-dark">
-      <i className="bi bi-list" />
-    </button>
-    <ContractAddressButton certCollection={certCollection} />
-  </div>
-);
+}) => {
+  const navigate = useNavigate();
+  return (
+    <div className="btn-group ms-sm-auto">
+      <button type="button" className="btn btn-outline-dark">
+        <i className="bi bi-plus-lg" />
+      </button>
+      <button
+        type="button"
+        className="btn btn-outline-dark"
+        onClick={() => navigate(certCollection.id.toString())}
+      >
+        <i className="bi bi-list" />
+      </button>
+      <ContractAddressButton certCollection={certCollection} />
+    </div>
+  );
+};
 
 const ContractAddressButton = ({
   certCollection,
@@ -239,7 +246,7 @@ const CollectionPlaceholder = ({
 }: {
   columnsClassName: string[];
 }) => (
-  <PlaceholderRow
+  <RowPlaceholder
     columnsClassName={columnsClassName}
     compactContent={
       <>

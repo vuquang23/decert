@@ -1,0 +1,35 @@
+version: "3.7"
+
+networks:
+ app-tier:
+   driver: bridge
+
+services:
+  mysql:
+    image: 'bitnami/mysql:latest'
+    ports:
+       - '3406:3306'
+    volumes:
+      - ./volume/mysql:/bitnami/mysql/data
+    environment:
+      - MYSQL_ROOT_PASSWORD=123456
+      - MYSQL_DATABASE=decert
+    networks:
+      - app-tier
+
+  decert:
+    build: .
+    depends_on:
+      - "mysql"
+    ports:
+      - "8080:8080"
+    environment:
+      - ENV=debug
+      - LOG_LEVEL=debug
+      - DB_HOST=mysql
+      - DB_DBNAME=decert
+      - DB_USER=root
+      - DB_PASSWORD=123456
+    networks:
+    - app-tier
+    command: ./server api  --auto_migration auto

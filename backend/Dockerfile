@@ -15,6 +15,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -installsuffix cgo -o serve
 FROM alpine:latest
 WORKDIR /app
 COPY internal/pkg/config internal/pkg/config
+COPY migrations migrations
 COPY --from=build /build/server server
 RUN apk update
 RUN apk upgrade

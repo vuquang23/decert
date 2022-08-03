@@ -27,6 +27,7 @@ interface Certificate {
   issuedAt: Date;
   expiredAt: Date;
   imgUrl: string;
+  imgFiles?: FileList;
   revocation?: Revocation;
 }
 
@@ -92,13 +93,22 @@ const readAll = ({
   collectionId?: number;
 }) => DelayedPromise(mockData);
 
+const issue = async (metaMask: MetaMask, cert: Certificate) => {
+  cert.id = Math.floor(Math.random() * 100);
+  cert.imgUrl = URL.createObjectURL(cert.imgFiles![0]);
+  mockData.push(cert);
+  await DelayedPromise(0);
+  return cert.id;
+};
+
 const revoke = async (metaMask: MetaMask, id: number) => {
   const cert = mockData.find((cert) => cert.id === id);
   if (typeof cert !== "undefined") {
     cert.revocation = { revokedAt: today, revokeReason: "Issued by mistake" };
   }
+  await DelayedPromise(0);
   return read(id);
 };
 
 export type { Certificate };
-export { read, readAll, revoke, isExpired, verify, VerifyState };
+export { read, readAll, revoke, issue, isExpired, verify, VerifyState };

@@ -1,5 +1,6 @@
 import Center from "components/Center";
 import NavBar from "components/NavBar";
+import { formValidationClassName } from "helper";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
@@ -37,9 +38,9 @@ const MainContent = () => {
         >
           <input
             type="text"
-            className={`form-control ${
-              typeof errors.searchQuery !== "undefined" ? "is-invalid" : ""
-            }`}
+            className={`form-control ${formValidationClassName(
+              errors.searchQuery
+            )}`}
             placeholder="Certificate URL or Certificate ID"
             {...register("searchQuery", {
               required: true,

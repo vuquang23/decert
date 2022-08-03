@@ -73,7 +73,6 @@ const createCollectionModal = (
     input: "text",
     confirmButtonText: "Create",
     showLoaderOnConfirm: true,
-    backdrop: true,
 
     inputValidator: (result) =>
       result.length === 0 ? "Collection name cannot be empty" : null,

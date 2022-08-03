@@ -14,4 +14,7 @@ const arrayFromSize = <T>(
   elementGenerate: (index: number) => T
 ) => Array.from(Array(size).keys(), (_, index) => elementGenerate(index));
 
-export { DelayedPromise, arrayFromSize };
+const formValidationClassName = (error: any) =>
+  typeof error !== "undefined" ? "is-invalid" : "";
+
+export { DelayedPromise, arrayFromSize, formValidationClassName };

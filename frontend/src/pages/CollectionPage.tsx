@@ -224,7 +224,6 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
           showConfirmButton: true,
           showCancelButton: true,
           showLoaderOnConfirm: true,
-          backdrop: true,
           icon: "warning",
           preConfirm: () => revoke(metaMask, cert.id),
           allowOutsideClick: () => !Swal.isLoading(),

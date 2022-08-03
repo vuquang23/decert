@@ -1,10 +1,10 @@
 import { ReactComponent as Logo } from "assets/global.svg";
 import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
-import { useMetaMask } from "./MetaMaskProvider";
+import { getShortAddress, useMetaMask } from "./MetaMaskProvider";
 
 const NavBar = ({ transparent }: { transparent?: boolean }) => {
-  const isConnected = useMetaMask().account.length > 0;
+  const isConnected = useMetaMask().address.length > 0;
   const background =
     typeof transparent === "undefined" || transparent === false
       ? "bg-dark"
@@ -79,7 +79,7 @@ const AccountInfo = () => {
   return (
     <div className="input-group w-auto ms-sm-2">
       <span className="input-group-text text-light bg-transparent font-monospace">
-        {metaMask.accountShort}
+        {getShortAddress(metaMask.address)}
       </span>
       <span className="input-group-text">
         <strong>{balance}</strong>&nbsp;USDT

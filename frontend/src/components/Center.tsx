@@ -1,9 +1,11 @@
+import { ReactNode } from "react";
+
 const Center = ({
   className,
   children,
 }: {
   className: string;
-  children: JSX.Element;
+  children: ReactNode;
 }) => (
   <div
     className={`d-flex align-items-center justify-content-center ${className}`}

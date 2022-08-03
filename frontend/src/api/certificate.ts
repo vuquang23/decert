@@ -1,16 +1,33 @@
 import { MetaMask } from "components/MetaMaskProvider";
 import { arrayFromSize, DelayedPromise } from "helper";
 
+interface Issuer {
+  name: string;
+  address: string;
+  position: string;
+}
+
+interface Receiver {
+  name: string;
+  address: string;
+  dateOfBirth: Date;
+}
+
+interface Revocation {
+  revokedAt: Date;
+  revokeReason: String;
+}
+
 interface Certificate {
   id: number;
   title: string;
-  receiver: string;
+  issuer: Issuer;
+  receiver: Receiver;
   description: string;
   issuedAt: Date;
   expiredAt: Date;
   imgUrl: string;
-  revokedAt?: Date;
-  revokeReason?: String;
+  revocation?: Revocation;
 }
 
 const today = new Date(Date.now());
@@ -18,14 +35,26 @@ const today = new Date(Date.now());
 const mockData: Certificate[] = arrayFromSize(30, (index) => ({
   id: Math.floor(Math.random() * 100),
   title: `Sinh viên ${index} tốt`,
-  receiver: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
+  issuer: {
+    name: "Nguyen Van A",
+    address: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
+    position: "Principal",
+  },
+  receiver: {
+    name: "Nguyen Van A",
+    address: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
+    dateOfBirth: today,
+  },
   description: "Đã đạt thành tích xuất sắc trong học tập",
   issuedAt: today,
   expiredAt: new Date(
     new Date(today).setDate(today.getDate() + Math.floor(Math.random() * 3))
   ),
-  revokedAt: Math.random() > 0.7 ? today : undefined,
   imgUrl: "https://picsum.photos/620/877",
+  revocation:
+    Math.random() > 0.7
+      ? { revokedAt: today, revokeReason: "Issued by mistake" }
+      : undefined,
 }));
 
 const isExpired = (cert: Certificate) =>
@@ -66,7 +95,7 @@ const readAll = ({
 const revoke = async (metaMask: MetaMask, id: number) => {
   const cert = mockData.find((cert) => cert.id === id);
   if (typeof cert !== "undefined") {
-    cert.revokedAt = today;
+    cert.revocation = { revokedAt: today, revokeReason: "Issued by mistake" };
   }
   return read(id);
 };

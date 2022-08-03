@@ -4,6 +4,7 @@ import CollectionPage from "pages/CollectionPage";
 import CollectionsPage from "pages/CollectionsPage";
 import DefaultErrorPage from "pages/ErrorPage";
 import HomePage from "pages/HomePage";
+import NewCertificatePage from "pages/NewCertificatePage";
 import NotFoundPage from "pages/NotFoundPage";
 import PageLayout from "pages/PageLayout";
 import WalletPage from "pages/WalletPage";
@@ -23,6 +24,7 @@ const App = () => (
         <Route index element={<CollectionsPage />} />
         <Route path=":collectionId" element={<CollectionPage />} />
       </Route>
+      <Route path="/certificate/new" element={<NewCertificatePage />} />
       <Route path="/wallet" element={<WalletPage />} />
     </Route>
     <Route path="/certificate/:certId" element={<CertificatePage />} />
@@ -32,6 +34,6 @@ const App = () => (
 );
 
 const RequiredMetaMask = ({ children }: { children: JSX.Element }) =>
-  useMetaMask().account.length === 0 ? <Navigate to="/" /> : children;
+  useMetaMask().address.length === 0 ? <Navigate to="/" /> : children;
 
 export default App;

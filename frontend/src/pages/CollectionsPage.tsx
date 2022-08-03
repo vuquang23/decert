@@ -7,7 +7,7 @@ import { Popover } from "bootstrap";
 import { BootstrapSwal } from "components/BootstrapSwal";
 import HeaderSearch, { searchByTitle } from "components/HeaderSearch";
 import {
-  getShortAccount,
+  getShortAddress,
   MetaMask,
   useMetaMask,
 } from "components/MetaMaskProvider";
@@ -24,7 +24,7 @@ const CollectionsPage = () => {
   const [certCollections, setCertCollections] =
     useState<CertificateCollection[]>();
   useEffect(() => {
-    readAll(metaMask.account)
+    readAll(metaMask.address)
       .then((value) => setCertCollections(value))
       .catch(() => navigate("/error"));
   });
@@ -173,7 +173,15 @@ const Actions = ({
   const navigate = useNavigate();
   return (
     <div className="btn-group ms-sm-auto">
-      <button type="button" className="btn btn-outline-dark">
+      <button
+        type="button"
+        className="btn btn-outline-dark"
+        onClick={() =>
+          navigate("/certificate/new", {
+            state: certCollection,
+          })
+        }
+      >
         <i className="bi bi-plus-lg" />
       </button>
       <button
@@ -226,7 +234,7 @@ const contractAddressPopoverHTML = (address: string) =>
   `
     <div class="d-flex align-items-center">
       <div class="font-monospace me-2">
-        ${getShortAccount(address)}
+        ${getShortAddress(address)}
       </div>
       <button
         type="button"

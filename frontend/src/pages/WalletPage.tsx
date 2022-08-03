@@ -13,11 +13,11 @@ const WalletPage = () => {
     searchQuery: "",
     filter: "Valid",
   });
-  const { account } = useMetaMask();
+  const { address } = useMetaMask();
   useEffect(() => {
-    readAll({ receiver: account })
+    readAll({ receiver: address })
       .then((value) =>
-        setCerts(value.filter((cert) => typeof cert.revokedAt === "undefined"))
+        setCerts(value.filter((cert) => typeof cert.revocation === "undefined"))
       )
       .catch(() => navigate("/error"));
   });

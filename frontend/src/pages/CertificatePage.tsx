@@ -1,7 +1,8 @@
 import { Certificate, read, verify, VerifyState } from "api/certificate";
+import Address from "components/Address";
 import Center from "components/Center";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 const CertificatePage = () => {
@@ -45,7 +46,7 @@ const CertificatePage = () => {
   );
 };
 
-const Offcanvas = ({ children }: { children: JSX.Element }) => {
+const Offcanvas = ({ children }: { children: ReactNode }) => {
   const navigate = useNavigate();
   return (
     <>
@@ -100,9 +101,27 @@ const CertificateContent = ({
         <>
           <State verifyState={verifyState} />
           <h2>{cert.title}</h2>
-          <p className="lead">{cert.description}</p>
+          <p className="lead">
+            <strong>Issued to: {cert.receiver.name.toLocaleUpperCase()}</strong>
+            <br />
+            <small>
+              <strong>Date of birth:</strong>{" "}
+              {cert.receiver.dateOfBirth.toDateString()}
+              <br />
+              <strong>Address:</strong>{" "}
+              <Address address={cert.receiver.address} />
+            </small>
+            <br />
+            <br />
+            {cert.description}
+          </p>
+          <hr />
           <p>
-            <strong>Receiver:</strong> <code>{cert.receiver}</code>
+            <strong>Issued by:</strong> {cert.issuer.name.toLocaleUpperCase()}
+            <br />
+            <strong>Position:</strong> {cert.issuer.position}
+            <br />
+            <strong>Address:</strong> <Address address={cert.issuer.address} />
             <br />
             <br />
             <strong>Issued at:</strong> {cert.issuedAt.toDateString()}

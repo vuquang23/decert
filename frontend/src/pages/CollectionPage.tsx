@@ -1,7 +1,8 @@
 import { Certificate, isExpired, readAll, revoke } from "api/certificate";
 import { CertificateCollection, read } from "api/certificate-collections";
+import Address from "components/Address";
 import { BootstrapSwalDanger } from "components/BootstrapSwal";
-import { getShortAccount, useMetaMask } from "components/MetaMaskProvider";
+import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table } from "components/Table";
 import { arrayFromSize } from "helper";
@@ -149,15 +150,15 @@ const doFilter = (cert: Certificate, filter: CertFilter) => {
 
   // eslint-disable-next-line eqeqeq
   if (filter == CertFilter.Valid) {
-    return typeof cert.revokedAt === "undefined" && !isExpired(cert);
+    return typeof cert.revocation === "undefined" && !isExpired(cert);
   }
   // eslint-disable-next-line eqeqeq
   if (filter == CertFilter.Expired) {
-    return typeof cert.revokedAt === "undefined" && isExpired(cert);
+    return typeof cert.revocation === "undefined" && isExpired(cert);
   }
   // eslint-disable-next-line eqeqeq
   if (filter == CertFilter.Revoked) {
-    return typeof cert.revokedAt !== "undefined";
+    return typeof cert.revocation !== "undefined";
   }
   return true;
 };
@@ -178,7 +179,7 @@ const Cert = ({
         {cert.expiredAt.toDateString()}
       </div>,
       <div className="text-truncate">{cert.description}</div>,
-      typeof cert.revokedAt === "undefined" ? (
+      typeof cert.revocation === "undefined" ? (
         <RevokeButton cert={cert} />
       ) : (
         <></>
@@ -190,7 +191,7 @@ const Cert = ({
           <div className="col-10">
             <strong>Receiver:</strong> <Receiver cert={cert} />
           </div>
-          {typeof cert.revokedAt === "undefined" && (
+          {typeof cert.revocation === "undefined" && (
             <div className="col-2">
               <RevokeButton cert={cert} />
             </div>
@@ -240,24 +241,14 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
 };
 
 const Receiver = ({ cert }: { cert: Certificate }) => (
-  <>
-    <code
-      className={
-        typeof cert.revokedAt !== "undefined"
-          ? "text-dark text-decoration-line-through"
-          : ""
-      }
-    >
-      {getShortAccount(cert.receiver)}
-    </code>{" "}
-    <button
-      type="button"
-      className="btn btn-light"
-      onClick={() => navigator.clipboard.writeText(cert.receiver)}
-    >
-      <i className="bi bi-clipboard align-baseline" />
-    </button>
-  </>
+  <Address
+    address={cert.receiver.address}
+    customTextClassName={
+      typeof cert.revocation !== "undefined"
+        ? "text-dark text-decoration-line-through"
+        : ""
+    }
+  />
 );
 
 export default CollectionPage;

@@ -21,6 +21,7 @@ func main() {
 	flagUp := "up"
 	flagDown := "down"
 	defaultMigrationDir := "file://./migrations/decert"
+	flagAutoMigration := "auto_migration"
 
 	app := &cli.App{
 		Commands: []*cli.Command{
@@ -28,10 +29,38 @@ func main() {
 				Name:    "api",
 				Aliases: []string{"a"},
 				Usage:   "Run api server",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  flagAutoMigration,
+						Value: "not_run",
+					},
+				},
 				Action: func(ctx *cli.Context) error {
 					if err := config.Load(""); err != nil {
 						return err
 					}
+
+					// auto migrations
+					if ctx.String(flagAutoMigration) == "auto" {
+						fmt.Println("-------- Run migration --------")
+						m, err := migrations.NewMigration(defaultMigrationDir)
+						if err != nil {
+							fmt.Println("Can not create migration " + err.Error())
+							return err
+						}
+						err = m.MigrateUp(0)
+						if err != nil && err.Error() != "no change" {
+							return err
+						}
+						sourceErr, dbErr := m.Close()
+						if sourceErr != nil {
+							return sourceErr
+						}
+						if dbErr != nil {
+							return dbErr
+						}
+					}
+
 					if err := components.Init(); err != nil {
 						return err
 					}

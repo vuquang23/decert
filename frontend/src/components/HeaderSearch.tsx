@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 
 interface Inputs {
@@ -6,6 +7,8 @@ interface Inputs {
 }
 
 /**
+ * To enable search, {@link placeholder} must be defined.
+ *
  * To enable button, {@link buttonOnClick} must be defined. {@link buttonIconName}
  * must be a valid {@link https://icons.getbootstrap.com/ Bootstrap icon} (e.g.
  * "plus-lg").
@@ -23,8 +26,8 @@ const HeaderSearch = ({
   buttonIconName,
   buttonOnClick,
 }: {
-  title: string;
-  placeholder: string;
+  title: string | ReactNode;
+  placeholder?: string;
   filters?: string[];
   defaultFilter?: string;
   onSearchSubmit: (inputs: Inputs) => void;
@@ -34,7 +37,11 @@ const HeaderSearch = ({
 }) => (
   <div className="row align-items-center mb-5 gx-1">
     <div className="col-12 col-md-8 col-lg-7">
-      <h1 className="display-4">{title}</h1>
+      {typeof title === "string" ? (
+        <h1 className="display-4">{title}</h1>
+      ) : (
+        title
+      )}
     </div>
     <div className="col-12 col-md-4 col-lg-5">
       {typeof buttonOnClick === "undefined" ? (
@@ -61,7 +68,7 @@ const HeaderSearch = ({
               onClick={buttonOnClick}
             >
               <i className={`bi bi-${buttonIconName} d-inline d-xl-none`} />
-              <span className="d-none d-xl-inline">{buttonText}n</span>
+              <span className="d-none d-xl-inline">{buttonText}</span>
             </button>
           </div>
         </div>
@@ -76,7 +83,7 @@ const SearchForm = ({
   defaultFilter,
   onSearchSubmit,
 }: {
-  placeholder: string;
+  placeholder?: string;
   filters?: string[];
   defaultFilter?: string;
   onSearchSubmit: (inputs: Inputs) => void;
@@ -93,18 +100,25 @@ const SearchForm = ({
       onSubmit={handleSubmit(submitHandler)}
       onBlur={handleSubmit(submitHandler)}
     >
-      <button className="btn btn-outline-secondary" type="submit">
-        <i className="bi bi-search d-inline d-lg-none" />
-        <span className="d-none d-lg-inline">Search</span>
-      </button>
-      <input
-        type="text"
-        className="form-control flex-grow-2"
-        placeholder={placeholder}
-        {...register("searchQuery")}
-      />
+      {placeholder && (
+        <>
+          <button className="btn btn-outline-secondary" type="submit">
+            <i className="bi bi-search d-inline d-lg-none" />
+            <span className="d-none d-lg-inline">Search</span>
+          </button>
+          <input
+            type="text"
+            className="form-control flex-grow-2"
+            placeholder={placeholder}
+            {...register("searchQuery")}
+          />
+        </>
+      )}
       {Array.isArray(filters) && (
-        <select className="form-select" {...register("filter")}>
+        <select
+          className="form-select"
+          {...register("filter", { onChange: handleSubmit(submitHandler) })}
+        >
           {filters.map((option, index) => (
             <option key={index} value={option}>
               {option}

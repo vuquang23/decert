@@ -94,7 +94,7 @@ const readAll = ({
 }) => DelayedPromise(mockData);
 
 const issue = async (metaMask: MetaMask, cert: Certificate) => {
-  cert.id = Math.floor(Math.random() * 100);
+  cert.id = Math.floor(Math.random() * 100 + 100);
   cert.imgUrl = URL.createObjectURL(cert.imgFiles![0]);
   mockData.push(cert);
   await DelayedPromise(0);

@@ -2,20 +2,21 @@ import { Certificate, isExpired, readAll, revoke } from "api/certificate";
 import { CertificateCollection, read } from "api/certificate-collections";
 import Address from "components/Address";
 import { BootstrapSwalDanger } from "components/BootstrapSwal";
+import HeaderSearch, { Inputs } from "components/HeaderSearch";
 import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table } from "components/Table";
 import { arrayFromSize } from "helper";
 import { createContext, useContext, useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 enum CertFilter {
-  All,
-  Valid,
-  Expired,
-  Revoked,
+  All = "All",
+  Valid = "Valid",
+  Expired = "Expired",
+  Revoked = "Revoked",
 }
 
 const ChangeCounterContext = createContext(() => {});
@@ -24,7 +25,7 @@ const CollectionPage = () => {
   const navigate = useNavigate();
   const { collectionId } = useParams();
   const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState(1);
+  const [filter, setFilter] = useState(CertFilter.Valid);
   const [collection, setCollection] = useState<CertificateCollection>();
   const [certs, setCerts] = useState<Certificate[]>();
   const [changeCounter, setChangeCounter] = useState(0);
@@ -58,10 +59,6 @@ const CollectionPage = () => {
   );
 };
 
-interface Inputs {
-  filter: CertFilter;
-}
-
 const Header = ({
   collection,
   onFilterSubmit,
@@ -71,18 +68,16 @@ const Header = ({
   onFilterSubmit: (filter: CertFilter) => void;
   defaultFilter: CertFilter;
 }) => {
-  const { register, handleSubmit } = useForm<Inputs>({
-    defaultValues: { filter: defaultFilter },
-  });
+  const navigate = useNavigate();
   const submitHandler: SubmitHandler<Inputs> = ({ filter }) => {
     if (typeof collection !== "undefined") {
-      onFilterSubmit(filter);
+      onFilterSubmit(CertFilter[filter as keyof typeof CertFilter]);
     }
   };
 
   return (
-    <div className="row align-items-center mb-5 gx-1">
-      <div className="col-9">
+    <HeaderSearch
+      title={
         <h1 className="display-4 placeholder-glow">
           {typeof collection !== "undefined" ? (
             collection.title
@@ -90,16 +85,23 @@ const Header = ({
             <span className="placeholder col-5" />
           )}
         </h1>
-      </div>
-      <form className="col-3" onBlur={handleSubmit(submitHandler)}>
-        <select className="form-select" {...register("filter")}>
-          <option value={CertFilter.All}>All</option>
-          <option value={CertFilter.Valid}>Valid</option>
-          <option value={CertFilter.Expired}>Expired</option>
-          <option value={CertFilter.Revoked}>Revoked</option>
-        </select>
-      </form>
-    </div>
+      }
+      onSearchSubmit={submitHandler}
+      filters={[
+        CertFilter.All,
+        CertFilter.Valid,
+        CertFilter.Expired,
+        CertFilter.Revoked,
+      ]}
+      defaultFilter={defaultFilter}
+      buttonText="Issue new"
+      buttonIconName="plus-lg"
+      buttonOnClick={() =>
+        navigate("/certificate/new", {
+          state: collection,
+        })
+      }
+    />
   );
 };
 
@@ -146,21 +148,16 @@ const CertsTable = ({
 };
 
 const doFilter = (cert: Certificate, filter: CertFilter) => {
-  // Somehow "===" doesn't work here, as well as switch case
-
-  // eslint-disable-next-line eqeqeq
-  if (filter == CertFilter.Valid) {
-    return typeof cert.revocation === "undefined" && !isExpired(cert);
+  switch (filter) {
+    case CertFilter.Valid:
+      return typeof cert.revocation === "undefined" && !isExpired(cert);
+    case CertFilter.Expired:
+      return typeof cert.revocation === "undefined" && isExpired(cert);
+    case CertFilter.Revoked:
+      return typeof cert.revocation !== "undefined";
+    default:
+      return true;
   }
-  // eslint-disable-next-line eqeqeq
-  if (filter == CertFilter.Expired) {
-    return typeof cert.revocation === "undefined" && isExpired(cert);
-  }
-  // eslint-disable-next-line eqeqeq
-  if (filter == CertFilter.Revoked) {
-    return typeof cert.revocation !== "undefined";
-  }
-  return true;
 };
 
 const Cert = ({

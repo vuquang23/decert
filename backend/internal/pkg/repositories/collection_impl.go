@@ -47,12 +47,15 @@ func (r *collectionRepository) SaveNewCollection(ctx *gin.Context, ethAddress, t
 }
 
 func (r *collectionRepository) GetCollectionsByIssuerAddress(
-	ctx *gin.Context, issuer string, limit, offset uint64,
+	ctx *gin.Context, issuer string, limit, offset uint64, name string,
 ) ([]*entity.Collection, *errors.InfraError) {
 	log.Debugf(ctx, "Get collection of issuer: %s", issuer)
 	ret := []*entity.Collection{}
-	result := r.db.
-		Where("issuer = ?", issuer).
+	tx := r.db.Where("issuer = ?", issuer)
+	if name != "" {
+		tx = tx.Where("title LIKE ?", "%"+name+"%")
+	}
+	result := tx.
 		Order("created_at DESC").
 		Limit(int(limit)).
 		Offset(int(offset)).

@@ -9,6 +9,7 @@ type GetCollectionsRequest struct {
 	Issuer string `form:"issuer,required"`
 	Limit  uint64 `form:"limit,required"`
 	Offset uint64 `form:"offset"`
+	Name   string `form:"name"`
 }
 
 type CollectionResponse struct {

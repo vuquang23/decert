@@ -41,6 +41,7 @@ func ToCRUDGetCollections(reqParams dto.GetCollectionsRequest) entity.CRUDGetCol
 		Issuer: reqParams.Issuer,
 		Limit:  reqParams.Limit,
 		Offset: reqParams.Offset,
+		Name:   reqParams.Name,
 	}
 }
 

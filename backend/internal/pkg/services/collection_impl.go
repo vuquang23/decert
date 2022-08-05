@@ -112,7 +112,7 @@ func (s *collectionService) GetCollections(
 	crudGetCollections entity.CRUDGetCollections,
 ) ([]*entity.Collection, *errors.DomainError) {
 	ret, err := s.collectionRepo.GetCollectionsByIssuerAddress(ctx, crudGetCollections.Issuer,
-		crudGetCollections.Limit, crudGetCollections.Offset)
+		crudGetCollections.Limit, crudGetCollections.Offset, crudGetCollections.Name)
 	if err != nil {
 		return nil, transformers.DomainErrTransformerInstance().Transform(err)
 	}

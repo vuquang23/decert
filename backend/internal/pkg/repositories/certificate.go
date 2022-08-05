@@ -8,7 +8,11 @@ import (
 )
 
 type ICertificateRepository interface {
-	SaveNewCertificate(ctx *gin.Context, ethAddress, title, symbol, issuer string) *errors.InfraError
-	GetCertificatesByCollectionId(ctx *gin.Context, collectionId uint) ([]*entity.Certificate, *errors.InfraError)
-	GetCertificateById(ctx *gin.Context, certId uint) (*entity.Certificate, *errors.InfraError)
+	SaveNewCertificate(
+		ctx *gin.Context, 
+		crudCreateCertificate entity.CRUDCreateCertificate,
+		nftId uint,
+	) *errors.InfraError
+	GetCertificatesByCollectionId(ctx *gin.Context, collectionId uint, limit, offset uint,) ([]*entity.Cert, *errors.InfraError)
+	GetCertificateById(ctx *gin.Context, certId uint) (*entity.Cert, *errors.InfraError)
 }

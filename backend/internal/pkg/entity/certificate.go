@@ -3,7 +3,6 @@ package entity
 import (
 	"time"
 )
-
 type CertDataType struct {
 	CertTitle	string
 	Issuer		string
@@ -23,10 +22,12 @@ type CRUDCreateCertificate struct {
 }
 
 type CRUDGetCertificates struct {
-	CollectionId uint
+	CollectionId 	uint
+	Limit			uint
+	Offset			uint
 }
 
-type CRUDGetCertificateInfo struct {
+type CRUDGetCertificate struct {
 	ID	uint
 }
 
@@ -34,7 +35,7 @@ type CRUDRevokeCertificate struct {
 	ID	uint
 }
 
-type Certificate struct {
+type Cert struct {
 	ID           	uint `gorm:"primaryKey"`
 	Description     string
 	IssuedAt       	time.Time

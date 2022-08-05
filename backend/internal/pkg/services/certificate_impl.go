@@ -2,7 +2,10 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
+	"math/big"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -44,21 +47,23 @@ func CertificateServiceInstance() ICertificateService {
 }
 
 func (s *certificateService) CreateCertificate(ctx *gin.Context, crudCreateCertificate entity.CRUDCreateCertificate) *e.DomainError {
-	// TODO
-	// go s.searchCertificateByTxHash(
-	// 	new(gin.Context),
-	// 	crudCreateCertificate,
-	// )
+	go s.searchCertificateByTxHash(
+		new(gin.Context),
+		crudCreateCertificate,
+	)
 	return nil
 }
 
 func (s *certificateService) searchCertificateByTxHash(ctx *gin.Context, crudCreateCertificate entity.CRUDCreateCertificate) {
+	fmt.Println("Searching cert by txhash")
 	ctx.Set(constants.Prefix, uuid.MsgWithUUID("search-certificate-by-txhash-"+crudCreateCertificate.TxHash))
 
 	blockTime := config.Instance().Blockchain.BscBlockTimeSecond
 	txHash := common.HexToHash(crudCreateCertificate.TxHash)
 	for i := 1; i <= 15; i++ {
 		time.Sleep(time.Second * time.Duration(blockTime))
+		log.Debugln(ctx, txHash, blockTime)
+
 		tx, isPending, err := s.ethClient.TransactionByHash(context.Background(), txHash)
 
 		if err != nil {
@@ -76,13 +81,14 @@ func (s *certificateService) searchCertificateByTxHash(ctx *gin.Context, crudCre
 			continue
 		}
 
-		address := receipt.Logs[0].Topics[1].String()
-		startIndex := len(address) - 40
-		endIndex := len(address)
-		ethAddress := "0x" + address[startIndex:endIndex]
-		log.Debugf(ctx, "New certificate address: %s\n", ethAddress)
+		nftId := receipt.Logs[0].Topics[3].Big()
+		if err != nil {
+			log.Errorln(ctx, err)
+			continue
+		}
+		log.Debugf(ctx, "New certificate id: %s\n", nftId)
 
-		if err := s.saveNewCreatedCertificate(ctx, ethAddress); err != nil {
+		if err := s.saveNewCreatedCertificate(ctx, nftId, crudCreateCertificate); err != nil {
 			log.Errorln(ctx, err)
 			return
 		}
@@ -90,18 +96,39 @@ func (s *certificateService) searchCertificateByTxHash(ctx *gin.Context, crudCre
 	}
 }
 
-func (s *certificateService) saveNewCreatedCertificate(ctx *gin.Context, ethAddress string) *e.DomainError {
-	address := common.HexToAddress(ethAddress)
-	instance, err := decert.NewDecert(address, s.ethClient)
+func (s *certificateService) saveNewCreatedCertificate(ctx *gin.Context, nftId *big.Int, crudCreateCertificate entity.CRUDCreateCertificate) *e.DomainError {
+	decertCaller, err := decert.NewDecertCaller(common.HexToAddress("0x81b959030Bf959e6397b4a3f9Ab13AF51915f27d"), s.ethClient)
 	if err != nil {
 		return e.NewDomainErrorUnknown([]string{}, err)
 	}
+	fmt.Println("decertCaller", decertCaller)
+	certData, err := decertCaller.CertData(nil, nftId)
+	if err != nil {
+		return e.NewDomainErrorUnknown([]string{}, err)
+	}
+	fmt.Println("Certdata", certData)
+	
+	issuer := certData.Issuer
+	recipient := certData.Recipient
+	certHash := certData.CertHash
+	link := certData.Link
+	issuedAt := certData.IssuedAt
+	fmt.Println("Cert data from blockchain", issuer, recipient, certHash, link, issuedAt)
 
-	title, _ := instance.Name(nil)
-	symbol, _ := instance.Symbol(nil)
-	issuer, _ := instance.Issuer(nil)
+	nftIdInt64, err := strconv.ParseInt(nftId.String(), 10, 64)
 
-	if err := s.certificateRepo.SaveNewCertificate(ctx, ethAddress, title, symbol, issuer.String()); err != nil {
+
+	if err := s.certificateRepo.SaveNewCertificate(
+		ctx, 
+		crudCreateCertificate,
+		uint(nftIdInt64), 
+		// collectionId, 
+		// issuer.String(), 
+		// recipient.String(), 
+		// certHash, 
+		// link, 
+		// issuedAt,
+	); err != nil {
 		return transformers.DomainErrTransformerInstance().Transform(err)
 	}
 
@@ -111,8 +138,14 @@ func (s *certificateService) saveNewCreatedCertificate(ctx *gin.Context, ethAddr
 func (s *certificateService) GetCertificates(
 	ctx *gin.Context,
 	crudGetCertificates entity.CRUDGetCertificates,
-) ([]*entity.Certificate, *errors.DomainError) {
-	ret, err := s.certificateRepo.GetCertificatesByCollectionId(ctx, crudGetCertificates.CollectionId)
+) ([]*entity.Cert, *errors.DomainError) {
+	fmt.Println("LIMIT", crudGetCertificates.Limit)
+	ret, err := s.certificateRepo.GetCertificatesByCollectionId(
+		ctx, 
+		crudGetCertificates.CollectionId,
+		crudGetCertificates.Limit,
+		crudGetCertificates.Offset,
+	)
 	if err != nil {
 		return nil, transformers.DomainErrTransformerInstance().Transform(err)
 	}
@@ -121,9 +154,10 @@ func (s *certificateService) GetCertificates(
 
 func (s *certificateService) GetCertificateInfo(
 	ctx *gin.Context, 
-	crudGetCertificateInfo entity.CRUDGetCertificateInfo,
-) (*entity.Certificate, *errors.DomainError) {
-	ret, err := s.certificateRepo.GetCertificateById(ctx, crudGetCertificateInfo.ID)
+	crudGetCertificate entity.CRUDGetCertificate,
+) (*entity.Cert, *errors.DomainError) {
+	ret, err := s.certificateRepo.GetCertificateById(ctx, crudGetCertificate.ID)
+	fmt.Println("RET GETCERTBYID", ret)
 	if err != nil {
 		return nil, transformers.DomainErrTransformerInstance().Transform(err)
 	}

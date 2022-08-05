@@ -1,6 +1,7 @@
 package api
 
 import (
+	"strconv"
 	"fmt"
 	"github.com/gin-gonic/gin"
 
@@ -32,42 +33,47 @@ func (api *certificateApi) setupRoute(rg *gin.RouterGroup) {
 
 func (api * certificateApi) getCertificateInfo(ctx *gin.Context) {
 	ctx.Set(constants.Prefix, uuid.MsgWithUUID("get-certificate-info"))
+
+	dtoGetCertificate := dto.GetCertificateRequest{}
+
+	certIdStr, _ := strconv.ParseUint(ctx.Param("certId"), 10, 32)
+	dtoGetCertificate.CertId = uint(certIdStr)
+
+	if certificate, err := api.certificateSvc.GetCertificateInfo(ctx,
+		transformers.ToCRUDGetCertificate(dtoGetCertificate),
+	); err != nil {
+		restErr := transformers.RestErrTransformerInstance().Transform(err)
+		log.Errorln(ctx, restErr)
+		transformers.ResponseErr(ctx, restErr)
+	} else {
+		transformers.ResponseOK(ctx, certificate)
+	}
 }
 
 func (api *certificateApi) getCertificates(ctx *gin.Context) {
 	ctx.Set(constants.Prefix, uuid.MsgWithUUID("get-certificates"))
 
-	// var callOpts = bind.CallOpts{}
-	// log.Debugln(ctx, "callOpts")
-	// var scCaller sc_certificate.ScCaller = sc_certificate.ScCaller{}
-	// var bs = scCaller.Test()
-	// fmt.Println(callOpts)
-	// fmt.Println(bs)
+	query := ctx.Request.URL.Query()
 
-	// response := make(map[string]string)
-	// response["msg"] = "Hello a Quang"
-	// response["batchSize"] = string(bs)
-	// transformers.ResponseOK(ctx, bs)
+	var reqParams dto.GetCertificatesRequest
+	collectionIdUint64, _ := strconv.ParseUint(query["collectionId"][0], 10, 32)
+	limitUint64, _ := strconv.ParseUint(query["limit"][0], 10, 32)
+	offsetUint64, _ := strconv.ParseUint(query["offset"][0], 10, 32)
+	reqParams.CollectionId = uint(collectionIdUint64)
+	reqParams.Limit = uint(limitUint64)
+	reqParams.Offset = uint(offsetUint64)
+	
+	certificates, err := api.certificateSvc.GetCertificates(ctx,
+		transformers.ToCRUDGetCertificates(reqParams))
+	if err != nil {
+		restErr := transformers.RestErrTransformerInstance().Transform(err)
+		log.Errorln(ctx, restErr)
+		transformers.ResponseErr(ctx, restErr)
+		return
+	}
+	fmt.Println("Certs", certificates)
 
-	// var reqParams dto.GetCertificatesRequest
-	// if err := ctx.ShouldBindQuery(&reqParams); err != nil {
-	// 	restErr := errors.NewRestErrorInvalidFormat([]string{}, err)
-	// 	log.Errorln(ctx, restErr)
-	// 	transformers.ResponseErr(ctx, restErr)
-	// 	return
-	// }
-	// fmt.Println(reqParams)
-
-	// certificates, err := api.certificateSvc.GetCertificates(ctx,
-	// 	transformers.ToCRUDGetCertificates(reqParams))
-	// if err != nil {
-	// 	restErr := transformers.RestErrTransformerInstance().Transform(err)
-	// 	log.Errorln(ctx, restErr)
-	// 	transformers.ResponseErr(ctx, restErr)
-	// 	return
-	// }
-
-	// transformers.ResponseOK(ctx, transformers.ToCertificateResponses(certificates))
+	transformers.ResponseOK(ctx, transformers.ToCertificateResponses(certificates))
 }
 
 func (api *certificateApi) createCertificate(ctx *gin.Context) {

@@ -1,6 +1,9 @@
 package repositories
 
 import (
+	"encoding/json"
+	"strconv"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
@@ -29,59 +32,80 @@ func CertificateRepositoryInstance() ICertificateRepository {
 	return certificateRepo
 }
 
-func (r *certificateRepository) SaveNewCertificate(ctx *gin.Context, ethAddress, title, symbol, issuer string) *errors.InfraError {
-	// certificate := &entity.Certificate{
-	// 	Title:        title,
-	// 	Symbol:       symbol,
-	// 	Address:      ethAddress,
-	// 	Issuer:       issuer,
-	// 	TotalIssued:  0,
-	// 	TotalRevoked: 0,
-	// }
+func (r *certificateRepository) SaveNewCertificate(
+	ctx *gin.Context,
+	crudCreateCertificate entity.CRUDCreateCertificate,
+	nftId uint,
+	// collectionId uint,
+	// issuer string, 
+	// recipient string,
+	// certHash [32]byte, 
+	// link string, 
+	// issuedAt *big.Int,
+) *errors.InfraError {
+	// TODO
+	fmt.Println("Saving cert")
+	issuedAtInt, _ := strconv.ParseInt(crudCreateCertificate.CertData.IssuedAt.String(), 10, 32)
+	expiredAtInt, _ := strconv.ParseInt(crudCreateCertificate.CertData.ExpiredAt.String(), 10, 32)
 
-	// log.Debugf(ctx, "%+v", certificate)
+	certJsonData, _ := json.Marshal(crudCreateCertificate.CertData)
+	certJsonString := string(certJsonData)
 
-	// result := r.db.Create(certificate)
-	// if result.Error != nil {
-	// 	return errors.NewInfraErrorDBInsert([]string{}, result.Error)
-	// }
+	certificate := &entity.Cert{
+		Description:    crudCreateCertificate.CertData.Description,
+		IssuedAt:       time.Unix(issuedAtInt, 7),
+		ExpiredAt:      time.Unix(expiredAtInt, 7),
+		CollectionId:   crudCreateCertificate.CollectionId,
+		CertNftId:      nftId,
+		Data:  			certJsonString,
+		RevokedAt: 		time.Unix(expiredAtInt, 7),
+		RevokedReason:	"",
+		Receiver:		crudCreateCertificate.CertData.Receiver,
+	}
+
+	log.Debugf(ctx, "%+v", certificate)
+
+	result := r.db.Create(certificate)
+	if result.Error != nil {
+		return errors.NewInfraErrorDBInsert([]string{}, result.Error)
+	}
 	return nil
 }
 
 func (r *certificateRepository) GetCertificatesByCollectionId(
-	ctx *gin.Context, collectionId uint,
-) ([]*entity.Certificate, *errors.InfraError) {
+	ctx *gin.Context, 
+	collectionId uint,
+	limit, offset uint,
+) ([]*entity.Cert, *errors.InfraError) {
 	log.Debugf(ctx, "Get certificate of collectionId: %s", collectionId)
-	ret := []*entity.Certificate{}
-	// result := r.db.
-	// 	Where("issuer = ?", issuer).
-	// 	Order("created_at DESC").
-	// 	Limit(int(limit)).
-	// 	Offset(int(offset)).
-	// 	Find(&ret)
-	// if result.Error != nil {
-	// 	return nil, errors.NewInfraErrorDBSelect([]string{}, result.Error)
-	// }
+	ret := []*entity.Cert{}
+	result := r.db.
+		Where("collection_id = ?", collectionId).
+		Order("issued_at DESC").
+		Limit(int(limit)).
+		Offset(int(offset)).
+		Find(&ret)
+	if result.Error != nil {
+		return nil, errors.NewInfraErrorDBSelect([]string{}, result.Error)
+	}
 	return ret, nil
 }
 
 func (r *certificateRepository) GetCertificateById(
 	ctx *gin.Context, 
 	certId uint,
-) (*entity.Certificate, *errors.InfraError) {
+) (*entity.Cert, *errors.InfraError) {
 	log.Debugf(ctx, "Get certificate with id: %s", certId)
-	ret := &entity.Certificate{
-		1, 
-		"desc", 
-		time.Now(),
-		time.Now(),
-		1,
-		123,
-		"{}",
-		time.Now(),
-		"reason",
-		"receiver",
+	ret := []*entity.Cert{}
+	result := r.db.
+		Where("id = ?", certId).
+		Find(&ret)
+	if result.Error != nil {
+		return nil, errors.NewInfraErrorDBSelect([]string{}, result.Error)
 	}
 
-	return ret, nil
+	if (len(ret) == 0) {
+		return nil, nil
+	}
+	return ret[0], nil
 }

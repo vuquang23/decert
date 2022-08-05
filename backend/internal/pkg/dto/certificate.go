@@ -20,10 +20,22 @@ func (t *Datetime) UnmarshalJSON(input []byte) error {
     return nil
 }
 
+type CertDataTypeRequestReceiver struct {
+	Name		string
+	Wallet		string
+	DateOfBirth	string
+}
+
+type CertDataTypeRequestIssuer struct {
+	Name		string
+	Wallet		string
+	Position	string
+}
+
 type CertDataTypeRequest struct {
 	CertTitle	string	`json:"certTitle"`
-	Issuer		string	`json:"issuer"`
-	Receiver	string	`json:"receiver"`
+	Issuer		CertDataTypeRequestIssuer	`json:"issuer"`
+	Receiver	CertDataTypeRequestReceiver	`json:"receiver"`
 	Description	string	`json:"description"`
 	IssuedAt	Datetime	`json:"issuedAt"`
 	ExpiredAt	Datetime	`json:"expiredAt"`
@@ -39,18 +51,24 @@ type CreateCertificateRequest struct {
 }
 
 type GetCertificatesRequest struct {
-	// TODO
-	// Issuer string `form:"issuer,required"`
-	// Limit  uint `form:"limit,required"`
-	// Offset uint `form:"offset"`
+	CollectionId	uint `json:"collectionId"`
+	Offset	uint `json:"offset"`
+	Limit	uint `json:"limit"`
+}
+
+type GetCertificateRequest struct {
+	CertId	uint `json:"certId"`
 }
 
 type CertificateResponse struct {
-	ID                uint   `json:"id"`
-	// CertificateName    string `json:"CertificateName"`
-	// CertificateSymbol  string `json:"CertificateSymbol"`
-	// CertificateAddress string `json:"CertificateAddress"`
-	// Issuer            string `json:"issuer"`
-	// TotalIssued       uint `json:"totalIssued"`
-	// TotalRevoked      uint `json:"totalRevoked"`
+	ID              uint		`json:"id"`
+	Description     string		`json:"description"`
+	IssuedAt       	time.Time	`json:"issuedAt"`
+	ExpiredAt       time.Time	`json:"expiredAt"`
+	CollectionId   	uint		`json:"collectionId"`
+	CertNftId       uint		`json:"certNftId"`
+	Data  			string		`json:"data"`
+	RevokedAt 		time.Time	`json:"revokedAt"`
+	RevokedReason	string		`json:"revokedReason"`
+	Receiver		string		`json:"receiver"`
 }

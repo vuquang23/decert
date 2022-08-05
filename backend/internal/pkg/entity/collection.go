@@ -11,6 +11,7 @@ type CRUDGetCollections struct {
 	Issuer string
 	Limit  uint64
 	Offset uint64
+	Name   string
 }
 
 type Collection struct {

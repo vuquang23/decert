@@ -1,7 +1,7 @@
+import { createHash } from "crypto-browserify";
 import { ethers } from "ethers";
-import factoryAbi from "./abi/DecertFactory.json";
 import certAbi from "./abi/Decert.json";
-import { createHash } from "crypto";
+import factoryAbi from "./abi/DecertFactory.json";
 
 export interface RequestParam {
   method: string;
@@ -28,7 +28,9 @@ export async function createNewCollectionTx(
     chainId: 97, // binance testnet
     data: data,
   };
-  const provider = ethers.getDefaultProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
+  const provider = ethers.getDefaultProvider(
+    "https://data-seed-prebsc-1-s1.binance.org:8545"
+  );
   const gasLimit = await provider.estimateGas(tx);
   const gasPrice = await provider.getGasPrice();
 
@@ -71,7 +73,9 @@ export async function createNewCertTx(
     chainId: 97, // binance testnet
     data: data,
   };
-  const provider = ethers.getDefaultProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
+  const provider = ethers.getDefaultProvider(
+    "https://data-seed-prebsc-1-s1.binance.org:8545"
+  );
   const gasLimit = await provider.estimateGas(tx);
   const gasPrice = await provider.getGasPrice();
   const transactionParameters = {
@@ -98,7 +102,11 @@ export async function revokeCertTx(
   from: string
 ): Promise<RequestParam> {
   const iface = new ethers.utils.Interface(certAbi);
-  const data = iface.encodeFunctionData("revokeCertificate", [[tokenId], reason, Date.now()]);
+  const data = iface.encodeFunctionData("revokeCertificate", [
+    [tokenId],
+    reason,
+    Date.now(),
+  ]);
   const tx = {
     nonce: "0x00",
     to: collectionAddress,
@@ -107,7 +115,9 @@ export async function revokeCertTx(
     chainId: 97, // binance testnet
     data: data,
   };
-  const provider = ethers.getDefaultProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
+  const provider = ethers.getDefaultProvider(
+    "https://data-seed-prebsc-1-s1.binance.org:8545"
+  );
   const gasLimit = await provider.estimateGas(tx);
   const gasPrice = await provider.getGasPrice();
 
@@ -152,12 +162,17 @@ export interface Proof {
   certId: number;
 }
 
-export async function verifyCert(certData: CertData, proof: Proof): Promise<boolean> {
+export async function verifyCert(
+  certData: CertData,
+  proof: Proof
+): Promise<boolean> {
   const certBuffer = Buffer.from(JSON.stringify(certData));
   const hash = createHash("sha256");
   hash.update(certBuffer);
   const certHash = hash.digest("hex");
-  const provider = ethers.getDefaultProvider("https://data-seed-prebsc-1-s1.binance.org:8545");
+  const provider = ethers.getDefaultProvider(
+    "https://data-seed-prebsc-1-s1.binance.org:8545"
+  );
   const contract = new ethers.Contract(proof.certAddress, certAbi, provider);
   const response = await contract.certData(proof.certId);
   return `0x${certHash}` === response["certHash"];

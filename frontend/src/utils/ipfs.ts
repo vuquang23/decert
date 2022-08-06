@@ -14,12 +14,15 @@ export async function pushToIpfs(readStream: any): Promise<string | Error> {
     url: "https://api.pinata.cloud/pinning/pinFileToIPFS",
     headers: {
       Authorization: `Bearer ${JWT}`,
-      ...data.getHeaders(),
+      "Content-Type": "multipart/form-data",
     },
     data: data,
   };
   try {
     const response = await axios(config);
+    console.log(
+      `https://gateway.pinata.cloud/ipfs/${response.data["IpfsHash"]}`
+    );
     return `https://gateway.pinata.cloud/ipfs/${response.data["IpfsHash"]}`;
   } catch (e) {
     console.log(e);

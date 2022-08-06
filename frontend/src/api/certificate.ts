@@ -1,5 +1,6 @@
 import { MetaMask } from "components/MetaMaskProvider";
 import { arrayFromSize, DelayedPromise } from "helper";
+import * as Utils from "utils";
 
 interface Issuer {
   name: string;
@@ -94,6 +95,7 @@ const readAll = ({
 }) => DelayedPromise(mockData);
 
 const issue = async (metaMask: MetaMask, cert: Certificate) => {
+  await Utils.pushToIpfs(cert.imgFiles![0]);
   cert.id = Math.floor(Math.random() * 100 + 100);
   cert.imgUrl = URL.createObjectURL(cert.imgFiles![0]);
   mockData.push(cert);

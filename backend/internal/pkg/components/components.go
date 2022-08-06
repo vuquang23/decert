@@ -19,10 +19,15 @@ func Init() error {
 
 	// repo
 	repositories.InitCollectionRepository(mysql.Instance())
+	repositories.InitCertificateRepository(mysql.Instance())
 
 	// service
 	services.InitCollectionService(
 		repositories.CollectionRepositoryInstance(),
+		blockchain.BlockchainClientInstance(),
+	)
+	services.InitCertificateService(
+		repositories.CertificateRepositoryInstance(),
 		blockchain.BlockchainClientInstance(),
 	)
 

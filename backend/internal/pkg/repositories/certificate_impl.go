@@ -104,3 +104,20 @@ func (r *certificateRepository) GetCertificateById(
 	}
 	return ret[0], nil
 }
+
+func (r *certificateRepository) RevokeCertificate(
+	ctx *gin.Context,
+	crudRevokeCertificate entity.CRUDRevokeCertificate,
+) *errors.InfraError {
+	log.Debugf(ctx, "Revoking certificate")
+
+	result := r.db.
+		Model(entity.Cert{}).
+		Where("id = ?", crudRevokeCertificate.ID).
+		Updates(entity.Cert{RevokedAt: time.Unix(crudRevokeCertificate.RevokedAt/1000, 7), RevokedReason: crudRevokeCertificate.RevokedReason})
+	if result.Error != nil {
+		return errors.NewInfraErrorDBSelect([]string{}, result.Error)
+	}
+
+	return nil
+}

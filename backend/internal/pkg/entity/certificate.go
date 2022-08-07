@@ -46,6 +46,10 @@ type CRUDGetCertificate struct {
 
 type CRUDRevokeCertificate struct {
 	ID	uint
+	TxHash   	string
+	Platform 	string
+	RevokedAt 		int64
+	RevokedReason	string
 }
 
 type Cert struct {

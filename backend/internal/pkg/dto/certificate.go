@@ -3,7 +3,6 @@ package dto
 import (
 	"time"
 	"strings"
-	"math/big"
 )
 
 type Datetime struct {
@@ -61,15 +60,21 @@ type GetCertificateRequest struct {
 	CertId	uint `json:"certId"`
 }
 
+type RevokeCertificateRequest struct {
+	CertId	uint `json:"certId"`
+	TxHash   	string `json:"txHash"`
+	Platform 	string `json:"platform"`
+}
+
 type CertificateResponse struct {
 	ID              uint					`json:"id"`
 	Description     string					`json:"description"`
-	IssuedAt       	big.Int					`json:"issuedAt"`
-	ExpiredAt       big.Int					`json:"expiredAt"`
+	IssuedAt       	int64					`json:"issuedAt"`
+	ExpiredAt       int64					`json:"expiredAt"`
 	CollectionId   	uint					`json:"collectionId"`
 	CertNftId       uint					`json:"certNftId"`
 	Data  			string					`json:"data"`
-	RevokedAt 		big.Int					`json:"revokedAt"`
+	RevokedAt 		int64					`json:"revokedAt"`
 	RevokedReason	string					`json:"revokedReason"`
 	Receiver		CertDataTypeReceiver	`json:"receiver"`
 }

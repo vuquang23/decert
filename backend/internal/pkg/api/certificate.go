@@ -46,7 +46,8 @@ func (api * certificateApi) getCertificateInfo(ctx *gin.Context) {
 		log.Errorln(ctx, restErr)
 		transformers.ResponseErr(ctx, restErr)
 	} else {
-		transformers.ResponseOK(ctx, certificate)
+		fmt.Println("cert", certificate)
+		transformers.ResponseOK(ctx, transformers.ToCertificateResponse(certificate))
 	}
 }
 
@@ -87,9 +88,6 @@ func (api *certificateApi) createCertificate(ctx *gin.Context) {
 		return
 	}
 
-	fmt.Println("BODY", reqBody)
-	fmt.Println("CRUD CREATE", transformers.ToCRUDCreateCertificate(reqBody))
-
 	if err := api.certificateSvc.CreateCertificate(ctx,
 		transformers.ToCRUDCreateCertificate(reqBody),
 	); err != nil {
@@ -102,5 +100,30 @@ func (api *certificateApi) createCertificate(ctx *gin.Context) {
 }
 
 func (api *certificateApi) revokeCertificate(ctx *gin.Context) {
+	ctx.Set(constants.Prefix, uuid.MsgWithUUID("revoke-certificate"))
 
+	dtoRevokeCertificate := dto.RevokeCertificateRequest{}
+
+	certIdStr, _ := strconv.ParseUint(ctx.Param("certId"), 10, 32)
+
+	if err := ctx.ShouldBindJSON(&dtoRevokeCertificate); err != nil {
+		restErr := errors.NewRestErrorInvalidFormat([]string{}, err)
+		log.Errorln(ctx, restErr)
+		transformers.ResponseErr(ctx, restErr)
+		return
+	}
+	
+	dtoRevokeCertificate.CertId = uint(certIdStr)
+	
+	fmt.Println("dtoRevokeCertificate", dtoRevokeCertificate)
+
+	if err := api.certificateSvc.RevokeCertificate(ctx,
+		transformers.ToCRUDRevokeCertificate(dtoRevokeCertificate),
+	); err != nil {
+		restErr := transformers.RestErrTransformerInstance().Transform(err)
+		log.Errorln(ctx, restErr)
+		transformers.ResponseErr(ctx, restErr)
+	}
+
+	transformers.ResponseOK(ctx, nil)
 }

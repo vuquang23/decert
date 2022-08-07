@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"time"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -91,6 +92,7 @@ func (s *collectionService) searchCollectionByTxHash(ctx *gin.Context, crudCreat
 
 func (s *collectionService) saveNewCreatedCollection(ctx *gin.Context, ethAddress string) *e.DomainError {
 	address := common.HexToAddress(ethAddress)
+	fmt.Println("ADDR AND HEXADDR", ethAddress, address)
 	instance, err := decert.NewDecert(address, s.ethClient)
 	if err != nil {
 		return e.NewDomainErrorUnknown([]string{}, err)

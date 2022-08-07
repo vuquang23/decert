@@ -15,4 +15,8 @@ type ICertificateRepository interface {
 	) *errors.InfraError
 	GetCertificatesByCollectionId(ctx *gin.Context, collectionId uint, limit, offset uint,) ([]*entity.Cert, *errors.InfraError)
 	GetCertificateById(ctx *gin.Context, certId uint) (*entity.Cert, *errors.InfraError)
+	RevokeCertificate(
+		ctx *gin.Context,
+		crudRevokeCertificate entity.CRUDRevokeCertificate,
+	) *errors.InfraError
 }

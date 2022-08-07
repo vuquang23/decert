@@ -65,3 +65,21 @@ func (r *collectionRepository) GetCollectionsByIssuerAddress(
 	}
 	return ret, nil
 }
+
+func (r *collectionRepository) GetCollectionById(
+	ctx *gin.Context, collectionId uint,
+) (*entity.Collection, *errors.InfraError) {
+	log.Debugf(ctx, "Get collection of id: %s", collectionId)
+	ret := []*entity.Collection{}
+	tx := r.db.Where("id = ?", collectionId)
+	result := tx.Find(&ret)
+
+	if result.Error != nil {
+		return nil, errors.NewInfraErrorDBSelect([]string{}, result.Error)
+	}
+
+	if (len(ret) == 0) {
+		return nil, nil
+	}
+	return ret[0], nil
+}

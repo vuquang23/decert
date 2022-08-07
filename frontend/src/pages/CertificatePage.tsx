@@ -18,7 +18,8 @@ const CertificatePage = () => {
       })
       .then((verifyState) => setVerifyState(verifyState))
       .catch(() => navigate("/notfound"));
-  });
+  }, [certId, navigate]);
+
   return (
     <>
       <Offcanvas>

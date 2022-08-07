@@ -5,6 +5,7 @@ import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { arrayFromSize } from "helper";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { onPromiseRejected } from "./ErrorPage";
 
 const WalletPage = () => {
   const navigate = useNavigate();
@@ -19,8 +20,8 @@ const WalletPage = () => {
       .then((value) =>
         setCerts(value.filter((cert) => typeof cert.revocation === "undefined"))
       )
-      .catch(() => navigate("/error"));
-  });
+      .catch((reason) => onPromiseRejected(reason, navigate));
+  }, [address, navigate]);
 
   return (
     <>

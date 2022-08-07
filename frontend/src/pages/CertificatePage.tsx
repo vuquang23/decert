@@ -31,7 +31,7 @@ const CertificatePage = () => {
             <CertificateContent cert={cert} verifyState={verifyState} />
           </div>
           <Center className="col-12 col-lg-8 align-self-center h-85">
-            {typeof cert !== "undefined" ? (
+            {cert !== undefined ? (
               <img
                 className="rounded shadow mh-100 mw-100"
                 src={cert.imgUrl}
@@ -98,7 +98,7 @@ const CertificateContent = ({
       >
         <i className="bi bi-chevron-left" /> Back
       </button>
-      {typeof cert !== "undefined" ? (
+      {cert !== undefined ? (
         <>
           <State verifyState={verifyState} />
           <h2>{cert.title}</h2>

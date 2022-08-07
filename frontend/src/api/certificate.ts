@@ -82,7 +82,7 @@ const read = (id: number) =>
   DelayedPromise(
     new Promise<Certificate>((resolve, reject) => {
       const result = mockData.find((cert) => cert.id === id);
-      return typeof result !== "undefined" ? resolve(result) : reject();
+      return result !== undefined ? resolve(result) : reject();
     })
   );
 
@@ -105,7 +105,7 @@ const issue = async (metaMask: MetaMask, cert: Certificate) => {
 
 const revoke = async (metaMask: MetaMask, id: number) => {
   const cert = mockData.find((cert) => cert.id === id);
-  if (typeof cert !== "undefined") {
+  if (cert !== undefined) {
     cert.revocation = { revokedAt: today, revokeReason: "Issued by mistake" };
   }
   await DelayedPromise(0);

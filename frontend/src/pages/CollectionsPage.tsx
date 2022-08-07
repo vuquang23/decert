@@ -46,14 +46,14 @@ const CollectionsPage = () => {
         buttonText="New collection"
         buttonIconName="plus-lg"
         buttonOnClick={
-          typeof certCollections !== "undefined"
+          certCollections !== undefined
             ? () => createCollectionModal(metaMask, navigate)
             : () => {}
         }
       />
       <CollectionsTable
         certCollections={
-          typeof certCollections !== "undefined"
+          certCollections !== undefined
             ? searchByTitle(
                 certCollections.map((item) => ({
                   ...item,
@@ -128,7 +128,7 @@ const CollectionsTable = ({
       page={page}
       setPage={setPage}
       rows={
-        typeof certCollections !== "undefined"
+        certCollections !== undefined
           ? certCollections.map((item, index) => (
               <Collection
                 key={index}

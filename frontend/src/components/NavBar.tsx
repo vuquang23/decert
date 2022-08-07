@@ -6,7 +6,7 @@ import { getShortAddress, useMetaMask } from "./MetaMaskProvider";
 const NavBar = ({ transparent }: { transparent?: boolean }) => {
   const isConnected = useMetaMask().address.length > 0;
   const background =
-    typeof transparent === "undefined" || transparent === false
+    transparent === undefined || transparent === false
       ? "bg-dark"
       : isConnected
       ? "bg-dark-sm"

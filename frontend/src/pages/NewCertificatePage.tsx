@@ -228,8 +228,7 @@ const ImageInput = ({
     formState: { errors },
   } = useFormContext<Certificate>();
 
-  const textColor =
-    typeof errors.imgFiles !== "undefined" ? "danger" : "secondary";
+  const textColor = errors.imgFiles !== undefined ? "danger" : "secondary";
   return (
     <div
       className="col-12 col-md-4"
@@ -244,10 +243,10 @@ const ImageInput = ({
     >
       <Center
         className={`h-100 w-100 border rounded flex-column position-relative ${
-          typeof errors.imgFiles !== "undefined" ? "border-danger" : ""
+          errors.imgFiles !== undefined ? "border-danger" : ""
         }`}
       >
-        {typeof image !== "undefined" ? (
+        {image !== undefined ? (
           <>
             <img
               src={URL.createObjectURL(image)}
@@ -278,8 +277,7 @@ const ImageInput = ({
           id="image"
           hidden
           {...register("imgFiles", {
-            validate: (value) =>
-              typeof value !== "undefined" && value.length > 0,
+            validate: (value) => value !== undefined && value.length > 0,
             onChange: (event: React.ChangeEvent<HTMLInputElement>) => {
               event.preventDefault();
               const files = event.target.files;

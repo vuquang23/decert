@@ -15,7 +15,7 @@ const arrayFromSize = <T>(
 ) => Array.from(Array(size).keys(), (_, index) => elementGenerate(index));
 
 const formValidationClassName = (error: any) =>
-  typeof error !== "undefined" ? "is-invalid" : "";
+  error !== undefined ? "is-invalid" : "";
 
 const userRejectTransaction = (reason: any) =>
   "code" in reason && reason.code === 4001;

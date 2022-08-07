@@ -18,7 +18,7 @@ const WalletPage = () => {
   useEffect(() => {
     readAll({ receiver: address })
       .then((value) =>
-        setCerts(value.filter((cert) => typeof cert.revocation === "undefined"))
+        setCerts(value.filter((cert) => cert.revocation === undefined))
       )
       .catch((reason) => onPromiseRejected(reason, navigate));
   }, [address, navigate]);
@@ -33,7 +33,7 @@ const WalletPage = () => {
         onSearchSubmit={(inputs) => setSearchInputs(inputs)}
       />
       <div className="row gy-5 mb-5">
-        {typeof certs !== "undefined"
+        {certs !== undefined
           ? searchByTitle(certs, searchInputs.searchQuery)
               .filter((cert) => {
                 switch (searchInputs.filter) {

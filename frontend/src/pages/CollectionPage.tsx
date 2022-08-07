@@ -36,7 +36,7 @@ const CollectionPage = () => {
     setCerts(undefined);
     read(metaMask.address, parseInt(collectionId!))
       .then((collection) => {
-        if (typeof collection === "undefined") {
+        if (collection === undefined) {
           throw new NotFoundError();
         }
         setCollection(collection);
@@ -81,7 +81,7 @@ const Header = ({
 }) => {
   const navigate = useNavigate();
   const submitHandler: SubmitHandler<Inputs> = ({ filter }) => {
-    if (typeof collection !== "undefined") {
+    if (collection !== undefined) {
       onFilterSubmit(CertFilter[filter as keyof typeof CertFilter]);
     }
   };
@@ -90,7 +90,7 @@ const Header = ({
     <HeaderSearch
       title={
         <h1 className="display-4 placeholder-glow">
-          {typeof collection !== "undefined" ? (
+          {collection !== undefined ? (
             collection.collectionName
           ) : (
             <span className="placeholder col-5" />
@@ -136,7 +136,7 @@ const CertsTable = ({
       page={page}
       setPage={setPage}
       rows={
-        typeof certs !== "undefined"
+        certs !== undefined
           ? certs
               .filter((cert) => doFilter(cert, filter))
               .map((cert, index) => (
@@ -161,11 +161,11 @@ const CertsTable = ({
 const doFilter = (cert: Certificate, filter: CertFilter) => {
   switch (filter) {
     case CertFilter.Valid:
-      return typeof cert.revocation === "undefined" && !isExpired(cert);
+      return cert.revocation === undefined && !isExpired(cert);
     case CertFilter.Expired:
-      return typeof cert.revocation === "undefined" && isExpired(cert);
+      return cert.revocation === undefined && isExpired(cert);
     case CertFilter.Revoked:
-      return typeof cert.revocation !== "undefined";
+      return cert.revocation !== undefined;
     default:
       return true;
   }
@@ -187,11 +187,7 @@ const Cert = ({
         {cert.expiredAt.toDateString()}
       </div>,
       <div className="text-truncate">{cert.description}</div>,
-      typeof cert.revocation === "undefined" ? (
-        <RevokeButton cert={cert} />
-      ) : (
-        <></>
-      ),
+      cert.revocation === undefined ? <RevokeButton cert={cert} /> : <></>,
     ]}
     compactContent={
       <>
@@ -199,7 +195,7 @@ const Cert = ({
           <div className="col-10">
             <strong>Receiver:</strong> <Receiver cert={cert} />
           </div>
-          {typeof cert.revocation === "undefined" && (
+          {cert.revocation === undefined && (
             <div className="col-2">
               <RevokeButton cert={cert} />
             </div>
@@ -251,7 +247,7 @@ const Receiver = ({ cert }: { cert: Certificate }) => (
   <Address
     address={cert.receiver.address}
     customTextClassName={
-      typeof cert.revocation !== "undefined"
+      cert.revocation !== undefined
         ? "text-dark text-decoration-line-through"
         : ""
     }

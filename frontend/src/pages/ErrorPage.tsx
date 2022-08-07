@@ -19,7 +19,7 @@ const ErrorPage = ({
       <Center className="vh-100">
         <div className="h-50 d-flex flex-column align-items-center">
           <img src={image} alt="Internal error" className="h-75 d-block" />
-          {typeof message !== "undefined" && <p className="lead">{message}</p>}
+          {message !== undefined && <p className="lead">{message}</p>}
           <button className="btn btn-primary" onClick={() => navigate("/")}>
             Go to homepage
           </button>

@@ -7,15 +7,13 @@ const request = async (
   content?: any,
   searchParams?: URLSearchParams
 ) => {
-  if (typeof content !== "undefined" && "platform" in content) {
+  if (content !== undefined && "platform" in content) {
     content.platform = platform;
   }
   const response = await fetch(
     baseUrl +
       path +
-      (typeof searchParams !== "undefined"
-        ? "?" + searchParams.toString()
-        : ""),
+      (searchParams !== undefined ? "?" + searchParams.toString() : ""),
     {
       method: method,
       headers: { "Content-Type": "application/json" },

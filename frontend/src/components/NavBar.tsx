@@ -70,7 +70,7 @@ const ConnectedNav = () => (
 );
 
 const AccountInfo = () => {
-  const [balance, setBalance] = useState(0);
+  const [balance, setBalance] = useState("0");
   const metaMask = useMetaMask();
 
   // TODO: handle big value
@@ -81,9 +81,7 @@ const AccountInfo = () => {
       <span className="input-group-text text-light bg-transparent font-monospace">
         {getShortAddress(metaMask.address)}
       </span>
-      <span className="input-group-text">
-        <strong>{balance}</strong>&nbsp;USDT
-      </span>
+      <span className="input-group-text">{balance}</span>
     </div>
   );
 };

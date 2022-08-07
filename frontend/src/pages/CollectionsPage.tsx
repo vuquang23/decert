@@ -13,21 +13,24 @@ import {
 } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table } from "components/Table";
-import { arrayFromSize } from "helper";
+import { arrayFromSize, userRejectTransaction } from "helper";
 import { LegacyRef, useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { onPromiseRejected } from "./ErrorPage";
 
 const CollectionsPage = () => {
   const metaMask = useMetaMask();
   const navigate = useNavigate();
+
   const [certCollections, setCertCollections] =
     useState<CertificateCollection[]>();
   useEffect(() => {
     readAll(metaMask.address)
       .then((value) => setCertCollections(value))
-      .catch(() => navigate("/error"));
-  });
+      .catch((reason) => onPromiseRejected(reason, navigate));
+  }, [metaMask.address, navigate]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
 
@@ -44,17 +47,20 @@ const CollectionsPage = () => {
         buttonIconName="plus-lg"
         buttonOnClick={
           typeof certCollections !== "undefined"
-            ? () =>
-                createCollectionModal(metaMask, (cc: CertificateCollection) =>
-                  setCertCollections([cc, ...certCollections])
-                )
+            ? () => createCollectionModal(metaMask, navigate)
             : () => {}
         }
       />
       <CollectionsTable
         certCollections={
           typeof certCollections !== "undefined"
-            ? searchByTitle(certCollections, searchQuery)
+            ? searchByTitle(
+                certCollections.map((item) => ({
+                  ...item,
+                  title: item.collectionName,
+                })),
+                searchQuery
+              )
             : undefined
         }
         page={page}
@@ -66,7 +72,7 @@ const CollectionsPage = () => {
 
 const createCollectionModal = (
   metaMask: MetaMask,
-  addCertCollection: (certCollection: CertificateCollection) => void
+  navigate: NavigateFunction
 ) =>
   BootstrapSwal.fire({
     title: "Enter your new collection name",
@@ -79,16 +85,27 @@ const createCollectionModal = (
 
     preConfirm: (collectionName) => create(metaMask, collectionName),
     allowOutsideClick: () => !Swal.isLoading(),
-  }).then((result) => {
-    if (result.isConfirmed) {
-      BootstrapSwal.fire({
-        icon: "success",
-        title: `Collection "${result.value!.title}" created!"`,
-        showConfirmButton: false,
-        showCloseButton: true,
-      }).then(() => addCertCollection(result.value!));
-    }
-  });
+  })
+    .then((result) => {
+      if (result.isConfirmed) {
+        BootstrapSwal.fire({
+          icon: "success",
+          title: "Collection created!",
+          showConfirmButton: false,
+          showCloseButton: true,
+        });
+      }
+    })
+    .catch((reason) => {
+      if (userRejectTransaction(reason)) {
+        BootstrapSwal.fire({
+          icon: "error",
+          title: "You rejected the transaction.",
+        });
+      } else {
+        onPromiseRejected(reason, navigate);
+      }
+    });
 
 //#region Collections Table
 
@@ -140,20 +157,20 @@ const Collection = ({
   <Row
     columnsClassName={columnsClassName}
     columnsValue={[
-      certCollection.title,
-      certCollection.issued.toString(),
-      certCollection.revoked.toString(),
+      certCollection.collectionName,
+      certCollection.totalIssued.toString(),
+      certCollection.totalRevoked.toString(),
       <Actions certCollection={certCollection} />,
     ]}
     compactContent={
       <>
-        <h3 className="fw-bold pt-3">{certCollection.title}</h3>
+        <h3 className="fw-bold pt-3">{certCollection.collectionName}</h3>
         <div className="row align-items-center row justify-content-between">
           <div className="col-6 col-sm-3 pb-2 pb-sm-0">
-            <strong>Issued:</strong> {certCollection.issued}
+            <strong>Issued:</strong> {certCollection.totalIssued}
           </div>
           <div className="col-6 col-sm-3 pb-2 pb-sm-0">
-            <strong>Revoked:</strong> {certCollection.revoked}
+            <strong>Revoked:</strong> {certCollection.totalRevoked}
           </div>
           <div className="col-6 d-flex">
             <Actions certCollection={certCollection} />
@@ -213,7 +230,7 @@ const ContractAddressButton = ({
         trigger: "focus",
       }
     );
-  });
+  }, []);
 
   return (
     <button
@@ -221,7 +238,9 @@ const ContractAddressButton = ({
       className="btn btn-outline-dark"
       data-bs-toggle="popover"
       data-bs-title="Contract address"
-      data-bs-content={contractAddressPopoverHTML(certCollection.address)}
+      data-bs-content={contractAddressPopoverHTML(
+        certCollection.collectionAddress
+      )}
       ref={popoverRef}
     >
       <i className="bi bi-wallet2" />

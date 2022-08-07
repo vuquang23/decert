@@ -9,4 +9,7 @@ const NotFoundPage = () => (
   />
 );
 
+class NotFoundError extends Error {}
+
 export default NotFoundPage;
+export { NotFoundError };

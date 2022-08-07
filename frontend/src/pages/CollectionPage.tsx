@@ -7,10 +7,12 @@ import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table } from "components/Table";
 import { arrayFromSize } from "helper";
+import { NotFoundError } from "pages/NotFoundPage";
 import { createContext, useContext, useEffect, useState } from "react";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
+import { onPromiseRejected } from "./ErrorPage";
 
 enum CertFilter {
   All = "All",
@@ -23,6 +25,7 @@ const ChangeCounterContext = createContext(() => {});
 
 const CollectionPage = () => {
   const navigate = useNavigate();
+  const metaMask = useMetaMask();
   const { collectionId } = useParams();
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState(CertFilter.Valid);
@@ -31,14 +34,22 @@ const CollectionPage = () => {
   const [changeCounter, setChangeCounter] = useState(0);
   useEffect(() => {
     setCerts(undefined);
-    read(parseInt(collectionId!))
+    read(metaMask.address, parseInt(collectionId!))
       .then((collection) => {
+        if (typeof collection === "undefined") {
+          throw new NotFoundError();
+        }
         setCollection(collection);
         return readAll({ collectionId: collection.id });
       })
       .then((certs) => setCerts(certs))
-      .catch(() => navigate("/notfound"));
-  }, [changeCounter, collectionId, navigate]);
+      .catch((reason) => {
+        if (reason instanceof NotFoundError) {
+          navigate("/notfound");
+        }
+        onPromiseRejected(reason, navigate);
+      });
+  }, [changeCounter, collectionId, metaMask.address, navigate]);
 
   return (
     <ChangeCounterContext.Provider
@@ -80,7 +91,7 @@ const Header = ({
       title={
         <h1 className="display-4 placeholder-glow">
           {typeof collection !== "undefined" ? (
-            collection.title
+            collection.collectionName
           ) : (
             <span className="placeholder col-5" />
           )}
@@ -217,11 +228,11 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
       className="btn btn-outline-danger ms-auto"
       onClick={() =>
         BootstrapSwalDanger.fire({
+          icon: "warning",
           title: "Do you want to revoke this certificate?",
           showConfirmButton: true,
           showCancelButton: true,
           showLoaderOnConfirm: true,
-          icon: "warning",
           preConfirm: () => revoke(metaMask, cert.id),
           allowOutsideClick: () => !Swal.isLoading(),
         }).then((result) => {

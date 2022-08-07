@@ -17,7 +17,7 @@ const NewCertificatePage = () => {
   const form = useForm<Certificate>({
     defaultValues: {
       id: 0,
-      title: collection.title,
+      title: collection.collectionName,
       imgUrl: "",
       issuedAt: new Date(Date.now()),
     },
@@ -26,8 +26,8 @@ const NewCertificatePage = () => {
 
   const submitHandler = (cert: Certificate) => {
     BootstrapSwal.fire({
-      title: "Do you want to issue this certificate?",
       icon: "question",
+      title: "Do you want to issue this certificate?",
       showConfirmButton: true,
       showCancelButton: true,
       showLoaderOnConfirm: true,
@@ -36,8 +36,8 @@ const NewCertificatePage = () => {
     })
       .then(() =>
         BootstrapSwal.fire({
-          title: "Certificate issued",
           icon: "success",
+          title: "Certificate issued!",
         })
       )
       .then(() => navigate("/collections"));
@@ -45,7 +45,9 @@ const NewCertificatePage = () => {
 
   return (
     <>
-      <h1 className="display-4 mb-5">Issue new "{collection.title}"</h1>
+      <h1 className="display-4 mb-5">
+        Issue new "{collection.collectionName}"
+      </h1>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(submitHandler)}>
           <div className="row g-5">

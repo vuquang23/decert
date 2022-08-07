@@ -1,6 +1,6 @@
 import image from "assets/500.jpg";
 import Center from "components/Center";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 const ErrorPage = ({
   message,
@@ -35,14 +35,31 @@ const ErrorPage = ({
   );
 };
 
-const DefaultErrorPage = () => (
-  <ErrorPage
-    message="Please try again later!"
-    image={image}
-    attrUrl="https://www.freepik.com/vectors/server-error"
-    attrContent="Server error vector created by storyset - www.freepik.com"
-  />
-);
+const DefaultErrorPage = () => {
+  const location = useLocation();
+  return (
+    <ErrorPage
+      message={
+        typeof location.state === "string"
+          ? location.state
+          : "Please try again later!"
+      }
+      image={image}
+      attrUrl="https://www.freepik.com/vectors/server-error"
+      attrContent="Server error vector created by storyset - www.freepik.com"
+    />
+  );
+};
+
+const onPromiseRejected = (reason: any, navigate: NavigateFunction) => {
+  let state: string | undefined = undefined;
+  if (reason instanceof Error) {
+    state = reason.message;
+  } else if (typeof reason === "string") {
+    state = reason;
+  }
+  return navigate("/error", { state: state });
+};
 
 export default DefaultErrorPage;
-export { ErrorPage };
+export { ErrorPage, onPromiseRejected };

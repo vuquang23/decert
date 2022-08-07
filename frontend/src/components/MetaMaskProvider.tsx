@@ -1,10 +1,12 @@
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import React, { ReactNode, useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { RequestParam } from "utils";
 
 interface MetaMask {
   address: string;
-  getBalance: () => Promise<number>;
+  request: (requestParam: RequestParam) => Promise<any>;
+  getBalance: () => Promise<string>;
   connectToMetaMask: () => void;
 }
 
@@ -19,7 +21,8 @@ const provider = new ethers.providers.Web3Provider(
 
 const MetaMaskContext = React.createContext<MetaMask>({
   address: "",
-  getBalance: () => Promise.resolve(0),
+  request: () => Promise.reject(),
+  getBalance: () => Promise.reject(),
   connectToMetaMask: () => {},
 });
 
@@ -47,16 +50,27 @@ const MetaMaskProvider = ({ children }: { children: ReactNode }) => {
 
   const context: MetaMask = {
     address: address,
+    request: ({ method, params }) => provider.send(method, params),
     getBalance: async function () {
-      return (await provider.getBalance(this.address)).toNumber();
+      return weiToEther(await provider.getBalance(this.address));
     },
     connectToMetaMask: () =>
       provider
-        .send("eth_requestAccounts", [])
+        .listAccounts()
         .then((addresses) => updateAddress(addresses[0], true)),
   };
 
   return <MetaMaskContext.Provider value={context} children={children} />;
+};
+
+const weiToEther = (wei: BigNumber) => {
+  const divResult = wei.div(BigNumber.from("10000000000000000")).toString();
+  if (divResult.length === 2) {
+    return `0.${divResult}`;
+  }
+  return `${divResult.substring(0, divResult.length - 2)}.${divResult.substring(
+    divResult.length - 2
+  )}`;
 };
 
 const useMetaMask = () => useContext(MetaMaskContext);

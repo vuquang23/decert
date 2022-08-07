@@ -17,4 +17,12 @@ const arrayFromSize = <T>(
 const formValidationClassName = (error: any) =>
   typeof error !== "undefined" ? "is-invalid" : "";
 
-export { DelayedPromise, arrayFromSize, formValidationClassName };
+const userRejectTransaction = (reason: any) =>
+  "code" in reason && reason.code === 4001;
+
+export {
+  DelayedPromise,
+  arrayFromSize,
+  formValidationClassName,
+  userRejectTransaction,
+};

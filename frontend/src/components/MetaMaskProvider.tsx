@@ -1,9 +1,9 @@
 import { BigNumber, ethers } from "ethers";
-import React, { ReactNode, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { RequestParam } from "utils";
 
 interface MetaMask {
+  isReady: boolean;
   address: string;
   request: (requestParam: RequestParam) => Promise<any>;
   getBalance: () => Promise<string>;
@@ -20,6 +20,7 @@ const provider = new ethers.providers.Web3Provider(
 );
 
 const MetaMaskContext = React.createContext<MetaMask>({
+  isReady: false,
   address: "",
   request: () => Promise.reject(),
   getBalance: () => Promise.reject(),
@@ -28,25 +29,19 @@ const MetaMaskContext = React.createContext<MetaMask>({
 
 const MetaMaskProvider = ({ children }: { children: ReactNode }) => {
   const [address, setAddress] = useState("");
-  const navigate = useNavigate();
+  const [isReady, setIsReady] = useState(false);
 
-  const updateAddress = (
-    address: string,
-    navigateToCollections: boolean = false
-  ) => {
-    if (address !== undefined) {
-      setAddress(address);
-      if (navigateToCollections) {
-        navigate("/collections");
-      }
-    } else {
-      setAddress("");
-    }
+  const updateAddress = (address: string) => {
+    address !== undefined ? setAddress(address) : setAddress("");
+    setIsReady(true);
   };
 
-  provider.listAccounts().then((addresses) => updateAddress(addresses[0]));
+  useEffect(() => {
+    provider.listAccounts().then((addresses) => updateAddress(addresses[0]));
+  }, []);
 
   const context: MetaMask = {
+    isReady: isReady,
     address: address,
     request: ({ method, params }) => provider.send(method, params),
     getBalance: async function () {
@@ -54,8 +49,8 @@ const MetaMaskProvider = ({ children }: { children: ReactNode }) => {
     },
     connectToMetaMask: () =>
       provider
-        .listAccounts()
-        .then((addresses) => updateAddress(addresses[0], true)),
+        .send("eth_requestAccounts", [])
+        .then((addresses) => updateAddress(addresses[0])),
   };
 
   return <MetaMaskContext.Provider value={context} children={children} />;

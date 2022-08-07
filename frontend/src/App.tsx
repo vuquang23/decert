@@ -35,7 +35,17 @@ const App = () => (
   </Routes>
 );
 
-const RequiredMetaMask = ({ children }: { children: JSX.Element }) =>
-  useMetaMask().address.length === 0 ? <Navigate to="/" /> : children;
+const RequiredMetaMask = ({ children }: { children: JSX.Element }) => {
+  const metaMask = useMetaMask();
+  return metaMask.isReady ? (
+    metaMask.address.length === 0 ? (
+      <Navigate to="/" />
+    ) : (
+      children
+    )
+  ) : (
+    <div />
+  );
+};
 
 export default App;

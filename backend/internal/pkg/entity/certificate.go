@@ -3,13 +3,26 @@ package entity
 import (
 	"time"
 )
+
+type CertDataTypeIssuer struct {
+	Name		string
+	Wallet		string
+	Position	string
+}
+
+type CertDataTypeReceiver struct {
+	Name		string
+	Wallet		string
+	DateOfBirth	string
+}
+
 type CertDataType struct {
 	CertTitle	string
-	Issuer		string
-	Receiver	string
+	Issuer		CertDataTypeIssuer
+	Receiver	CertDataTypeReceiver
 	Description	string
-	IssuedAt	time.Time
-	ExpiredAt	time.Time
+	IssuedAt	int64
+	ExpiredAt	int64
 	CertImage	string
 	Platform	string
 }

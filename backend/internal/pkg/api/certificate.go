@@ -81,12 +81,14 @@ func (api *certificateApi) createCertificate(ctx *gin.Context) {
 	
 	var reqBody dto.CreateCertificateRequest
 	if err := ctx.ShouldBindJSON(&reqBody); err != nil {
-		fmt.Println("REQBODY", reqBody)
 		restErr := errors.NewRestErrorInvalidFormat([]string{}, err)
 		log.Errorln(ctx, restErr)
 		transformers.ResponseErr(ctx, restErr)
 		return
 	}
+
+	fmt.Println("BODY", reqBody)
+	fmt.Println("CRUD CREATE", transformers.ToCRUDCreateCertificate(reqBody))
 
 	if err := api.certificateSvc.CreateCertificate(ctx,
 		transformers.ToCRUDCreateCertificate(reqBody),

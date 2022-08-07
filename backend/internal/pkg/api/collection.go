@@ -39,10 +39,10 @@ func (api *collectionApi) getCollections(ctx *gin.Context) {
 		transformers.ResponseErr(ctx, restErr)
 		return
 	}
-	fmt.Println(reqParams)
-
+	
 	collections, err := api.collectionSvc.GetCollections(ctx,
 		transformers.ToCRUDGetCollections(reqParams))
+	fmt.Println(collections)
 	if err != nil {
 		restErr := transformers.RestErrTransformerInstance().Transform(err)
 		log.Errorln(ctx, restErr)

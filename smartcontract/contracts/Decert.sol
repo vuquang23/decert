@@ -36,6 +36,7 @@ contract Decert is Context, ERC721NTEnumarable {
         string memory _symbol
     ) ERC721Nontransferable(_name, _symbol) {
         issuer = _issuer;
+        _batchSize = 1;
     }
 
     modifier onlyIssuer() {

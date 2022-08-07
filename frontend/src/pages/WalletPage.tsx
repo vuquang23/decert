@@ -34,7 +34,10 @@ const WalletPage = () => {
       />
       <div className="row gy-5 mb-5">
         {certs !== undefined
-          ? searchByTitle(certs, searchInputs.searchQuery)
+          ? searchByTitle(
+              certs.map((cert) => ({ ...cert, title: cert.certTitle })),
+              searchInputs.searchQuery
+            )
               .filter((cert) => {
                 switch (searchInputs.filter) {
                   case "Valid":
@@ -65,16 +68,21 @@ const CertificateCard = ({ cert }: { cert: Certificate }) => {
         onClick={() => navigate(`/certificate/${cert.id}`)}
       >
         <img
-          src={cert.imgUrl}
+          src={cert.certImage}
           className="card-img-top crop"
           alt="Certificate"
         />
         <div className="card-body">
-          <h5 className="card-title">{cert.title}</h5>
+          <h5 className="card-title">{cert.certTitle}</h5>
           <p className="card-text">
-            <strong>Issued at:</strong> {cert.issuedAt.toDateString()}
-            <br />
-            <strong>Expired at:</strong> {cert.expiredAt.toDateString()}
+            <strong>Issued at:</strong> {new Date(cert.issuedAt).toDateString()}
+            {cert.expiredAt !== "null" && (
+              <>
+                <br />
+                <strong>Expired at:</strong>{" "}
+                {new Date(cert.expiredAt).toDateString()}
+              </>
+            )}
           </p>
           <p className="card-text line-clamp">{cert.description}</p>
         </div>

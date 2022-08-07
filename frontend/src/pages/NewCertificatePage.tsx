@@ -1,9 +1,13 @@
-import { Certificate, issue } from "api/certificate";
+import { Certificate } from "api/certificate";
 import { CertificateCollection } from "api/certificate-collections";
 import { BootstrapSwal } from "components/BootstrapSwal";
 import Center from "components/Center";
 import { useMetaMask } from "components/MetaMaskProvider";
-import { formValidationClassName } from "helper";
+import {
+  dateFromYYYYMMDD,
+  formValidationClassName,
+  toDDMMYYYYstring,
+} from "helper";
 import { useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -17,9 +21,9 @@ const NewCertificatePage = () => {
   const form = useForm<Certificate>({
     defaultValues: {
       id: 0,
-      title: collection.collectionName,
-      imgUrl: "",
-      issuedAt: new Date(Date.now()),
+      certTitle: collection.collectionName,
+      certImage: "",
+      issuedAt: Date.now(),
     },
   });
   const navigate = useNavigate();
@@ -31,7 +35,8 @@ const NewCertificatePage = () => {
       showConfirmButton: true,
       showCancelButton: true,
       showLoaderOnConfirm: true,
-      preConfirm: () => issue(metaMask, cert),
+      // preConfirm: () => issue(metaMask, cert),
+      preConfirm: () => console.log(cert),
       allowOutsideClick: () => !Swal.isLoading(),
     })
       .then(() =>
@@ -93,7 +98,7 @@ const IssuerInfo = ({ address }: { address: string }) => {
           className="form-control"
           readOnly
           disabled
-          {...register("issuer.address", {
+          {...register("issuer.wallet", {
             required: true,
             value: address,
           })}
@@ -137,9 +142,9 @@ const ReceiverInfo = () => {
         <input
           type="text"
           className={`form-control ${formValidationClassName(
-            errors.receiver?.address
+            errors.receiver?.wallet
           )}`}
-          {...register("receiver.address", {
+          {...register("receiver.wallet", {
             required: true,
             pattern: /^0x[a-fA-F0-9]{40}$/g,
           })}
@@ -166,8 +171,13 @@ const ReceiverInfo = () => {
           )}`}
           max={new Date(Date.now()).toISOString().split("T")[0]}
           {...register("receiver.dateOfBirth", {
-            validate: (date) => !isNaN(date.getTime()),
-            valueAsDate: true,
+            validate: (date) => date.length > 0,
+            setValueAs: (value) => {
+              const date = value as string;
+              return date.length !== 0
+                ? toDDMMYYYYstring(dateFromYYYYMMDD(date, "-"))
+                : "";
+            },
           })}
         />
         <div className="invalid-feedback">
@@ -189,16 +199,17 @@ const CertificateInfo = () => {
         <label className="form-label">Expired at</label>
         <input
           type="date"
-          className={`form-control ${formValidationClassName(
-            errors.expiredAt
-          )}`}
+          className="form-control"
           min={new Date(Date.now()).toISOString().split("T")[0]}
           {...register("expiredAt", {
-            validate: (date) => !isNaN(date.getTime()),
-            valueAsDate: true,
+            setValueAs: (value) => {
+              const date = value as string;
+              return date.length !== 0
+                ? dateFromYYYYMMDD(date, "-").getTime()
+                : "null";
+            },
           })}
         />
-        <div className="invalid-feedback">Expiration date is required</div>
       </div>
       <div className="col-12">
         <label className="form-label">Description</label>

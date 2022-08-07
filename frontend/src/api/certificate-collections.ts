@@ -25,10 +25,9 @@ const readAll = (issuer: string) =>
   );
 
 const read = (issuer: string, id: number) =>
-  readAll(issuer).then((data) => {
-    console.log(data);
-    return data.find((collection) => collection.id === id);
-  });
+  readAll(issuer).then((data) =>
+    data.find((collection) => collection.id === id)
+  );
 
 export type { CertificateCollection };
 export { create, readAll, read };

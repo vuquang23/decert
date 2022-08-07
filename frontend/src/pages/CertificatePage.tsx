@@ -2,6 +2,7 @@ import { Certificate, read, verify, VerifyState } from "api/certificate";
 import Address from "components/Address";
 import Center from "components/Center";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
+import { dateFromDDMMYYYY } from "helper";
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -34,7 +35,7 @@ const CertificatePage = () => {
             {cert !== undefined ? (
               <img
                 className="rounded shadow mh-100 mw-100"
-                src={cert.imgUrl}
+                src={cert.certImage}
                 alt="Certificate"
               />
             ) : (
@@ -101,16 +102,16 @@ const CertificateContent = ({
       {cert !== undefined ? (
         <>
           <State verifyState={verifyState} />
-          <h2>{cert.title}</h2>
+          <h2>{cert.certTitle}</h2>
           <p className="lead">
             <strong>Issued to: {cert.receiver.name.toLocaleUpperCase()}</strong>
             <br />
             <small>
               <strong>Date of birth:</strong>{" "}
-              {cert.receiver.dateOfBirth.toDateString()}
+              {dateFromDDMMYYYY(cert.receiver.dateOfBirth).toDateString()}
               <br />
               <strong>Address:</strong>{" "}
-              <Address address={cert.receiver.address} />
+              <Address address={cert.receiver.wallet} />
             </small>
             <br />
             <br />
@@ -122,12 +123,17 @@ const CertificateContent = ({
             <br />
             <strong>Position:</strong> {cert.issuer.position}
             <br />
-            <strong>Address:</strong> <Address address={cert.issuer.address} />
+            <strong>Address:</strong> <Address address={cert.issuer.wallet} />
             <br />
             <br />
-            <strong>Issued at:</strong> {cert.issuedAt.toDateString()}
-            <br />
-            <strong>Expired at:</strong> {cert.expiredAt.toDateString()}
+            <strong>Issued at:</strong> {new Date(cert.issuedAt).toDateString()}
+            {cert.expiredAt !== "null" && (
+              <>
+                <br />
+                <strong>Expired at:</strong>{" "}
+                {new Date(cert.expiredAt).toDateString()}
+              </>
+            )}
           </p>
         </>
       ) : (

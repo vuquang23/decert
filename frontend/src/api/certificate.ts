@@ -1,58 +1,54 @@
 import { MetaMask } from "components/MetaMaskProvider";
-import { arrayFromSize, DelayedPromise } from "helper";
+import { arrayFromSize, DelayedPromise, toDDMMYYYYstring } from "helper";
 import * as Utils from "utils";
-
-interface Issuer {
-  name: string;
-  address: string;
-  position: string;
-}
-
-interface Receiver {
-  name: string;
-  address: string;
-  dateOfBirth: Date;
-}
-
-interface Revocation {
-  revokedAt: Date;
-  revokeReason: String;
-}
 
 interface Certificate {
   id: number;
-  title: string;
-  issuer: Issuer;
-  receiver: Receiver;
+  certTitle: string;
+  issuer: {
+    name: string;
+    wallet: string;
+    position: string;
+  };
+  receiver: {
+    name: string;
+    wallet: string;
+    dateOfBirth: string;
+  };
   description: string;
-  issuedAt: Date;
-  expiredAt: Date;
-  imgUrl: string;
+  issuedAt: number;
+  expiredAt: number | "null";
+  certImage: string;
+  platform: string;
   imgFiles?: FileList;
-  revocation?: Revocation;
+  revocation?: {
+    revokedAt: Date;
+    revokeReason: String;
+  };
 }
 
 const today = new Date(Date.now());
 
 const mockData: Certificate[] = arrayFromSize(30, (index) => ({
   id: Math.floor(Math.random() * 100),
-  title: `Sinh viên ${index} tốt`,
+  certTitle: `Sinh viên ${index} tốt`,
   issuer: {
     name: "Nguyen Van A",
-    address: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
+    wallet: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
     position: "Principal",
   },
   receiver: {
     name: "Nguyen Van A",
-    address: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
-    dateOfBirth: today,
+    wallet: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
+    dateOfBirth: toDDMMYYYYstring(today),
   },
   description: "Đã đạt thành tích xuất sắc trong học tập",
-  issuedAt: today,
+  issuedAt: today.getTime(),
   expiredAt: new Date(
     new Date(today).setDate(today.getDate() + Math.floor(Math.random() * 3))
-  ),
-  imgUrl: "https://picsum.photos/620/877",
+  ).getTime(),
+  certImage: "https://picsum.photos/620/877",
+  platform: "97",
   revocation:
     Math.random() > 0.7
       ? { revokedAt: today, revokeReason: "Issued by mistake" }
@@ -60,7 +56,7 @@ const mockData: Certificate[] = arrayFromSize(30, (index) => ({
 }));
 
 const isExpired = (cert: Certificate) =>
-  cert.expiredAt.getTime() - Date.now() <= 0;
+  cert.expiredAt !== "null" && cert.expiredAt - Date.now() <= 0;
 
 enum VerifyState {
   Unverified,
@@ -97,7 +93,7 @@ const readAll = ({
 const issue = async (metaMask: MetaMask, cert: Certificate) => {
   await Utils.pushToIpfs(cert.imgFiles![0]);
   cert.id = Math.floor(Math.random() * 100 + 100);
-  cert.imgUrl = URL.createObjectURL(cert.imgFiles![0]);
+  cert.certImage = URL.createObjectURL(cert.imgFiles![0]);
   mockData.push(cert);
   await DelayedPromise(0);
   return cert.id;

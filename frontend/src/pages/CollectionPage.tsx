@@ -182,9 +182,11 @@ const Cert = ({
     columnsClassName={columnsClassName}
     columnsValue={[
       <Receiver cert={cert} />,
-      cert.issuedAt.toDateString(),
+      new Date(cert.issuedAt).toDateString(),
       <div className={isExpired(cert) ? "text-danger fw-bold" : ""}>
-        {cert.expiredAt.toDateString()}
+        {cert.expiredAt !== "null"
+          ? new Date(cert.expiredAt).toDateString()
+          : "never"}
       </div>,
       <div className="text-truncate">{cert.description}</div>,
       cert.revocation === undefined ? <RevokeButton cert={cert} /> : <></>,
@@ -203,11 +205,13 @@ const Cert = ({
         </div>
         <p>
           <br />
-          <strong>Issued at:</strong> {cert.issuedAt.toDateString()}
+          <strong>Issued at:</strong> {new Date(cert.issuedAt).toDateString()}
           <br />
           <strong>Expired at:</strong>{" "}
           <span className={isExpired(cert) ? "text-danger fw-bold" : ""}>
-            {cert.expiredAt.toDateString()}
+            {cert.expiredAt !== "null"
+              ? new Date(cert.expiredAt).toDateString()
+              : "never"}
           </span>
         </p>
         <div className="text-truncate">{cert.description}</div>
@@ -245,7 +249,7 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
 
 const Receiver = ({ cert }: { cert: Certificate }) => (
   <Address
-    address={cert.receiver.address}
+    address={cert.receiver.wallet}
     customTextClassName={
       cert.revocation !== undefined
         ? "text-dark text-decoration-line-through"

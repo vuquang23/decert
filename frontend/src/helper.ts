@@ -20,9 +20,29 @@ const formValidationClassName = (error: any) =>
 const userRejectTransaction = (reason: any) =>
   "code" in reason && reason.code === 4001;
 
+const toTwoDigits = (n: number) => (n >= 10 ? n.toString() : `0${n}`);
+
+const toDDMMYYYYstring = (date: Date) =>
+  `${toTwoDigits(date.getDate())}/${toTwoDigits(
+    date.getMonth() + 1
+  )}/${date.getFullYear()}}`;
+
+const dateFromDDMMYYYY = (date: string, separator: string = "/") => {
+  const ddmmyyyy = date.split(separator).map((value) => parseInt(value));
+  return new Date(ddmmyyyy[2], ddmmyyyy[1] - 1, ddmmyyyy[0]);
+};
+
+const dateFromYYYYMMDD = (date: string, separator: string = "/") => {
+  const ddmmyyyy = date.split(separator).map((value) => parseInt(value));
+  return new Date(ddmmyyyy[0], ddmmyyyy[1] - 1, ddmmyyyy[2]);
+};
+
 export {
   DelayedPromise,
   arrayFromSize,
   formValidationClassName,
   userRejectTransaction,
+  toDDMMYYYYstring,
+  dateFromDDMMYYYY,
+  dateFromYYYYMMDD,
 };

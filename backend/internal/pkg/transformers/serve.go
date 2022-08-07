@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 	"encoding/json"
+	"math/big"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -46,20 +48,28 @@ func ToCRUDGetCertificates(reqParams dto.GetCertificatesRequest) entity.CRUDGetC
 }
 
 func ToCRUDCreateCertificate(reqBody dto.CreateCertificateRequest) entity.CRUDCreateCertificate {
-	issuer, _ := json.Marshal(reqBody.CertData.Issuer)
-	receiver, _ := json.Marshal(reqBody.CertData.Receiver)
+	issuerBytes, _ := json.Marshal(reqBody.CertData.Issuer)
+	receiverBytes, _ := json.Marshal(reqBody.CertData.Receiver)
 
-	stringIssuer, stringReceiver := string(issuer), string(receiver)
+	var issuer entity.CertDataTypeIssuer
+	var receiver entity.CertDataTypeReceiver
+
+	json.Unmarshal(issuerBytes, &issuer)
+	json.Unmarshal(receiverBytes, &receiver)
+
+	// stringIssuer, stringReceiver := string(issuer), string(receiver)
+
+	fmt.Println("issued at", reqBody.CertData.IssuedAt)
 
 	return entity.CRUDCreateCertificate{
 		CollectionId:	reqBody.CollectionId,
 		CertData:		entity.CertDataType{
 							CertTitle: reqBody.CertData.CertTitle,
-							Issuer: stringIssuer,
-							Receiver: stringReceiver,
+							Issuer: issuer,
+							Receiver: receiver,
 							Description: reqBody.CertData.Description,
-							IssuedAt: reqBody.CertData.IssuedAt.Time,
-							ExpiredAt: reqBody.CertData.ExpiredAt.Time,
+							IssuedAt: reqBody.CertData.IssuedAt,
+							ExpiredAt: reqBody.CertData.ExpiredAt,
 							CertImage: reqBody.CertData.CertImage,
 							Platform: reqBody.CertData.Platform,
 						},
@@ -68,20 +78,34 @@ func ToCRUDCreateCertificate(reqBody dto.CreateCertificateRequest) entity.CRUDCr
 	}
 }
 
+func TimeToBigInt(t time.Time) big.Int {
+	var unixT int64
+	unixT = t.Unix()
+	fmt.Println("UNIXT", unixT)
+	
+	var unixTBigInt big.Int
+	unixTBigInt.Mul(big.NewInt(unixT), big.NewInt(1000))
+	
+	return unixTBigInt
+}
+
 func ToCertificateResponses(certificates []*entity.Cert) []*dto.CertificateResponse {
 	ret := []*dto.CertificateResponse{}
 	for _, c := range certificates {
+		var receiver dto.CertDataTypeReceiver;
+		json.Unmarshal([]byte(c.Receiver), &receiver)
+
 		ret = append(ret, &dto.CertificateResponse{
 			ID:				c.ID,
 			Description:	c.Description,
-			IssuedAt:      	c.IssuedAt,
-			ExpiredAt:      c.ExpiredAt,
+			IssuedAt:      	TimeToBigInt(c.IssuedAt),
+			ExpiredAt:      TimeToBigInt(c.ExpiredAt),
 			CollectionId:   c.CollectionId,
 			CertNftId:      c.CertNftId,
 			Data:  			c.Data,
-			RevokedAt: 		c.RevokedAt,
+			RevokedAt: 		TimeToBigInt(c.RevokedAt),
 			RevokedReason:	c.RevokedReason,
-			Receiver:		c.Receiver,
+			Receiver:		receiver,
 		})
 	}
 	return ret

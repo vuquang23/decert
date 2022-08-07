@@ -3,6 +3,7 @@ package dto
 import (
 	"time"
 	"strings"
+	"math/big"
 )
 
 type Datetime struct {
@@ -20,13 +21,13 @@ func (t *Datetime) UnmarshalJSON(input []byte) error {
     return nil
 }
 
-type CertDataTypeRequestReceiver struct {
+type CertDataTypeReceiver struct {
 	Name		string
 	Wallet		string
 	DateOfBirth	string
 }
 
-type CertDataTypeRequestIssuer struct {
+type CertDataTypeIssuer struct {
 	Name		string
 	Wallet		string
 	Position	string
@@ -34,11 +35,11 @@ type CertDataTypeRequestIssuer struct {
 
 type CertDataTypeRequest struct {
 	CertTitle	string	`json:"certTitle"`
-	Issuer		CertDataTypeRequestIssuer	`json:"issuer"`
-	Receiver	CertDataTypeRequestReceiver	`json:"receiver"`
+	Issuer		CertDataTypeIssuer	`json:"issuer"`
+	Receiver	CertDataTypeReceiver	`json:"receiver"`
 	Description	string	`json:"description"`
-	IssuedAt	Datetime	`json:"issuedAt"`
-	ExpiredAt	Datetime	`json:"expiredAt"`
+	IssuedAt	int64	`json:"issuedAt"`
+	ExpiredAt	int64	`json:"expiredAt"`
 	CertImage	string		`json:"certImage"`
 	Platform	string		`json:"platform"`
 }
@@ -61,14 +62,14 @@ type GetCertificateRequest struct {
 }
 
 type CertificateResponse struct {
-	ID              uint		`json:"id"`
-	Description     string		`json:"description"`
-	IssuedAt       	time.Time	`json:"issuedAt"`
-	ExpiredAt       time.Time	`json:"expiredAt"`
-	CollectionId   	uint		`json:"collectionId"`
-	CertNftId       uint		`json:"certNftId"`
-	Data  			string		`json:"data"`
-	RevokedAt 		time.Time	`json:"revokedAt"`
-	RevokedReason	string		`json:"revokedReason"`
-	Receiver		string		`json:"receiver"`
+	ID              uint					`json:"id"`
+	Description     string					`json:"description"`
+	IssuedAt       	big.Int					`json:"issuedAt"`
+	ExpiredAt       big.Int					`json:"expiredAt"`
+	CollectionId   	uint					`json:"collectionId"`
+	CertNftId       uint					`json:"certNftId"`
+	Data  			string					`json:"data"`
+	RevokedAt 		big.Int					`json:"revokedAt"`
+	RevokedReason	string					`json:"revokedReason"`
+	Receiver		CertDataTypeReceiver	`json:"receiver"`
 }

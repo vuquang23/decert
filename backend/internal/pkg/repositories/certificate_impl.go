@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"encoding/json"
-	"strconv"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -36,31 +35,27 @@ func (r *certificateRepository) SaveNewCertificate(
 	ctx *gin.Context,
 	crudCreateCertificate entity.CRUDCreateCertificate,
 	nftId uint,
-	// collectionId uint,
-	// issuer string, 
-	// recipient string,
-	// certHash [32]byte, 
-	// link string, 
-	// issuedAt *big.Int,
 ) *errors.InfraError {
-	// TODO
 	fmt.Println("Saving cert")
-	issuedAtInt, _ := strconv.ParseInt(crudCreateCertificate.CertData.IssuedAt.String(), 10, 32)
-	expiredAtInt, _ := strconv.ParseInt(crudCreateCertificate.CertData.ExpiredAt.String(), 10, 32)
 
 	certJsonData, _ := json.Marshal(crudCreateCertificate.CertData)
 	certJsonString := string(certJsonData)
 
+	receiverJsonData, _ := json.Marshal(crudCreateCertificate.CertData.Receiver)
+	receiverJsonString := string(receiverJsonData)
+
+	fmt.Println("certJsonString", certJsonString)
+
 	certificate := &entity.Cert{
 		Description:    crudCreateCertificate.CertData.Description,
-		IssuedAt:       time.Unix(issuedAtInt, 7),
-		ExpiredAt:      time.Unix(expiredAtInt, 7),
+		IssuedAt:       time.Unix(crudCreateCertificate.CertData.IssuedAt/1000, 7),
+		ExpiredAt:      time.Unix(crudCreateCertificate.CertData.ExpiredAt/1000, 7),
 		CollectionId:   crudCreateCertificate.CollectionId,
 		CertNftId:      nftId,
 		Data:  			certJsonString,
-		RevokedAt: 		time.Unix(expiredAtInt, 7),
+		RevokedAt: 		time.Unix(crudCreateCertificate.CertData.ExpiredAt/1000, 7),
 		RevokedReason:	"",
-		Receiver:		crudCreateCertificate.CertData.Receiver,
+		Receiver:		receiverJsonString,
 	}
 
 	log.Debugf(ctx, "%+v", certificate)

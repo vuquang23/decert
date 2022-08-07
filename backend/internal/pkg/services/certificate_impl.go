@@ -121,13 +121,7 @@ func (s *certificateService) saveNewCreatedCertificate(ctx *gin.Context, nftId *
 	if err := s.certificateRepo.SaveNewCertificate(
 		ctx, 
 		crudCreateCertificate,
-		uint(nftIdInt64), 
-		// collectionId, 
-		// issuer.String(), 
-		// recipient.String(), 
-		// certHash, 
-		// link, 
-		// issuedAt,
+		uint(nftIdInt64),
 	); err != nil {
 		return transformers.DomainErrTransformerInstance().Transform(err)
 	}
@@ -139,7 +133,6 @@ func (s *certificateService) GetCertificates(
 	ctx *gin.Context,
 	crudGetCertificates entity.CRUDGetCertificates,
 ) ([]*entity.Cert, *errors.DomainError) {
-	fmt.Println("LIMIT", crudGetCertificates.Limit)
 	ret, err := s.certificateRepo.GetCertificatesByCollectionId(
 		ctx, 
 		crudGetCertificates.CollectionId,
@@ -157,7 +150,6 @@ func (s *certificateService) GetCertificateInfo(
 	crudGetCertificate entity.CRUDGetCertificate,
 ) (*entity.Cert, *errors.DomainError) {
 	ret, err := s.certificateRepo.GetCertificateById(ctx, crudGetCertificate.ID)
-	fmt.Println("RET GETCERTBYID", ret)
 	if err != nil {
 		return nil, transformers.DomainErrTransformerInstance().Transform(err)
 	}

@@ -7,12 +7,12 @@ import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table } from "components/Table";
 import { arrayFromSize } from "helper";
+import { onPromiseRejected } from "pages/ErrorPage";
 import { NotFoundError } from "pages/NotFoundPage";
 import { createContext, useContext, useEffect, useState } from "react";
 import { SubmitHandler } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
-import { onPromiseRejected } from "./ErrorPage";
 
 enum CertFilter {
   All = "All",

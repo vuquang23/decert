@@ -4,6 +4,7 @@ import CollectionPage from "pages/CollectionPage";
 import CollectionsPage from "pages/CollectionsPage";
 import DefaultErrorPage from "pages/ErrorPage";
 import HomePage from "pages/HomePage";
+import InstallMetaMaskPage from "pages/InstallMetaMaskPage";
 import NewCertificatePage from "pages/NewCertificatePage";
 import NotFoundPage from "pages/NotFoundPage";
 import PageLayout from "pages/PageLayout";
@@ -31,6 +32,7 @@ const App = () => (
     </Route>
     <Route path="/certificate/:certId" element={<CertificatePage />} />
     <Route path="/error" element={<DefaultErrorPage />} />
+    <Route path="/install-metamask" element={<InstallMetaMaskPage />} />
     <Route path="*" element={<NotFoundPage />} />
   </Routes>
 );

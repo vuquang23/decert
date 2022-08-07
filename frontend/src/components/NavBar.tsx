@@ -1,7 +1,12 @@
 import { ReactComponent as Logo } from "assets/global.svg";
+import { onPromiseRejected } from "pages/ErrorPage";
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { getShortAddress, useMetaMask } from "./MetaMaskProvider";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import {
+  getShortAddress,
+  MetaMaskNotFound,
+  useMetaMask,
+} from "./MetaMaskProvider";
 
 const NavBar = ({ transparent }: { transparent?: boolean }) => {
   const isConnected = useMetaMask().address.length > 0;
@@ -87,12 +92,21 @@ const AccountInfo = () => {
 };
 
 const NotConnectedNav = () => {
+  const navigate = useNavigate();
   const metaMask = useMetaMask();
   return (
     <button
       className="btn btn-outline-light ms-auto"
       type="button"
-      onClick={() => metaMask.connectToMetaMask()}
+      onClick={() =>
+        metaMask
+          .connectToMetaMask()
+          .catch((reason) =>
+            reason instanceof MetaMaskNotFound
+              ? navigate("/install-metamask")
+              : onPromiseRejected(reason, navigate)
+          )
+      }
     >
       Connect to MetaMask
     </button>

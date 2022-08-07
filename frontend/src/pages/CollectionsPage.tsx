@@ -14,10 +14,10 @@ import {
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table } from "components/Table";
 import { arrayFromSize, userRejectTransaction } from "helper";
+import { onPromiseRejected } from "pages/ErrorPage";
 import { LegacyRef, useEffect, useRef, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { onPromiseRejected } from "./ErrorPage";
 
 const CollectionsPage = () => {
   const metaMask = useMetaMask();

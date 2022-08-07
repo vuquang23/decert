@@ -3,9 +3,9 @@ import HeaderSearch, { Inputs, searchByTitle } from "components/HeaderSearch";
 import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { arrayFromSize } from "helper";
+import { onPromiseRejected } from "pages/ErrorPage";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { onPromiseRejected } from "./ErrorPage";
 
 const WalletPage = () => {
   const navigate = useNavigate();

@@ -1,17 +1,20 @@
 import image from "assets/500.jpg";
 import Center from "components/Center";
+import { ReactNode } from "react";
 import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 const ErrorPage = ({
   message,
   image,
+  customButton,
   attrUrl,
   attrContent,
 }: {
   message?: string;
   image: any;
-  attrUrl: string;
-  attrContent: string;
+  customButton?: ReactNode;
+  attrUrl?: string;
+  attrContent?: string;
 }) => {
   const navigate = useNavigate();
   return (
@@ -20,9 +23,11 @@ const ErrorPage = ({
         <div className="h-50 d-flex flex-column align-items-center">
           <img src={image} alt="Internal error" className="h-75 d-block" />
           {message !== undefined && <p className="lead">{message}</p>}
-          <button className="btn btn-primary" onClick={() => navigate("/")}>
-            Go to homepage
-          </button>
+          {customButton ?? (
+            <button className="btn btn-primary" onClick={() => navigate("/")}>
+              Go to homepage
+            </button>
+          )}
         </div>
       </Center>
       <a

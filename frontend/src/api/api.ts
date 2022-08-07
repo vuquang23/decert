@@ -1,5 +1,4 @@
-const baseUrl = "http://34.143.164.222/api/v1/";
-const platform = "97";
+import { baseUrl, platform } from "const";
 
 const request = async (
   method: "GET" | "POST" | "PUT" | "DELETE",
@@ -8,7 +7,7 @@ const request = async (
   searchParams?: URLSearchParams
 ) => {
   if (content !== undefined && "platform" in content) {
-    content.platform = platform;
+    content.platform = platform.toString();
   }
   const response = await fetch(
     baseUrl +

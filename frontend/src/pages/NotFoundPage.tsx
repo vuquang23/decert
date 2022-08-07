@@ -1,5 +1,5 @@
 import image from "assets/404.jpg";
-import { ErrorPage } from "./ErrorPage";
+import { ErrorPage } from "pages/ErrorPage";
 
 const NotFoundPage = () => (
   <ErrorPage

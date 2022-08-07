@@ -44,9 +44,7 @@ const MetaMaskProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  provider
-    .send("eth_accounts", [])
-    .then((addresses) => updateAddress(addresses[0]));
+  provider.listAccounts().then((addresses) => updateAddress(addresses[0]));
 
   const context: MetaMask = {
     address: address,

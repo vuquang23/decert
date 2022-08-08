@@ -20,40 +20,51 @@ func (t *Datetime) UnmarshalJSON(input []byte) error {
     return nil
 }
 
-type CertDataTypeReceiver struct {
-	Name		string
-	Wallet		string
-	DateOfBirth	string
+type CertDataReceiver struct {
+	Name		string		`json:"name"`
+	Wallet		string		`json:"wallet"`
+	DateOfBirth	string		`json:"dateOfBirth"`
 }
 
-type CertDataTypeIssuer struct {
-	Name		string
-	Wallet		string
-	Position	string
+type CertDataIssuer struct {
+	Name		string		`json:"name"`
+	Wallet		string		`json:"wallet"`
+	Position	string		`json:"position"`
 }
 
-type CertDataTypeRequest struct {
-	CertTitle	string	`json:"certTitle"`
-	Issuer		CertDataTypeIssuer	`json:"issuer"`
-	Receiver	CertDataTypeReceiver	`json:"receiver"`
-	Description	string	`json:"description"`
-	IssuedAt	string	`json:"issuedAt"`
-	ExpiredAt	string	`json:"expiredAt"`
-	CertImage	string		`json:"certImage"`
-	Platform	string		`json:"platform"`
+type CertDataType struct {
+	CertTitle	string				`json:"certTitle"`
+	Issuer		CertDataIssuer		`json:"issuer"`
+	Receiver	CertDataReceiver	`json:"receiver"`
+	Description	string				`json:"description"`
+	IssuedAt	string				`json:"issuedAt"`
+	ExpiredAt	string				`json:"expiredAt"`
+	CertImage	string				`json:"certImage"`
+	Platform	string				`json:"platform"`
+}
+
+type CertDataTypeFromDB struct {
+	CertTitle	string				`json:"certTitle"`
+	Issuer		CertDataIssuer		`json:"issuer"`
+	Receiver	CertDataReceiver	`json:"receiver"`
+	Description	string				`json:"description"`
+	IssuedAt	int64				`json:"issuedAt"`
+	ExpiredAt	int64				`json:"expiredAt"`
+	CertImage	string				`json:"certImage"`
+	Platform	string				`json:"platform"`
 }
 
 type CreateCertificateRequest struct {
-	CollectionId	uint `json:"collectionId"`
-	TxHash   	string `json:"txHash"`
-	Platform 	string `json:"platform"`
-	CertData	CertDataTypeRequest `json:"certData"`
+	CollectionId	uint 			`json:"collectionId"`
+	TxHash   		string 			`json:"txHash"`
+	Platform 		string 			`json:"platform"`
+	CertData		CertDataType 	`json:"certData"`
 }
 
 type GetCertificatesRequest struct {
 	CollectionId	uint `json:"collectionId"`
-	Offset	uint `json:"offset"`
-	Limit	uint `json:"limit"`
+	Offset			uint `json:"offset"`
+	Limit			uint `json:"limit"`
 }
 
 type GetCertificateRequest struct {
@@ -67,14 +78,14 @@ type RevokeCertificateRequest struct {
 }
 
 type CertificateResponse struct {
-	ID              uint					`json:"id"`
-	Description     string					`json:"description"`
-	IssuedAt       	string					`json:"issuedAt"`
-	ExpiredAt       string					`json:"expiredAt"`
-	CollectionId   	uint					`json:"collectionId"`
-	CertNftId       uint					`json:"certNftId"`
-	Data  			string					`json:"data"`
-	RevokedAt 		string					`json:"revokedAt"`
-	RevokedReason	string					`json:"revokedReason"`
-	Receiver		CertDataTypeReceiver	`json:"receiver"`
+	ID              uint				`json:"id"`
+	Description     string				`json:"description"`
+	IssuedAt       	string				`json:"issuedAt"`
+	ExpiredAt       string				`json:"expiredAt"`
+	CollectionId   	uint				`json:"collectionId"`
+	CertNftId       uint				`json:"certNftId"`
+	Data  			CertDataType		`json:"certData"`
+	RevokedAt 		string				`json:"revokedAt"`
+	RevokedReason	string				`json:"revokedReason"`
+	Receiver		CertDataReceiver	`json:"receiver"`
 }

@@ -101,14 +101,22 @@ func ToCRUDRevokeCertificate(reqBody dto.RevokeCertificateRequest) entity.CRUDRe
 func TimeToMsString(t time.Time) string {
 	var unixT int64
 	unixT = t.Unix() * 1000
-	return strconv.FormatInt(unixT, 10)
+	
+	if unixT < 24*3600*1000 {
+		return "null"
+	} else {
+		return strconv.FormatInt(unixT, 10)
+	}
 }
 
 func ToCertificateResponses(certificates []*entity.Cert) []*dto.CertificateResponse {
 	ret := []*dto.CertificateResponse{}
 	for _, c := range certificates {
-		var receiver dto.CertDataTypeReceiver;
+		var receiver dto.CertDataReceiver;
 		json.Unmarshal([]byte(c.Receiver), &receiver)
+
+		var certDataFromDB dto.CertDataTypeFromDB;
+		json.Unmarshal([]byte(c.Data), &certDataFromDB)
 
 		ret = append(ret, &dto.CertificateResponse{
 			ID:				c.ID,
@@ -117,7 +125,16 @@ func ToCertificateResponses(certificates []*entity.Cert) []*dto.CertificateRespo
 			ExpiredAt:      TimeToMsString(c.ExpiredAt),
 			CollectionId:   c.CollectionId,
 			CertNftId:      c.CertNftId,
-			Data:  			c.Data,
+			Data:  			dto.CertDataType{
+								CertTitle: certDataFromDB.CertTitle,
+								Issuer: certDataFromDB.Issuer,
+								Receiver: certDataFromDB.Receiver,
+								Description: certDataFromDB.Description,
+								IssuedAt: strconv.FormatInt(certDataFromDB.IssuedAt, 10),
+								ExpiredAt: strconv.FormatInt(certDataFromDB.ExpiredAt, 10),
+								CertImage: certDataFromDB.CertImage,
+								Platform: certDataFromDB.Platform,
+							},
 			RevokedAt: 		TimeToMsString(c.RevokedAt),
 			RevokedReason:	c.RevokedReason,
 			Receiver:		receiver,
@@ -126,9 +143,16 @@ func ToCertificateResponses(certificates []*entity.Cert) []*dto.CertificateRespo
 	return ret
 }
 
-func ToCertificateResponse(certificate *entity.Cert) dto.CertificateResponse {
-	var receiver dto.CertDataTypeReceiver;
+func ToCertificateResponse(certificate *entity.Cert) *dto.CertificateResponse {
+	if certificate == nil {
+		return nil
+	}
+
+	var receiver dto.CertDataReceiver;
 	json.Unmarshal([]byte(certificate.Receiver), &receiver)
+
+	var certDataFromDB dto.CertDataTypeFromDB;
+	json.Unmarshal([]byte(certificate.Data), &certDataFromDB)
 
 	ret := dto.CertificateResponse{
 		ID:				certificate.ID,
@@ -137,12 +161,21 @@ func ToCertificateResponse(certificate *entity.Cert) dto.CertificateResponse {
 		ExpiredAt:      TimeToMsString(certificate.ExpiredAt),
 		CollectionId:   certificate.CollectionId,
 		CertNftId:      certificate.CertNftId,
-		Data:  			certificate.Data,
+		Data:  			dto.CertDataType{
+							CertTitle: certDataFromDB.CertTitle,
+							Issuer: certDataFromDB.Issuer,
+							Receiver: certDataFromDB.Receiver,
+							Description: certDataFromDB.Description,
+							IssuedAt: strconv.FormatInt(certDataFromDB.IssuedAt, 10),
+							ExpiredAt: strconv.FormatInt(certDataFromDB.ExpiredAt, 10),
+							CertImage: certDataFromDB.CertImage,
+							Platform: certDataFromDB.Platform,
+						},
 		RevokedAt: 		TimeToMsString(certificate.RevokedAt),
 		RevokedReason:	certificate.RevokedReason,
 		Receiver:		receiver,
 	}
-	return ret
+	return &ret
 }
 
 

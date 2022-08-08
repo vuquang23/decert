@@ -127,7 +127,6 @@ func (s *certificateService) saveNewCreatedCertificate(ctx *gin.Context, nftId *
 
 	nftIdInt64, _ := strconv.ParseInt(nftId.String(), 10, 64)
 
-
 	if err := s.certificateRepo.SaveNewCertificate(
 		ctx, 
 		crudCreateCertificate,

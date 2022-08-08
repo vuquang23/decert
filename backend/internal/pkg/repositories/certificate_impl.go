@@ -53,17 +53,38 @@ func (r *certificateRepository) SaveNewCertificate(
 		CollectionId:   crudCreateCertificate.CollectionId,
 		CertNftId:      nftId,
 		Data:  			certJsonString,
-		RevokedAt: 		time.Unix(crudCreateCertificate.CertData.ExpiredAt/1000, 7),
+		RevokedAt: 		time.Unix(0, 7),
 		RevokedReason:	"",
 		Receiver:		receiverJsonString,
 	}
 
 	log.Debugf(ctx, "%+v", certificate)
 
-	result := r.db.Create(certificate)
-	if result.Error != nil {
-		return errors.NewInfraErrorDBInsert([]string{}, result.Error)
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		resultCreate := r.db.Create(certificate)
+		if resultCreate.Error != nil {
+			return errors.NewInfraErrorDBInsert([]string{}, resultCreate.Error)
+		}
+		
+		// add 1 to collection cert count
+		var currentCollection entity.Collection
+		if err := tx.Where("id = ?", crudCreateCertificate.CollectionId).First(&currentCollection).Error; err != nil {
+            return err
+        }
+		resultInc := tx.
+				Model(&currentCollection).
+				Where("id = ?", crudCreateCertificate.CollectionId).
+				Updates(entity.Collection{TotalIssued: currentCollection.TotalIssued+1})
+		if resultInc.Error != nil {
+			return errors.NewInfraErrorDBInsert([]string{}, resultInc.Error)
+		}
+		return nil
+    })
+
+	if err != nil {
+		return errors.NewInfraErrorDBInsert([]string{}, err)
 	}
+	
 	return nil
 }
 
@@ -111,13 +132,37 @@ func (r *certificateRepository) RevokeCertificate(
 ) *errors.InfraError {
 	log.Debugf(ctx, "Revoking certificate")
 
-	result := r.db.
-		Model(entity.Cert{}).
-		Where("id = ?", crudRevokeCertificate.ID).
-		Updates(entity.Cert{RevokedAt: time.Unix(crudRevokeCertificate.RevokedAt/1000, 7), RevokedReason: crudRevokeCertificate.RevokedReason})
-	if result.Error != nil {
-		return errors.NewInfraErrorDBSelect([]string{}, result.Error)
+	err := r.db.Transaction(func(tx *gorm.DB) error {
+		var currentEntity *entity.Cert
+		currentEntity, _ = r.GetCertificateById(ctx, crudRevokeCertificate.ID)
+
+		resultRevoke := r.db.
+			Model(&currentEntity).
+			Where("id = ?", crudRevokeCertificate.ID).
+			Updates(entity.Cert{RevokedAt: time.Unix(crudRevokeCertificate.RevokedAt/1000, 7), RevokedReason: crudRevokeCertificate.RevokedReason})
+		if resultRevoke.Error != nil {
+			return errors.NewInfraErrorDBSelect([]string{}, resultRevoke.Error)
+		}
+		
+		// add 1 to collection cert revoke count
+		var currentCollection entity.Collection
+		if err := tx.Where("id = ?", currentEntity.CollectionId).First(&currentCollection).Error; err != nil {
+            return err
+        }
+		resultDec := tx.
+				Model(&currentCollection).
+				Where("id = ?", currentEntity.CollectionId).
+				Updates(entity.Collection{TotalRevoked: currentCollection.TotalRevoked+1})
+		if resultDec.Error != nil {
+			return errors.NewInfraErrorDBInsert([]string{}, resultDec.Error)
+		}
+		return nil
+    })
+
+	if err != nil {
+		return errors.NewInfraErrorDBInsert([]string{}, err)
 	}
+
 
 	return nil
 }

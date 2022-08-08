@@ -1,29 +1,23 @@
-import { GET, POST } from "api/api";
-import { CertificateCollection } from "api/certificate-collections";
+import { GET, POST, PUT } from "api/api";
+import {
+  CertificateCollection,
+  read as readCollection,
+} from "api/certificate-collections";
 import { MetaMask } from "components/MetaMaskProvider";
 import { platform } from "const";
-import { arrayFromSize, DelayedPromise, toDDMMYYYYstring } from "helper";
 import * as utils from "utils";
 import { CertData } from "utils";
 
-interface Certificate {
+//==============================================================================
+// Type
+//==============================================================================
+
+interface Certificate extends Omit<CertData, "issuedAt" | "expiredAt"> {
   id: number;
-  certTitle: string;
-  issuer: {
-    name: string;
-    wallet: string;
-    position: string;
-  };
-  receiver: {
-    name: string;
-    wallet: string;
-    dateOfBirth: string;
-  };
-  description: string;
+  certNftId: number;
+  collectionId: number;
   issuedAt: number;
   expiredAt: number | "null";
-  certImage: string;
-  platform: string;
   imgFiles?: FileList;
   revocation?: {
     revokedAt: Date;
@@ -34,6 +28,8 @@ interface Certificate {
 interface APICertificate {
   certData: CertData;
   id: number;
+  certNftId: number;
+  collectionId: number;
   expiredAt: string;
   revokedAt: string;
   revokedReason: string;
@@ -52,6 +48,8 @@ const CertificateToCertData = (cert: Certificate): utils.CertData => ({
 
 const APICertificateToCertificate = (value: APICertificate): Certificate => ({
   id: value.id,
+  certNftId: value.certNftId,
+  collectionId: value.collectionId,
   ...value.certData,
   issuedAt: parseInt(value.certData.issuedAt),
   expiredAt: value.expiredAt !== "null" ? parseInt(value.expiredAt) : "null",
@@ -65,37 +63,6 @@ const APICertificateToCertificate = (value: APICertificate): Certificate => ({
     : {}),
 });
 
-const today = new Date(Date.now());
-
-const mockData: Certificate[] = arrayFromSize(30, (index) => ({
-  id: Math.floor(Math.random() * 100),
-  certTitle: `Sinh viên ${index} tốt`,
-  issuer: {
-    name: "Nguyen Van A",
-    wallet: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
-    position: "Principal",
-  },
-  receiver: {
-    name: "Nguyen Van A",
-    wallet: "0xb43a904b0E45Cd99Ef4D9C9C6cb11f293bD77cB7",
-    dateOfBirth: toDDMMYYYYstring(today),
-  },
-  description: "Đã đạt thành tích xuất sắc trong học tập",
-  issuedAt: today.getTime(),
-  expiredAt: new Date(
-    new Date(today).setDate(today.getDate() + Math.floor(Math.random() * 3))
-  ).getTime(),
-  certImage: "https://picsum.photos/620/877",
-  platform: "97",
-  revocation:
-    Math.random() > 0.7
-      ? { revokedAt: today, revokeReason: "Issued by mistake" }
-      : undefined,
-}));
-
-const isExpired = (cert: Certificate) =>
-  cert.expiredAt !== "null" && cert.expiredAt - Date.now() <= 0;
-
 enum VerifyState {
   Unverified,
   Verified,
@@ -103,14 +70,9 @@ enum VerifyState {
   Invalid,
 }
 
-const verify = (cert: Certificate) =>
-  DelayedPromise(
-    cert.id % 2 === 0
-      ? isExpired(cert)
-        ? VerifyState.Expired
-        : VerifyState.Verified
-      : VerifyState.Invalid
-  );
+//==============================================================================
+// Read
+//==============================================================================
 
 const read = (id: number) =>
   GET(`certs/${id}`).then((data) =>
@@ -140,6 +102,10 @@ const readAll = ({
   ).then((data) =>
     (data as APICertificate[]).map((item) => APICertificateToCertificate(item))
   );
+
+//==============================================================================
+// Issue
+//==============================================================================
 
 const issue = async (
   metaMask: MetaMask,
@@ -175,13 +141,51 @@ const issue = async (
   });
 };
 
-const revoke = async (metaMask: MetaMask, id: number) => {
-  const cert = mockData.find((cert) => cert.id === id);
-  if (cert !== undefined) {
-    cert.revocation = { revokedAt: today, revokeReason: "Issued by mistake" };
-  }
-  await DelayedPromise(0);
-  return read(id);
+//==============================================================================
+// Verify
+//==============================================================================
+
+const verify = async (cert: Certificate) => {
+  const collectionAddress = (await readCollection(cert.collectionId))
+    .collectionAddress;
+
+  const isVerified = await utils.verifyCert(CertificateToCertData(cert), {
+    certAddress: collectionAddress,
+    certId: cert.certNftId,
+  });
+
+  return isVerified
+    ? isExpired(cert)
+      ? VerifyState.Expired
+      : VerifyState.Verified
+    : VerifyState.Invalid;
+};
+
+const isExpired = (cert: Certificate) =>
+  cert.expiredAt !== "null" && cert.expiredAt - Date.now() <= 0;
+
+//==============================================================================
+// Revoke
+//==============================================================================
+
+const revoke = async (
+  metaMask: MetaMask,
+  cert: Certificate,
+  reason: string
+) => {
+  const collectionAddress = (await readCollection(cert.collectionId))
+    .collectionAddress;
+
+  const txHash = await metaMask.request(
+    await utils.revokeCertTx(
+      collectionAddress,
+      cert.certNftId,
+      reason,
+      metaMask.address
+    )
+  );
+
+  return PUT(`certs/${cert.id}`, { txHash: txHash, platform: "" });
 };
 
 export type { Certificate };

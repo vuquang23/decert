@@ -140,7 +140,15 @@ const Cert = ({
     <Row
       columnsClassName={columnsClassName}
       columnsValue={[
-        cert.receiver.name,
+        <div
+          className={
+            cert.revocation !== undefined
+              ? "text-danger text-decoration-line-through"
+              : ""
+          }
+        >
+          {cert.receiver.name}
+        </div>,
         new Date(cert.issuedAt).toDateString(),
         <div className={isExpired(cert) ? "text-danger fw-bold" : ""}>
           {cert.expiredAt !== "null"
@@ -153,7 +161,13 @@ const Cert = ({
       compactContent={
         <>
           <div className="row">
-            <div className="col-10">
+            <div
+              className={`col-10 ${
+                cert.revocation !== undefined
+                  ? "text-danger text-decoration-line-through"
+                  : ""
+              }`}
+            >
               <strong>Receiver:</strong> {cert.receiver.name}
             </div>
             {cert.revocation === undefined && (
@@ -187,21 +201,26 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
   return (
     <button
       className="btn btn-outline-danger ms-auto"
-      onClick={() =>
+      onClick={(event) => {
+        event.stopPropagation();
         BootstrapSwalDanger.fire({
           icon: "warning",
           title: "Do you want to revoke this certificate?",
           showConfirmButton: true,
+          confirmButtonText: "Create",
           showCancelButton: true,
           showLoaderOnConfirm: true,
-          preConfirm: () => revoke(metaMask, cert.id),
+          input: "text",
+          inputValidator: (result) =>
+            result.length === 0 ? "Reason cannot be empty" : null,
+          preConfirm: (reason) => revoke(metaMask, cert, reason),
           allowOutsideClick: () => !Swal.isLoading(),
         }).then((result) => {
           if (result.isConfirmed) {
             updateChangeCounter();
           }
-        })
-      }
+        });
+      }}
     >
       <i className="bi bi-trash3" />
     </button>

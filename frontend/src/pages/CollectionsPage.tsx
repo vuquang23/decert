@@ -94,9 +94,7 @@ const createCollectionModal = (
       if (result.isConfirmed) {
         BootstrapSwal.fire({
           icon: "success",
-          title: "Collection created!",
-          showConfirmButton: false,
-          showCloseButton: true,
+          title: "Transaction broadcast!",
         });
       }
     })
@@ -111,8 +109,6 @@ const createCollectionModal = (
         onPromiseRejected(reason, navigate);
       }
     });
-
-//#region Collections Table
 
 const CollectionsTable = ({
   certCollections,
@@ -286,7 +282,5 @@ const CollectionPlaceholder = ({
     }
   />
 );
-
-//#endregion
 
 export default CollectionsPage;

@@ -9,11 +9,11 @@ import {
   toDDMMYYYYstring,
   userRejectTransaction,
 } from "helper";
+import { onPromiseRejected } from "pages/ErrorPage";
 import { useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { onPromiseRejected } from "pages/ErrorPage";
 
 const NewCertificatePage = () => {
   const location = useLocation();
@@ -23,6 +23,8 @@ const NewCertificatePage = () => {
   const form = useForm<Certificate>({
     defaultValues: {
       id: 0,
+      certNftId: 0,
+      collectionId: collection.id,
       certTitle: collection.collectionName,
       certImage: "",
       issuedAt: Date.now(),
@@ -43,7 +45,7 @@ const NewCertificatePage = () => {
       .then(() =>
         BootstrapSwal.fire({
           icon: "success",
-          title: "Certificate issued!",
+          title: "Transaction broadcast!",
         })
       )
       .then(() => navigate("/collections"))

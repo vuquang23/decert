@@ -1,6 +1,7 @@
 import { Buffer } from "buffer/";
 import { createHash } from "crypto-browserify";
 import { ethers } from "ethers";
+import stringify from "json-stable-stringify";
 import certAbi from "./abi/Decert.json";
 import factoryAbi from "./abi/DecertFactory.json";
 
@@ -177,7 +178,7 @@ export async function verifyCert(
 }
 
 export function hashCert(certData: CertData) {
-  const certBuffer = Buffer.from(JSON.stringify(certData));
+  const certBuffer = Buffer.from(stringify(certData));
   const hash = createHash("sha256");
   hash.update(certBuffer);
   const certHash = hash.digest("hex");

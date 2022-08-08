@@ -1,3 +1,7 @@
+//==============================================================================
+// Promise
+//==============================================================================
+
 const DelayedPromise = <T>(value: T | Promise<T>, ms: number = 1000) =>
   value instanceof Promise
     ? delayPromise(value, ms)
@@ -9,23 +13,39 @@ const delayPromise = async <T>(promise: Promise<T>, ms: number) => {
   return promise;
 };
 
+//==============================================================================
+// Array
+//==============================================================================
+
 const arrayFromSize = <T>(
   size: number,
   elementGenerate: (index: number) => T
 ) => Array.from(Array(size).keys(), (_, index) => elementGenerate(index));
 
+//==============================================================================
+// Form
+//==============================================================================
+
 const formValidationClassName = (error: any) =>
   error !== undefined ? "is-invalid" : "";
+
+//==============================================================================
+// MetaMask
+//==============================================================================
 
 const userRejectTransaction = (reason: any) =>
   (reason as { code: number }).code !== undefined && reason.code === 4001;
 
-const toTwoDigits = (n: number) => (n >= 10 ? n.toString() : `0${n}`);
+//==============================================================================
+// Date
+//==============================================================================
 
 const toDDMMYYYYstring = (date: Date) =>
   `${toTwoDigits(date.getDate())}/${toTwoDigits(
     date.getMonth() + 1
   )}/${date.getFullYear()}`;
+
+const toTwoDigits = (n: number) => (n >= 10 ? n.toString() : `0${n}`);
 
 const dateFromDDMMYYYY = (date: string, separator: string = "/") => {
   const ddmmyyyy = date.split(separator).map((value) => parseInt(value));

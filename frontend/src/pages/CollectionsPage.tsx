@@ -101,6 +101,7 @@ const createCollectionModal = (
       }
     })
     .catch((reason) => {
+      Swal.close();
       if (userRejectTransaction(reason)) {
         BootstrapSwal.fire({
           icon: "error",

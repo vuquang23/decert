@@ -1,4 +1,4 @@
-import { Certificate } from "api/certificate";
+import { Certificate, issue } from "api/certificate";
 import { CertificateCollection } from "api/certificate-collections";
 import { BootstrapSwal } from "components/BootstrapSwal";
 import Center from "components/Center";
@@ -7,11 +7,13 @@ import {
   dateFromYYYYMMDD,
   formValidationClassName,
   toDDMMYYYYstring,
+  userRejectTransaction,
 } from "helper";
 import { useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { onPromiseRejected } from "pages/ErrorPage";
 
 const NewCertificatePage = () => {
   const location = useLocation();
@@ -35,8 +37,7 @@ const NewCertificatePage = () => {
       showConfirmButton: true,
       showCancelButton: true,
       showLoaderOnConfirm: true,
-      // preConfirm: () => issue(metaMask, cert),
-      preConfirm: () => console.log(cert),
+      preConfirm: () => issue(metaMask, collection, cert),
       allowOutsideClick: () => !Swal.isLoading(),
     })
       .then(() =>
@@ -45,7 +46,18 @@ const NewCertificatePage = () => {
           title: "Certificate issued!",
         })
       )
-      .then(() => navigate("/collections"));
+      .then(() => navigate("/collections"))
+      .catch((reason) => {
+        Swal.close();
+        if (userRejectTransaction(reason)) {
+          BootstrapSwal.fire({
+            icon: "error",
+            title: "You rejected the transaction.",
+          });
+        } else {
+          onPromiseRejected(reason, navigate);
+        }
+      });
   };
 
   return (

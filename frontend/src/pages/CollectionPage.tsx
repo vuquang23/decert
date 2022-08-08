@@ -1,8 +1,6 @@
 import { Certificate, isExpired, readAll, revoke } from "api/certificate";
 import { CertificateCollection, read } from "api/certificate-collections";
-import Address from "components/Address";
 import { BootstrapSwalDanger } from "components/BootstrapSwal";
-import HeaderSearch from "components/HeaderSearch";
 import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
@@ -65,8 +63,8 @@ const CollectionPage = () => {
 const Header = ({ collection }: { collection?: CertificateCollection }) => {
   const navigate = useNavigate();
   return (
-    <HeaderSearch
-      title={
+    <div className="row align-items-center justify-content-between">
+      <div className="col-auto">
         <h1 className="display-4 placeholder-glow">
           {collection !== undefined ? (
             collection.collectionName
@@ -74,15 +72,22 @@ const Header = ({ collection }: { collection?: CertificateCollection }) => {
             <span className="placeholder col-5" />
           )}
         </h1>
-      }
-      buttonText="Issue new"
-      buttonIconName="plus-lg"
-      buttonOnClick={() =>
-        navigate("/certificate/new", {
-          state: collection,
-        })
-      }
-    />
+      </div>
+      <div className="col-auto">
+        <button
+          className="btn btn-success"
+          type="button"
+          onClick={() =>
+            navigate("/certificate/new", {
+              state: collection,
+            })
+          }
+        >
+          <i className={`bi bi-plus-lg d-inline d-sm-none`} />
+          <span className="d-none d-sm-inline">Issue new</span>
+        </button>
+      </div>
+    </div>
   );
 };
 
@@ -130,48 +135,52 @@ const Cert = ({
 }: {
   columnsClassName: string[];
   cert: Certificate;
-}) => (
-  <Row
-    columnsClassName={columnsClassName}
-    columnsValue={[
-      <Receiver cert={cert} />,
-      new Date(cert.issuedAt).toDateString(),
-      <div className={isExpired(cert) ? "text-danger fw-bold" : ""}>
-        {cert.expiredAt !== "null"
-          ? new Date(cert.expiredAt).toDateString()
-          : "never"}
-      </div>,
-      <div className="text-truncate">{cert.description}</div>,
-      cert.revocation === undefined ? <RevokeButton cert={cert} /> : <></>,
-    ]}
-    compactContent={
-      <>
-        <div className="row">
-          <div className="col-10">
-            <strong>Receiver:</strong> <Receiver cert={cert} />
-          </div>
-          {cert.revocation === undefined && (
-            <div className="col-2">
-              <RevokeButton cert={cert} />
+}) => {
+  const navigate = useNavigate();
+  return (
+    <Row
+      columnsClassName={columnsClassName}
+      columnsValue={[
+        cert.receiver.name,
+        new Date(cert.issuedAt).toDateString(),
+        <div className={isExpired(cert) ? "text-danger fw-bold" : ""}>
+          {cert.expiredAt !== "null"
+            ? new Date(cert.expiredAt).toDateString()
+            : "never"}
+        </div>,
+        <div className="text-truncate">{cert.description}</div>,
+        cert.revocation === undefined ? <RevokeButton cert={cert} /> : <></>,
+      ]}
+      compactContent={
+        <>
+          <div className="row">
+            <div className="col-10">
+              <strong>Receiver:</strong> {cert.receiver.name}
             </div>
-          )}
-        </div>
-        <p>
-          <br />
-          <strong>Issued at:</strong> {new Date(cert.issuedAt).toDateString()}
-          <br />
-          <strong>Expired at:</strong>{" "}
-          <span className={isExpired(cert) ? "text-danger fw-bold" : ""}>
-            {cert.expiredAt !== "null"
-              ? new Date(cert.expiredAt).toDateString()
-              : "never"}
-          </span>
-        </p>
-        <div className="text-truncate">{cert.description}</div>
-      </>
-    }
-  />
-);
+            {cert.revocation === undefined && (
+              <div className="col-2">
+                <RevokeButton cert={cert} />
+              </div>
+            )}
+          </div>
+          <p>
+            <br />
+            <strong>Issued at:</strong> {new Date(cert.issuedAt).toDateString()}
+            <br />
+            <strong>Expired at:</strong>{" "}
+            <span className={isExpired(cert) ? "text-danger fw-bold" : ""}>
+              {cert.expiredAt !== "null"
+                ? new Date(cert.expiredAt).toDateString()
+                : "never"}
+            </span>
+          </p>
+          <div className="text-truncate">{cert.description}</div>
+        </>
+      }
+      onClick={() => navigate(`/certificate/${cert.id}`)}
+    />
+  );
+};
 
 const RevokeButton = ({ cert }: { cert: Certificate }) => {
   const updateChangeCounter = useContext(ChangeCounterContext);
@@ -199,16 +208,5 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
     </button>
   );
 };
-
-const Receiver = ({ cert }: { cert: Certificate }) => (
-  <Address
-    address={cert.receiver.wallet}
-    customTextClassName={
-      cert.revocation !== undefined
-        ? "text-dark text-decoration-line-through"
-        : ""
-    }
-  />
-);
 
 export default CollectionPage;

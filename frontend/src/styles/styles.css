@@ -86,3 +86,7 @@
   overflow: hidden;
   hyphens: auto;
 }
+
+.clickable {
+  cursor: pointer;
+}

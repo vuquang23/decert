@@ -6,7 +6,10 @@ const request = async (
   content?: any,
   searchParams?: URLSearchParams
 ) => {
-  if (content !== undefined && "platform" in content) {
+  if (
+    content !== undefined &&
+    (content as { platform: string }).platform !== undefined
+  ) {
     content.platform = platform.toString();
   }
   const response = await fetch(

@@ -1,6 +1,10 @@
+import { GET, POST } from "api/api";
+import { CertificateCollection } from "api/certificate-collections";
 import { MetaMask } from "components/MetaMaskProvider";
+import { platform } from "const";
 import { arrayFromSize, DelayedPromise, toDDMMYYYYstring } from "helper";
-import * as Utils from "utils";
+import * as utils from "utils";
+import { CertData } from "utils";
 
 interface Certificate {
   id: number;
@@ -26,6 +30,40 @@ interface Certificate {
     revokeReason: String;
   };
 }
+
+interface APICertificate {
+  certData: CertData;
+  id: number;
+  expiredAt: string;
+  revokedAt: string;
+  revokedReason: string;
+}
+
+const CertificateToCertData = (cert: Certificate): utils.CertData => ({
+  certTitle: cert.certTitle,
+  issuer: cert.issuer,
+  receiver: cert.receiver,
+  description: cert.description,
+  issuedAt: cert.issuedAt.toString(),
+  expiredAt: cert.expiredAt.toString(),
+  certImage: cert.certImage,
+  platform: cert.platform,
+});
+
+const APICertificateToCertificate = (value: APICertificate): Certificate => ({
+  id: value.id,
+  ...value.certData,
+  issuedAt: parseInt(value.certData.issuedAt),
+  expiredAt: value.expiredAt !== "null" ? parseInt(value.expiredAt) : "null",
+  ...(value.revokedAt !== "null"
+    ? {
+        revocation: {
+          revokedAt: new Date(parseInt(value.revokedAt)),
+          revokeReason: value.revokedReason,
+        },
+      }
+    : {}),
+});
 
 const today = new Date(Date.now());
 
@@ -75,28 +113,66 @@ const verify = (cert: Certificate) =>
   );
 
 const read = (id: number) =>
-  DelayedPromise(
-    new Promise<Certificate>((resolve, reject) => {
-      const result = mockData.find((cert) => cert.id === id);
-      return result !== undefined ? resolve(result) : reject();
-    })
+  GET(`certs/${id}`).then((data) =>
+    APICertificateToCertificate(data as APICertificate)
   );
 
 const readAll = ({
   receiver,
   collectionId,
+  limit,
+  offset,
 }: {
   receiver?: string;
   collectionId?: number;
-}) => DelayedPromise(mockData);
+  limit?: number;
+  offset?: number;
+}) =>
+  GET(
+    "certs",
+    new URLSearchParams({
+      limit: (limit ?? 0).toString(),
+      offset: (offset ?? 0).toString(),
+      ...(collectionId !== undefined
+        ? { collectionId: collectionId.toString() }
+        : {}),
+    })
+  ).then((data) =>
+    (data as APICertificate[]).map((item) => APICertificateToCertificate(item))
+  );
 
-const issue = async (metaMask: MetaMask, cert: Certificate) => {
-  await Utils.pushToIpfs(cert.imgFiles![0]);
-  cert.id = Math.floor(Math.random() * 100 + 100);
-  cert.certImage = URL.createObjectURL(cert.imgFiles![0]);
-  mockData.push(cert);
-  await DelayedPromise(0);
-  return cert.id;
+const issue = async (
+  metaMask: MetaMask,
+  collection: CertificateCollection,
+  cert: Certificate
+) => {
+  cert.platform = platform.toString();
+  // TODO: uncomment
+  /* const imgUrl = await utils.pushToIpfs(cert.imgFiles![0]);
+  if (imgUrl instanceof Error) {
+    throw imgUrl;
+  }
+  cert.certImage = imgUrl; */
+  cert.certImage = "https://picsum.photos/620/877";
+
+  const certData = CertificateToCertData(cert);
+  const certHash = utils.hashCert(certData);
+
+  const txHash = await metaMask.request(
+    await utils.createNewCertTx(collection.collectionAddress, {
+      issuer: metaMask.address,
+      recipient: cert.receiver.wallet,
+      certHash: certHash,
+      link: cert.certImage,
+      issuedAt: cert.issuedAt,
+    })
+  );
+  return POST("certs", {
+    collectionId: collection.id,
+    certData: certData,
+    txHash: txHash,
+    platform: "",
+  });
 };
 
 const revoke = async (metaMask: MetaMask, id: number) => {

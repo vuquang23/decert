@@ -11,8 +11,6 @@ import PageLayout from "pages/PageLayout";
 import WalletPage from "pages/WalletPage";
 import { Navigate, Route, Routes } from "react-router-dom";
 
-// TODO: Handle empty fetch result
-
 const App = () => (
   <Routes>
     <Route path="/" element={<HomePage />} />

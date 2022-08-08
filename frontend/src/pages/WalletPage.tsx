@@ -17,7 +17,8 @@ const WalletPage = () => {
   });
   const { address } = useMetaMask();
   useEffect(() => {
-    readAll({ receiver: address })
+    // TODO: Change to receiver
+    readAll({ collectionId: 2 })
       .then((value) =>
         setCerts(value.filter((cert) => cert.revocation === undefined))
       )
@@ -69,7 +70,7 @@ const CertificateCard = ({ cert }: { cert: Certificate }) => {
   return (
     <div className="col-12 col-sm-6 col-md-4 col-lg-3">
       <div
-        className={`card hover-shadow ${
+        className={`card hover-shadow clickable ${
           isExpired(cert) ? "text-bg-secondary" : ""
         }`}
         onClick={() => navigate(`/certificate/${cert.id}`)}

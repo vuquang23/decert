@@ -48,12 +48,17 @@ const Row = ({
   columnsClassName,
   columnsValue,
   compactContent,
+  onClick,
 }: {
   columnsClassName: string[];
   columnsValue: (JSX.Element | string)[];
   compactContent: JSX.Element;
+  onClick?: () => void;
 }) => (
-  <div className="card my-1">
+  <div
+    className={`card my-1 ${onClick !== undefined ? "clickable" : ""}`}
+    {...(onClick !== undefined ? { onClick: onClick } : {})}
+  >
     <div className="card-body row align-items-center d-none d-md-flex">
       {columnsValue.map((item, index) => (
         <div key={index} className={columnsClassName[index]} children={item} />

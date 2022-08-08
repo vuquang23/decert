@@ -1,3 +1,4 @@
+import { Buffer } from "buffer/";
 import { createHash } from "crypto-browserify";
 import { ethers } from "ethers";
 import certAbi from "./abi/Decert.json";
@@ -12,7 +13,7 @@ export async function createNewCollectionTx(
   from: string,
   collectionName: string
 ): Promise<RequestParam> {
-  const factoryAddress = "0x84463fe95b4bf11becff67f8894b7ce1464aaa4c";
+  const factoryAddress = "0xdaB4c93C97272A1bF3f3A0cE5a9fb1D84D76580a";
   const iface = new ethers.utils.Interface(factoryAbi);
   const data = iface.encodeFunctionData("CreateNewDecertCollection", [
     from,
@@ -166,14 +167,19 @@ export async function verifyCert(
   certData: CertData,
   proof: Proof
 ): Promise<boolean> {
-  const certBuffer = Buffer.from(JSON.stringify(certData));
-  const hash = createHash("sha256");
-  hash.update(certBuffer);
-  const certHash = hash.digest("hex");
+  const certHash = hashCert(certData);
   const provider = ethers.getDefaultProvider(
     "https://data-seed-prebsc-1-s1.binance.org:8545"
   );
   const contract = new ethers.Contract(proof.certAddress, certAbi, provider);
   const response = await contract.certData(proof.certId);
-  return `0x${certHash}` === response["certHash"];
+  return certHash === response["certHash"];
+}
+
+export function hashCert(certData: CertData) {
+  const certBuffer = Buffer.from(JSON.stringify(certData));
+  const hash = createHash("sha256");
+  hash.update(certBuffer);
+  const certHash = hash.digest("hex");
+  return `0x${certHash}`;
 }

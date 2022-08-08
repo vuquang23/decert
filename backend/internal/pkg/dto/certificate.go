@@ -37,8 +37,8 @@ type CertDataTypeRequest struct {
 	Issuer		CertDataTypeIssuer	`json:"issuer"`
 	Receiver	CertDataTypeReceiver	`json:"receiver"`
 	Description	string	`json:"description"`
-	IssuedAt	int64	`json:"issuedAt"`
-	ExpiredAt	int64	`json:"expiredAt"`
+	IssuedAt	string	`json:"issuedAt"`
+	ExpiredAt	string	`json:"expiredAt"`
 	CertImage	string		`json:"certImage"`
 	Platform	string		`json:"platform"`
 }
@@ -69,12 +69,12 @@ type RevokeCertificateRequest struct {
 type CertificateResponse struct {
 	ID              uint					`json:"id"`
 	Description     string					`json:"description"`
-	IssuedAt       	int64					`json:"issuedAt"`
-	ExpiredAt       int64					`json:"expiredAt"`
+	IssuedAt       	string					`json:"issuedAt"`
+	ExpiredAt       string					`json:"expiredAt"`
 	CollectionId   	uint					`json:"collectionId"`
 	CertNftId       uint					`json:"certNftId"`
 	Data  			string					`json:"data"`
-	RevokedAt 		int64					`json:"revokedAt"`
+	RevokedAt 		string					`json:"revokedAt"`
 	RevokedReason	string					`json:"revokedReason"`
 	Receiver		CertDataTypeReceiver	`json:"receiver"`
 }

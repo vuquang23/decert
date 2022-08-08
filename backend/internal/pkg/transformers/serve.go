@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"encoding/json"
 	"time"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -46,6 +47,16 @@ func ToCRUDGetCertificates(reqParams dto.GetCertificatesRequest) entity.CRUDGetC
 	}
 }
 
+func stringToInt64(s string) int64 {
+	n, err := strconv.ParseInt(s, 10, 64)
+	if err == nil {
+		return n
+	} else {
+		fmt.Println(s, "is not an integer.")
+		return 0
+	}
+}
+
 func ToCRUDCreateCertificate(reqBody dto.CreateCertificateRequest) entity.CRUDCreateCertificate {
 	issuerBytes, _ := json.Marshal(reqBody.CertData.Issuer)
 	receiverBytes, _ := json.Marshal(reqBody.CertData.Receiver)
@@ -58,8 +69,8 @@ func ToCRUDCreateCertificate(reqBody dto.CreateCertificateRequest) entity.CRUDCr
 
 	fmt.Println("issued at", reqBody.CertData.IssuedAt)
 	fmt.Println("ExpiredAt", reqBody.CertData.ExpiredAt)
-	if (reqBody.CertData.ExpiredAt == 0) {
-		reqBody.CertData.ExpiredAt = 253402127999000 // biggest value of year 9999
+	if (reqBody.CertData.ExpiredAt == "") {
+		reqBody.CertData.ExpiredAt = "253402127999000" // biggest value of year 9999
 	}
 
 	return entity.CRUDCreateCertificate{
@@ -69,8 +80,8 @@ func ToCRUDCreateCertificate(reqBody dto.CreateCertificateRequest) entity.CRUDCr
 							Issuer: issuer,
 							Receiver: receiver,
 							Description: reqBody.CertData.Description,
-							IssuedAt: reqBody.CertData.IssuedAt,
-							ExpiredAt: reqBody.CertData.ExpiredAt,
+							IssuedAt: stringToInt64(reqBody.CertData.IssuedAt),
+							ExpiredAt: stringToInt64(reqBody.CertData.ExpiredAt),
 							CertImage: reqBody.CertData.CertImage,
 							Platform: reqBody.CertData.Platform,
 						},
@@ -87,10 +98,10 @@ func ToCRUDRevokeCertificate(reqBody dto.RevokeCertificateRequest) entity.CRUDRe
 	}
 }
 
-func TimeToMs(t time.Time) int64 {
+func TimeToMsString(t time.Time) string {
 	var unixT int64
-	unixT = t.Unix()
-	return unixT * 1000
+	unixT = t.Unix() * 1000
+	return strconv.FormatInt(unixT, 10)
 }
 
 func ToCertificateResponses(certificates []*entity.Cert) []*dto.CertificateResponse {
@@ -102,12 +113,12 @@ func ToCertificateResponses(certificates []*entity.Cert) []*dto.CertificateRespo
 		ret = append(ret, &dto.CertificateResponse{
 			ID:				c.ID,
 			Description:	c.Description,
-			IssuedAt:      	TimeToMs(c.IssuedAt),
-			ExpiredAt:      TimeToMs(c.ExpiredAt),
+			IssuedAt:      	TimeToMsString(c.IssuedAt),
+			ExpiredAt:      TimeToMsString(c.ExpiredAt),
 			CollectionId:   c.CollectionId,
 			CertNftId:      c.CertNftId,
 			Data:  			c.Data,
-			RevokedAt: 		TimeToMs(c.RevokedAt),
+			RevokedAt: 		TimeToMsString(c.RevokedAt),
 			RevokedReason:	c.RevokedReason,
 			Receiver:		receiver,
 		})
@@ -122,12 +133,12 @@ func ToCertificateResponse(certificate *entity.Cert) dto.CertificateResponse {
 	ret := dto.CertificateResponse{
 		ID:				certificate.ID,
 		Description:	certificate.Description,
-		IssuedAt:      	TimeToMs(certificate.IssuedAt),
-		ExpiredAt:      TimeToMs(certificate.ExpiredAt),
+		IssuedAt:      	TimeToMsString(certificate.IssuedAt),
+		ExpiredAt:      TimeToMsString(certificate.ExpiredAt),
 		CollectionId:   certificate.CollectionId,
 		CertNftId:      certificate.CertNftId,
 		Data:  			certificate.Data,
-		RevokedAt: 		TimeToMs(certificate.RevokedAt),
+		RevokedAt: 		TimeToMsString(certificate.RevokedAt),
 		RevokedReason:	certificate.RevokedReason,
 		Receiver:		receiver,
 	}

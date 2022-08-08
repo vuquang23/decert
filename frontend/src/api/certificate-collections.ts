@@ -35,10 +35,8 @@ const readAll = (
     })
   ).then((data) => data as CertificateCollection[]);
 
-const read = (issuer: string, id: number) =>
-  readAll(issuer).then((data) =>
-    data.find((collection) => collection.id === id)
-  );
+const read = (id: number) =>
+  GET(`collections/${id}`).then((data) => data as CertificateCollection);
 
 export type { CertificateCollection };
 export { create, readAll, read };

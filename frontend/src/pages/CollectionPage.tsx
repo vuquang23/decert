@@ -16,14 +16,13 @@ const itemsPerPage = 5;
 
 const CollectionPage = () => {
   const navigate = useNavigate();
-  const metaMask = useMetaMask();
   const { collectionId } = useParams();
   const [collection, setCollection] = useState<CertificateCollection>();
   const [changeCounter, setChangeCounter] = useState(0);
 
   const fetchCerts = useCallback(
     () =>
-      read(metaMask.address, parseInt(collectionId!))
+      read(parseInt(collectionId!))
         .then((collection) => {
           // Force useTableState to run useEffect
           changeCounter.toString();
@@ -41,7 +40,7 @@ const CollectionPage = () => {
             throw reason;
           }
         }),
-    [changeCounter, collectionId, metaMask.address, navigate]
+    [changeCounter, collectionId, navigate]
   );
 
   const {

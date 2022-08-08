@@ -12,27 +12,31 @@ import {
   useMetaMask,
 } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
-import { Row, RowPlaceholder, Table } from "components/Table";
+import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
 import { arrayFromSize, userRejectTransaction } from "helper";
 import { onPromiseRejected } from "pages/ErrorPage";
-import { LegacyRef, useEffect, useRef, useState } from "react";
+import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+
+const itemsPerPage = 5;
 
 const CollectionsPage = () => {
   const metaMask = useMetaMask();
   const navigate = useNavigate();
-
-  const [certCollections, setCertCollections] =
-    useState<CertificateCollection[]>();
-  useEffect(() => {
-    readAll(metaMask.address)
-      .then((value) => setCertCollections(value))
-      .catch((reason) => onPromiseRejected(reason, navigate));
-  }, [metaMask.address, navigate]);
-
   const [searchQuery, setSearchQuery] = useState("");
-  const [page, setPage] = useState(1);
+
+  const fetchCollections = useCallback(
+    (itemsPerPage: number, offset: number) =>
+      readAll(metaMask.address, itemsPerPage, offset, searchQuery),
+    [metaMask.address, searchQuery]
+  );
+
+  const {
+    array: certCollections,
+    page,
+    setPage,
+  } = useTableState(itemsPerPage, fetchCollections, navigate);
 
   return (
     <>
@@ -118,7 +122,6 @@ const CollectionsTable = ({
   page: number;
   setPage: (page: number) => void;
 }) => {
-  const itemsPerPage = 5;
   const columnsClassName = ["col-5", "col-2", "col-2", "col-3 d-flex"];
   return (
     <Table

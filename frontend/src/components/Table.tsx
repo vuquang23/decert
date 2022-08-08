@@ -1,5 +1,8 @@
 import Empty from "components/Empty";
 import { getRandomCol } from "components/ParagraphPlaceholder";
+import { onPromiseRejected } from "pages/ErrorPage";
+import { useEffect, useState } from "react";
+import { NavigateFunction } from "react-router-dom";
 
 const Table = ({
   columnHeaders,
@@ -118,4 +121,43 @@ const Pagination = ({
   </ul>
 );
 
-export { Table, Row, RowPlaceholder, Pagination };
+/**
+ * {@link fetch} function should be useCallback()'s output. If {@link fetch} is
+ * changed, page will be set to 1 and array will be fetched again.
+ */
+const useTableState = <T,>(
+  itemsPerPage: number,
+  fetch: (itemsPerPage: number, offset: number) => Promise<T[]>,
+  navigate: NavigateFunction
+) => {
+  const [array, setArray] = useState<T[]>();
+  const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    setPage(1);
+    setArray(undefined);
+    fetch(itemsPerPage * 4, 0)
+      .then((value) => setArray(value))
+      .catch((reason) => onPromiseRejected(reason, navigate));
+  }, [fetch, itemsPerPage, navigate]);
+
+  return {
+    array: array,
+    page: page,
+    setPage: (page: number) =>
+      setPage((prevPage) => {
+        if (page > prevPage) {
+          fetch(itemsPerPage, array !== undefined ? array.length : 0)
+            .then((value) => {
+              if (value.length > 0) {
+                setArray((prevValue) => [...(prevValue ?? []), ...value]);
+              }
+            })
+            .catch((reason) => onPromiseRejected(reason, navigate));
+        }
+        return page;
+      }),
+  };
+};
+
+export { Table, Row, RowPlaceholder, Pagination, useTableState };

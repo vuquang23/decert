@@ -30,7 +30,7 @@ const HeaderSearch = ({
   placeholder?: string;
   filters?: string[];
   defaultFilter?: string;
-  onSearchSubmit: (inputs: Inputs) => void;
+  onSearchSubmit?: (inputs: Inputs) => void;
   buttonText?: string;
   buttonIconName?: string;
   buttonOnClick?: () => void;
@@ -86,13 +86,13 @@ const SearchForm = ({
   placeholder?: string;
   filters?: string[];
   defaultFilter?: string;
-  onSearchSubmit: (inputs: Inputs) => void;
+  onSearchSubmit?: (inputs: Inputs) => void;
 }) => {
   const { register, handleSubmit } = useForm<Inputs>({
     defaultValues: { filter: defaultFilter },
   });
   const submitHandler: SubmitHandler<Inputs> = (inputs) =>
-    onSearchSubmit(inputs);
+    onSearchSubmit !== undefined ? onSearchSubmit(inputs) : {};
 
   return (
     <form

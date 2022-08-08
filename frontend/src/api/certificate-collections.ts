@@ -19,10 +19,21 @@ const create = (metaMask: MetaMask, title: string) =>
       POST("collections", { txHash: txHash, platform: "" })
     );
 
-const readAll = (issuer: string) =>
-  GET("collections", new URLSearchParams({ issuer: issuer })).then(
-    (data) => data as CertificateCollection[]
-  );
+const readAll = (
+  issuer: string,
+  limit: number = 0,
+  offset: number = 0,
+  name?: string
+) =>
+  GET(
+    "collections",
+    new URLSearchParams({
+      issuer: issuer,
+      limit: limit.toString(),
+      offset: offset.toString(),
+      ...(name !== undefined && name.length > 0 ? { name: name } : {}),
+    })
+  ).then((data) => data as CertificateCollection[]);
 
 const read = (issuer: string, id: number) =>
   readAll(issuer).then((data) =>

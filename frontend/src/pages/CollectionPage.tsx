@@ -2,91 +2,68 @@ import { Certificate, isExpired, readAll, revoke } from "api/certificate";
 import { CertificateCollection, read } from "api/certificate-collections";
 import Address from "components/Address";
 import { BootstrapSwalDanger } from "components/BootstrapSwal";
-import HeaderSearch, { Inputs } from "components/HeaderSearch";
+import HeaderSearch from "components/HeaderSearch";
 import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
-import { Row, RowPlaceholder, Table } from "components/Table";
+import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
 import { arrayFromSize } from "helper";
-import { onPromiseRejected } from "pages/ErrorPage";
 import { NotFoundError } from "pages/NotFoundPage";
-import { createContext, useContext, useEffect, useState } from "react";
-import { SubmitHandler } from "react-hook-form";
+import { createContext, useCallback, useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
-enum CertFilter {
-  All = "All",
-  Valid = "Valid",
-  Expired = "Expired",
-  Revoked = "Revoked",
-}
-
 const ChangeCounterContext = createContext(() => {});
+
+const itemsPerPage = 5;
 
 const CollectionPage = () => {
   const navigate = useNavigate();
   const metaMask = useMetaMask();
   const { collectionId } = useParams();
-  const [page, setPage] = useState(1);
-  const [filter, setFilter] = useState(CertFilter.Valid);
   const [collection, setCollection] = useState<CertificateCollection>();
-  const [certs, setCerts] = useState<Certificate[]>();
   const [changeCounter, setChangeCounter] = useState(0);
-  useEffect(() => {
-    setCerts(undefined);
-    read(metaMask.address, parseInt(collectionId!))
-      .then((collection) => {
-        if (collection === undefined) {
-          throw new NotFoundError();
-        }
-        setCollection(collection);
-        return readAll({ collectionId: collection.id });
-      })
-      .then((certs) => setCerts(certs))
-      .catch((reason) => {
-        if (reason instanceof NotFoundError) {
-          navigate("/notfound");
-        } else {
-          onPromiseRejected(reason, navigate);
-        }
-      });
-  }, [changeCounter, collectionId, metaMask.address, navigate]);
+
+  const fetchCerts = useCallback(
+    () =>
+      read(metaMask.address, parseInt(collectionId!))
+        .then((collection) => {
+          // Force useTableState to run useEffect
+          changeCounter.toString();
+          if (collection === undefined) {
+            throw new NotFoundError();
+          }
+          setCollection(collection);
+          return readAll({ collectionId: collection.id });
+        })
+        .catch((reason) => {
+          if (reason instanceof NotFoundError) {
+            navigate("/notfound");
+            return [];
+          } else {
+            throw reason;
+          }
+        }),
+    [changeCounter, collectionId, metaMask.address, navigate]
+  );
+
+  const {
+    array: certs,
+    page,
+    setPage,
+  } = useTableState(itemsPerPage, fetchCerts, navigate);
 
   return (
     <ChangeCounterContext.Provider
       value={() => setChangeCounter((prev) => prev + 1)}
     >
-      <Header
-        collection={collection}
-        onFilterSubmit={(filter) => setFilter(filter)}
-        defaultFilter={filter}
-      />
-      <CertsTable
-        certs={certs}
-        filter={filter}
-        page={page}
-        setPage={(page) => setPage(page)}
-      />
+      <Header collection={collection} />
+      <CertsTable certs={certs} page={page} setPage={(page) => setPage(page)} />
     </ChangeCounterContext.Provider>
   );
 };
 
-const Header = ({
-  collection,
-  onFilterSubmit,
-  defaultFilter,
-}: {
-  collection?: CertificateCollection;
-  onFilterSubmit: (filter: CertFilter) => void;
-  defaultFilter: CertFilter;
-}) => {
+const Header = ({ collection }: { collection?: CertificateCollection }) => {
   const navigate = useNavigate();
-  const submitHandler: SubmitHandler<Inputs> = ({ filter }) => {
-    if (collection !== undefined) {
-      onFilterSubmit(CertFilter[filter as keyof typeof CertFilter]);
-    }
-  };
-
   return (
     <HeaderSearch
       title={
@@ -98,14 +75,6 @@ const Header = ({
           )}
         </h1>
       }
-      onSearchSubmit={submitHandler}
-      filters={[
-        CertFilter.All,
-        CertFilter.Valid,
-        CertFilter.Expired,
-        CertFilter.Revoked,
-      ]}
-      defaultFilter={defaultFilter}
       buttonText="Issue new"
       buttonIconName="plus-lg"
       buttonOnClick={() =>
@@ -119,12 +88,10 @@ const Header = ({
 
 const CertsTable = ({
   certs,
-  filter,
   page,
   setPage,
 }: {
   certs?: Certificate[];
-  filter: CertFilter;
   page: number;
   setPage: (page: number) => void;
 }) => {
@@ -138,15 +105,13 @@ const CertsTable = ({
       setPage={setPage}
       rows={
         certs !== undefined
-          ? certs
-              .filter((cert) => doFilter(cert, filter))
-              .map((cert, index) => (
-                <Cert
-                  key={index}
-                  columnsClassName={columnsClassName}
-                  cert={cert}
-                />
-              ))
+          ? certs.map((cert, index) => (
+              <Cert
+                key={index}
+                columnsClassName={columnsClassName}
+                cert={cert}
+              />
+            ))
           : arrayFromSize(5, (index) => (
               <RowPlaceholder
                 key={index}
@@ -157,19 +122,6 @@ const CertsTable = ({
       }
     />
   );
-};
-
-const doFilter = (cert: Certificate, filter: CertFilter) => {
-  switch (filter) {
-    case CertFilter.Valid:
-      return cert.revocation === undefined && !isExpired(cert);
-    case CertFilter.Expired:
-      return cert.revocation === undefined && isExpired(cert);
-    case CertFilter.Revoked:
-      return cert.revocation !== undefined;
-    default:
-      return true;
-  }
 };
 
 const Cert = ({

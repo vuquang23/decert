@@ -1,4 +1,4 @@
-import image from "assets/metamask.jpg";
+import { ReactComponent as Image } from "assets/metamask.svg";
 import { ErrorPage } from "pages/ErrorPage";
 import { Navigate } from "react-router-dom";
 
@@ -7,7 +7,7 @@ const InstallMetaMaskPage = () =>
     <Navigate to="/" />
   ) : (
     <ErrorPage
-      image={image}
+      svg={<Image className="h-100" />}
       message="Please install MetaMask and reload this page"
       customButton={
         <a

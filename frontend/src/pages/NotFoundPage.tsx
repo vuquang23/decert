@@ -1,11 +1,11 @@
-import image from "assets/404.jpg";
+import { ReactComponent as Image } from "assets/400.svg";
 import { ErrorPage } from "pages/ErrorPage";
 
 const NotFoundPage = () => (
   <ErrorPage
-    image={image}
-    attrUrl="https://www.freepik.com/vectors/server-error"
-    attrContent="Server error vector created by storyset - www.freepik.com"
+    svg={<Image className="h-100" />}
+    attrUrl="https://storyset.com/web"
+    attrContent="Web illustrations by Storyset"
   />
 );
 

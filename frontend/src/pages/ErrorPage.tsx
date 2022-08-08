@@ -1,17 +1,17 @@
-import image from "assets/500.jpg";
+import { ReactComponent as Image } from "assets/500.svg";
 import Center from "components/Center";
 import { ReactNode } from "react";
 import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 
 const ErrorPage = ({
   message,
-  image,
+  svg,
   customButton,
   attrUrl,
   attrContent,
 }: {
   message?: string;
-  image: any;
+  svg: ReactNode;
   customButton?: ReactNode;
   attrUrl?: string;
   attrContent?: string;
@@ -21,8 +21,10 @@ const ErrorPage = ({
     <>
       <Center className="vh-100">
         <div className="h-50 d-flex flex-column align-items-center">
-          <img src={image} alt="Internal error" className="h-75 d-block" />
-          {message !== undefined && <p className="lead">{message}</p>}
+          <div className="h-75">{svg}</div>
+          {message !== undefined && (
+            <p className="lead text-center">{message}</p>
+          )}
           {customButton ?? (
             <button className="btn btn-primary" onClick={() => navigate("/")}>
               Go to homepage
@@ -49,9 +51,9 @@ const DefaultErrorPage = () => {
           ? location.state
           : "Please try again later!"
       }
-      image={image}
-      attrUrl="https://www.freepik.com/vectors/server-error"
-      attrContent="Server error vector created by storyset - www.freepik.com"
+      svg={<Image className="h-100" />}
+      attrUrl="https://storyset.com/internet"
+      attrContent="Internet illustrations by Storyset"
     />
   );
 };

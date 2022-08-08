@@ -1,3 +1,4 @@
+import Empty from "components/Empty";
 import { getRandomCol } from "components/ParagraphPlaceholder";
 
 const Table = ({
@@ -14,28 +15,31 @@ const Table = ({
   page: number;
   itemsPerPage: number;
   setPage: (page: number) => void;
-}) => (
-  <>
-    <div className="card border-0">
-      <div className="card-body row fw-bold align-items-center d-none d-md-flex">
-        {columnHeaders.map((header, index) => (
-          <div key={index} className={columnsClassName[index]}>
-            {header}
-          </div>
-        ))}
+}) =>
+  rows.length === 0 ? (
+    <Empty />
+  ) : (
+    <>
+      <div className="card border-0">
+        <div className="card-body row fw-bold align-items-center d-none d-md-flex">
+          {columnHeaders.map((header, index) => (
+            <div key={index} className={columnsClassName[index]}>
+              {header}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-    {rows.slice(
-      (page - 1) * itemsPerPage,
-      (page - 1) * itemsPerPage + itemsPerPage
-    )}
-    <Pagination
-      page={page}
-      numOfPages={Math.ceil(rows.length / itemsPerPage)}
-      setPage={setPage}
-    />
-  </>
-);
+      {rows.slice(
+        (page - 1) * itemsPerPage,
+        (page - 1) * itemsPerPage + itemsPerPage
+      )}
+      <Pagination
+        page={page}
+        numOfPages={Math.ceil(rows.length / itemsPerPage)}
+        setPage={setPage}
+      />
+    </>
+  );
 
 const Row = ({
   columnsClassName,

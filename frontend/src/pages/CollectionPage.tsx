@@ -46,8 +46,9 @@ const CollectionPage = () => {
       .catch((reason) => {
         if (reason instanceof NotFoundError) {
           navigate("/notfound");
+        } else {
+          onPromiseRejected(reason, navigate);
         }
-        onPromiseRejected(reason, navigate);
       });
   }, [changeCounter, collectionId, metaMask.address, navigate]);
 

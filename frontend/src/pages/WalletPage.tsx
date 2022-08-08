@@ -1,4 +1,5 @@
 import { Certificate, isExpired, readAll } from "api/certificate";
+import Empty from "components/Empty";
 import HeaderSearch, { Inputs, searchByTitle } from "components/HeaderSearch";
 import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
@@ -33,8 +34,11 @@ const WalletPage = () => {
         onSearchSubmit={(inputs) => setSearchInputs(inputs)}
       />
       <div className="row gy-5 mb-5">
-        {certs !== undefined
-          ? searchByTitle(
+        {certs !== undefined ? (
+          certs.length === 0 ? (
+            <Empty />
+          ) : (
+            searchByTitle(
               certs.map((cert) => ({ ...cert, title: cert.certTitle })),
               searchInputs.searchQuery
             )
@@ -49,9 +53,12 @@ const WalletPage = () => {
                 }
               })
               .map((cert, index) => <CertificateCard key={index} cert={cert} />)
-          : arrayFromSize(8, (index) => (
-              <CertificateCardPlaceholder key={index} />
-            ))}
+          )
+        ) : (
+          arrayFromSize(8, (index) => (
+            <CertificateCardPlaceholder key={index} />
+          ))
+        )}
       </div>
     </>
   );

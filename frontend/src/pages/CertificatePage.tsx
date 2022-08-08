@@ -3,6 +3,8 @@ import Address from "components/Address";
 import Center from "components/Center";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { dateFromDDMMYYYY } from "helper";
+import { onPromiseRejected } from "pages/ErrorPage";
+import { NotFoundError } from "pages/NotFoundPage";
 import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -14,11 +16,20 @@ const CertificatePage = () => {
   useEffect(() => {
     read(parseInt(certId!))
       .then((cert) => {
+        if (cert === undefined || cert.revocation !== undefined) {
+          throw new NotFoundError();
+        }
         setCert(cert);
         return verify(cert);
       })
       .then((verifyState) => setVerifyState(verifyState))
-      .catch(() => navigate("/notfound"));
+      .catch((reason) => {
+        if (reason instanceof NotFoundError) {
+          navigate("/notfound");
+        } else {
+          onPromiseRejected(reason, navigate);
+        }
+      });
   }, [certId, navigate]);
 
   return (

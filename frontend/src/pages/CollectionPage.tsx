@@ -4,7 +4,7 @@ import { BootstrapSwalDanger } from "components/BootstrapSwal";
 import { useMetaMask } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
-import { arrayFromSize } from "helper";
+import { arrayFromSize, handleRejectMetaMaskPromise } from "helper";
 import { NotFoundError } from "pages/NotFoundPage";
 import { createContext, useCallback, useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -197,6 +197,7 @@ const Cert = ({
 
 const RevokeButton = ({ cert }: { cert: Certificate }) => {
   const updateChangeCounter = useContext(ChangeCounterContext);
+  const navigate = useNavigate();
   const metaMask = useMetaMask();
   return (
     <button
@@ -215,11 +216,13 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
             result.length === 0 ? "Reason cannot be empty" : null,
           preConfirm: (reason) => revoke(metaMask, cert, reason),
           allowOutsideClick: () => !Swal.isLoading(),
-        }).then((result) => {
-          if (result.isConfirmed) {
-            updateChangeCounter();
-          }
-        });
+        })
+          .then((result) => {
+            if (result.isConfirmed) {
+              updateChangeCounter();
+            }
+          })
+          .catch((reason) => handleRejectMetaMaskPromise(reason, navigate));
       }}
     >
       <i className="bi bi-trash3" />

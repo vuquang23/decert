@@ -189,4 +189,4 @@ const revoke = async (
 };
 
 export type { Certificate };
-export { read, readAll, revoke, issue, isExpired, verify, VerifyState };
+export { issue, read, readAll, verify, isExpired, VerifyState, revoke };

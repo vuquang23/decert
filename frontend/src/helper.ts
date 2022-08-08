@@ -1,3 +1,8 @@
+import { BootstrapSwal } from "components/BootstrapSwal";
+import { onPromiseRejected } from "pages/ErrorPage";
+import { NavigateFunction } from "react-router-dom";
+import Swal from "sweetalert2";
+
 //==============================================================================
 // Promise
 //==============================================================================
@@ -36,6 +41,21 @@ const formValidationClassName = (error: any) =>
 const userRejectTransaction = (reason: any) =>
   (reason as { code: number }).code !== undefined && reason.code === 4001;
 
+const handleRejectMetaMaskPromise = (
+  reason: any,
+  navigate: NavigateFunction
+) => {
+  Swal.close();
+  if (userRejectTransaction(reason)) {
+    BootstrapSwal.fire({
+      icon: "error",
+      title: "You rejected the transaction.",
+    });
+  } else {
+    onPromiseRejected(reason, navigate);
+  }
+};
+
 //==============================================================================
 // Date
 //==============================================================================
@@ -62,6 +82,7 @@ export {
   arrayFromSize,
   formValidationClassName,
   userRejectTransaction,
+  handleRejectMetaMaskPromise,
   toDDMMYYYYstring,
   dateFromDDMMYYYY,
   dateFromYYYYMMDD,

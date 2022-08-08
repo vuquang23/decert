@@ -13,8 +13,7 @@ import {
 } from "components/MetaMaskProvider";
 import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
-import { arrayFromSize, userRejectTransaction } from "helper";
-import { onPromiseRejected } from "pages/ErrorPage";
+import { arrayFromSize, handleRejectMetaMaskPromise } from "helper";
 import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
 import { NavigateFunction, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -98,17 +97,7 @@ const createCollectionModal = (
         });
       }
     })
-    .catch((reason) => {
-      Swal.close();
-      if (userRejectTransaction(reason)) {
-        BootstrapSwal.fire({
-          icon: "error",
-          title: "You rejected the transaction.",
-        });
-      } else {
-        onPromiseRejected(reason, navigate);
-      }
-    });
+    .catch((reason) => handleRejectMetaMaskPromise(reason, navigate));
 
 const CollectionsTable = ({
   certCollections,

@@ -6,10 +6,9 @@ import { useMetaMask } from "components/MetaMaskProvider";
 import {
   dateFromYYYYMMDD,
   formValidationClassName,
+  handleRejectMetaMaskPromise,
   toDDMMYYYYstring,
-  userRejectTransaction,
 } from "helper";
-import { onPromiseRejected } from "pages/ErrorPage";
 import { useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -49,17 +48,7 @@ const NewCertificatePage = () => {
         })
       )
       .then(() => navigate("/collections"))
-      .catch((reason) => {
-        Swal.close();
-        if (userRejectTransaction(reason)) {
-          BootstrapSwal.fire({
-            icon: "error",
-            title: "You rejected the transaction.",
-          });
-        } else {
-          onPromiseRejected(reason, navigate);
-        }
-      });
+      .catch((reason) => handleRejectMetaMaskPromise(reason, navigate));
   };
 
   return (

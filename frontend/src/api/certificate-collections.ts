@@ -19,6 +19,9 @@ const create = (metaMask: MetaMask, title: string) =>
       POST("collections", { txHash: txHash, platform: "" })
     );
 
+const read = (id: number) =>
+  GET(`collections/${id}`).then((data) => data as CertificateCollection);
+
 const readAll = (
   issuer: string,
   limit: number = 0,
@@ -35,8 +38,5 @@ const readAll = (
     })
   ).then((data) => data as CertificateCollection[]);
 
-const read = (id: number) =>
-  GET(`collections/${id}`).then((data) => data as CertificateCollection);
-
 export type { CertificateCollection };
-export { create, readAll, read };
+export { create, read, readAll };

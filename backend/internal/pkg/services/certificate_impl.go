@@ -61,7 +61,7 @@ func (s *certificateService) searchCertificateByTxHash(ctx *gin.Context, crudCre
 
 	blockTime := config.Instance().Blockchain.BscBlockTimeSecond
 	txHash := common.HexToHash(crudCreateCertificate.TxHash)
-	for i := 1; i <= 15; i++ {
+	for i := 1; i <= 100; i++ {
 		time.Sleep(time.Second * time.Duration(blockTime))
 		log.Debugln(ctx, txHash, blockTime)
 
@@ -226,7 +226,7 @@ func (s *certificateService) RevokeCertificateById(
 
 	blockTime := config.Instance().Blockchain.BscBlockTimeSecond
 	txHash := common.HexToHash(crudRevokeCertificate.TxHash)
-	for i := 1; i <= 15; i++ {
+	for i := 1; i <= 100; i++ {
 		time.Sleep(time.Second * time.Duration(blockTime))
 		log.Debugln(ctx, txHash, blockTime)
 

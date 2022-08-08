@@ -57,7 +57,7 @@ func (s *collectionService) searchCollectionByTxHash(ctx *gin.Context, crudCreat
 
 	blockTime := config.Instance().Blockchain.BscBlockTimeSecond
 	txHash := common.HexToHash(crudCreateCollection.TxHash)
-	for i := 1; i <= 15; i++ {
+	for i := 1; i <= 100; i++ {
 		time.Sleep(time.Second * time.Duration(blockTime))
 		tx, isPending, err := s.ethClient.TransactionByHash(context.Background(), txHash)
 

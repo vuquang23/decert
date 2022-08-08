@@ -95,6 +95,7 @@ const readAll = ({
     new URLSearchParams({
       limit: (limit ?? 0).toString(),
       offset: (offset ?? 0).toString(),
+      ...(receiver !== undefined ? { receiver: receiver } : {}),
       ...(collectionId !== undefined
         ? { collectionId: collectionId.toString() }
         : {}),
@@ -113,13 +114,11 @@ const issue = async (
   cert: Certificate
 ) => {
   cert.platform = platform.toString();
-  // TODO: uncomment
-  /* const imgUrl = await utils.pushToIpfs(cert.imgFiles![0]);
+  const imgUrl = await utils.pushToIpfs(cert.imgFiles![0]);
   if (imgUrl instanceof Error) {
     throw imgUrl;
   }
-  cert.certImage = imgUrl; */
-  cert.certImage = "https://picsum.photos/620/877";
+  cert.certImage = imgUrl;
 
   const certData = CertificateToCertData(cert);
   const certHash = utils.hashCert(certData);

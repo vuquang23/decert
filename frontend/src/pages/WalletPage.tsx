@@ -17,8 +17,7 @@ const WalletPage = () => {
   });
   const { address } = useMetaMask();
   useEffect(() => {
-    // TODO: Change to receiver
-    readAll({ collectionId: 2 })
+    readAll({ receiver: address })
       .then((value) =>
         setCerts(value.filter((cert) => cert.revocation === undefined))
       )

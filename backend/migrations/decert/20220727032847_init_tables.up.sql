@@ -8,7 +8,8 @@ CREATE TABLE `certs` (
     `data` JSON NOT NULL,
     `revoked_at` DATETIME,
     `revoked_reason` VARCHAR(255),
-    `receiver` VARCHAR(128) NOT NULL
+    `receiver` VARCHAR(128) NOT NULL,
+    `receiver_address` VARCHAR(128) NOT NULL
 );
 
 CREATE TABLE `collections` (

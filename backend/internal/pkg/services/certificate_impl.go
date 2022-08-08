@@ -144,9 +144,7 @@ func (s *certificateService) GetCertificates(
 ) ([]*entity.Cert, *errors.DomainError) {
 	ret, err := s.certificateRepo.GetCertificatesByCollectionId(
 		ctx, 
-		crudGetCertificates.CollectionId,
-		crudGetCertificates.Limit,
-		crudGetCertificates.Offset,
+		crudGetCertificates,
 	)
 	if err != nil {
 		return nil, transformers.DomainErrTransformerInstance().Transform(err)

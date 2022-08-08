@@ -47,15 +47,16 @@ func (r *certificateRepository) SaveNewCertificate(
 	fmt.Println("certJsonString", certJsonString)
 
 	certificate := &entity.Cert{
-		Description:    crudCreateCertificate.CertData.Description,
-		IssuedAt:       time.Unix(crudCreateCertificate.CertData.IssuedAt/1000, 7),
-		ExpiredAt:      time.Unix(crudCreateCertificate.CertData.ExpiredAt/1000, 7),
-		CollectionId:   crudCreateCertificate.CollectionId,
-		CertNftId:      nftId,
-		Data:  			certJsonString,
-		RevokedAt: 		time.Unix(0, 7),
-		RevokedReason:	"",
-		Receiver:		receiverJsonString,
+		Description:    	crudCreateCertificate.CertData.Description,
+		IssuedAt:       	time.Unix(crudCreateCertificate.CertData.IssuedAt/1000, 7),
+		ExpiredAt:      	time.Unix(crudCreateCertificate.CertData.ExpiredAt/1000, 7),
+		CollectionId:   	crudCreateCertificate.CollectionId,
+		CertNftId:      	nftId,
+		Data:  				certJsonString,
+		RevokedAt: 			time.Unix(0, 7),
+		RevokedReason:		"",
+		Receiver:			receiverJsonString,
+		ReceiverAddress:	crudCreateCertificate.CertData.Receiver.Wallet,
 	}
 
 	log.Debugf(ctx, "%+v", certificate)
@@ -90,16 +91,28 @@ func (r *certificateRepository) SaveNewCertificate(
 
 func (r *certificateRepository) GetCertificatesByCollectionId(
 	ctx *gin.Context, 
-	collectionId uint,
-	limit, offset uint,
+	crudGetCertificates entity.CRUDGetCertificates,
 ) ([]*entity.Cert, *errors.InfraError) {
-	log.Debugf(ctx, "Get certificate of collectionId: %s", collectionId)
+	log.Debugf(ctx, "Get certificate of collectionId: %s", crudGetCertificates.CollectionId)
+	
+	collectionId := crudGetCertificates.CollectionId
+	receiverAddress := crudGetCertificates.ReceiverAddress
 	ret := []*entity.Cert{}
-	result := r.db.
-		Where("collection_id = ?", collectionId).
-		Order("issued_at DESC").
-		Limit(int(limit)).
-		Offset(int(offset)).
+
+	fmt.Println("COLLECTION ID, RECEIVER ADDR", collectionId, receiverAddress)
+	query := r.db
+	if (collectionId != 0) {
+		query = query.Where("collection_id = ?", collectionId)
+	}
+	if (receiverAddress != "") {
+		query = query.Where("receiver_address = ?", receiverAddress)		
+	}
+
+	query = query.Order("issued_at DESC").
+				Limit(int(crudGetCertificates.Limit)).
+				Offset(int(crudGetCertificates.Offset))
+
+	result := query.
 		Find(&ret)
 	if result.Error != nil {
 		return nil, errors.NewInfraErrorDBSelect([]string{}, result.Error)

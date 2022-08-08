@@ -62,9 +62,10 @@ type CreateCertificateRequest struct {
 }
 
 type GetCertificatesRequest struct {
-	CollectionId	uint `json:"collectionId"`
-	Offset			uint `json:"offset"`
-	Limit			uint `json:"limit"`
+	CollectionId	uint 	`json:"collectionId"`
+	ReceiverAddress	string	`json:"receiverAddress"`
+	Offset			uint 	`json:"offset"`
+	Limit			uint 	`json:"limit"`
 }
 
 type GetCertificateRequest struct {
@@ -88,4 +89,5 @@ type CertificateResponse struct {
 	RevokedAt 		string				`json:"revokedAt"`
 	RevokedReason	string				`json:"revokedReason"`
 	Receiver		CertDataReceiver	`json:"receiver"`
+	ReceiverAddress string				`json:"receiverAddress"`
 }

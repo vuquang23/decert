@@ -57,10 +57,19 @@ func (api *certificateApi) getCertificates(ctx *gin.Context) {
 	query := ctx.Request.URL.Query()
 
 	var reqParams dto.GetCertificatesRequest
-	collectionIdUint64, _ := strconv.ParseUint(query["collectionId"][0], 10, 32)
+
+	
+	if len(query["collectionId"]) > 0 {
+		collectionIdUint64, _ := strconv.ParseUint(query["collectionId"][0], 10, 32)
+		reqParams.CollectionId = uint(collectionIdUint64)
+	}
+
+	if len(query["receiverAddress"]) >  0 {
+		reqParams.ReceiverAddress = query["receiverAddress"][0]
+	}
+
 	limitUint64, _ := strconv.ParseUint(query["limit"][0], 10, 32)
 	offsetUint64, _ := strconv.ParseUint(query["offset"][0], 10, 32)
-	reqParams.CollectionId = uint(collectionIdUint64)
 	reqParams.Limit = uint(limitUint64)
 	reqParams.Offset = uint(offsetUint64)
 	

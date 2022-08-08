@@ -13,7 +13,7 @@ type ICertificateRepository interface {
 		crudCreateCertificate entity.CRUDCreateCertificate,
 		nftId uint,
 	) *errors.InfraError
-	GetCertificatesByCollectionId(ctx *gin.Context, collectionId uint, limit, offset uint,) ([]*entity.Cert, *errors.InfraError)
+	GetCertificatesByCollectionId(ctx *gin.Context, crudGetCertificates entity.CRUDGetCertificates) ([]*entity.Cert, *errors.InfraError)
 	GetCertificateById(ctx *gin.Context, certId uint) (*entity.Cert, *errors.InfraError)
 	RevokeCertificate(
 		ctx *gin.Context,

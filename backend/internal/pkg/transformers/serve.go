@@ -41,9 +41,10 @@ func ToCRUDGetCertificate(reqParams dto.GetCertificateRequest) entity.CRUDGetCer
 
 func ToCRUDGetCertificates(reqParams dto.GetCertificatesRequest) entity.CRUDGetCertificates {
 	return entity.CRUDGetCertificates{
-		CollectionId: 	reqParams.CollectionId,
-		Limit:			reqParams.Limit,
-		Offset:			reqParams.Offset,
+		CollectionId: 		reqParams.CollectionId,
+		ReceiverAddress:	reqParams.ReceiverAddress,
+		Limit:				reqParams.Limit,
+		Offset:				reqParams.Offset,
 	}
 }
 
@@ -119,25 +120,26 @@ func ToCertificateResponses(certificates []*entity.Cert) []*dto.CertificateRespo
 		json.Unmarshal([]byte(c.Data), &certDataFromDB)
 
 		ret = append(ret, &dto.CertificateResponse{
-			ID:				c.ID,
-			Description:	c.Description,
-			IssuedAt:      	TimeToMsString(c.IssuedAt),
-			ExpiredAt:      TimeToMsString(c.ExpiredAt),
-			CollectionId:   c.CollectionId,
-			CertNftId:      c.CertNftId,
-			Data:  			dto.CertDataType{
-								CertTitle: certDataFromDB.CertTitle,
-								Issuer: certDataFromDB.Issuer,
-								Receiver: certDataFromDB.Receiver,
-								Description: certDataFromDB.Description,
-								IssuedAt: strconv.FormatInt(certDataFromDB.IssuedAt, 10),
-								ExpiredAt: strconv.FormatInt(certDataFromDB.ExpiredAt, 10),
-								CertImage: certDataFromDB.CertImage,
-								Platform: certDataFromDB.Platform,
-							},
-			RevokedAt: 		TimeToMsString(c.RevokedAt),
-			RevokedReason:	c.RevokedReason,
-			Receiver:		receiver,
+			ID:					c.ID,
+			Description:		c.Description,
+			IssuedAt:      		TimeToMsString(c.IssuedAt),
+			ExpiredAt:      	TimeToMsString(c.ExpiredAt),
+			CollectionId:   	c.CollectionId,
+			CertNftId:      	c.CertNftId,
+			Data:  				dto.CertDataType{
+									CertTitle: certDataFromDB.CertTitle,
+									Issuer: certDataFromDB.Issuer,
+									Receiver: certDataFromDB.Receiver,
+									Description: certDataFromDB.Description,
+									IssuedAt: strconv.FormatInt(certDataFromDB.IssuedAt, 10),
+									ExpiredAt: strconv.FormatInt(certDataFromDB.ExpiredAt, 10),
+									CertImage: certDataFromDB.CertImage,
+									Platform: certDataFromDB.Platform,
+								},
+			RevokedAt: 			TimeToMsString(c.RevokedAt),
+			RevokedReason:		c.RevokedReason,
+			Receiver:			receiver,
+			ReceiverAddress:	c.ReceiverAddress,
 		})
 	}
 	return ret
@@ -155,25 +157,26 @@ func ToCertificateResponse(certificate *entity.Cert) *dto.CertificateResponse {
 	json.Unmarshal([]byte(certificate.Data), &certDataFromDB)
 
 	ret := dto.CertificateResponse{
-		ID:				certificate.ID,
-		Description:	certificate.Description,
-		IssuedAt:      	TimeToMsString(certificate.IssuedAt),
-		ExpiredAt:      TimeToMsString(certificate.ExpiredAt),
-		CollectionId:   certificate.CollectionId,
-		CertNftId:      certificate.CertNftId,
-		Data:  			dto.CertDataType{
-							CertTitle: certDataFromDB.CertTitle,
-							Issuer: certDataFromDB.Issuer,
-							Receiver: certDataFromDB.Receiver,
-							Description: certDataFromDB.Description,
-							IssuedAt: strconv.FormatInt(certDataFromDB.IssuedAt, 10),
-							ExpiredAt: strconv.FormatInt(certDataFromDB.ExpiredAt, 10),
-							CertImage: certDataFromDB.CertImage,
-							Platform: certDataFromDB.Platform,
-						},
-		RevokedAt: 		TimeToMsString(certificate.RevokedAt),
-		RevokedReason:	certificate.RevokedReason,
-		Receiver:		receiver,
+		ID:					certificate.ID,
+		Description:		certificate.Description,
+		IssuedAt:      		TimeToMsString(certificate.IssuedAt),
+		ExpiredAt:      	TimeToMsString(certificate.ExpiredAt),
+		CollectionId:   	certificate.CollectionId,
+		CertNftId:      	certificate.CertNftId,
+		Data:  				dto.CertDataType{
+								CertTitle: certDataFromDB.CertTitle,
+								Issuer: certDataFromDB.Issuer,
+								Receiver: certDataFromDB.Receiver,
+								Description: certDataFromDB.Description,
+								IssuedAt: strconv.FormatInt(certDataFromDB.IssuedAt, 10),
+								ExpiredAt: strconv.FormatInt(certDataFromDB.ExpiredAt, 10),
+								CertImage: certDataFromDB.CertImage,
+								Platform: certDataFromDB.Platform,
+							},
+		RevokedAt: 			TimeToMsString(certificate.RevokedAt),
+		RevokedReason:		certificate.RevokedReason,
+		Receiver:			receiver,
+		ReceiverAddress:	certificate.ReceiverAddress,
 	}
 	return &ret
 }

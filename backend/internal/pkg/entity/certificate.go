@@ -36,6 +36,7 @@ type CRUDCreateCertificate struct {
 
 type CRUDGetCertificates struct {
 	CollectionId 	uint
+	ReceiverAddress	string
 	Limit			uint
 	Offset			uint
 }
@@ -63,4 +64,5 @@ type Cert struct {
 	RevokedAt 		time.Time
 	RevokedReason	string
 	Receiver		string
+	ReceiverAddress string
 }

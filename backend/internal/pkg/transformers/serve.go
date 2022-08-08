@@ -186,6 +186,12 @@ func ToCRUDCreateCollection(reqBody dto.CreateCollectionRequest) entity.CRUDCrea
 	}
 }
 
+func ToCRUDGetCollection(reqParams dto.GetCollectionRequest) entity.CRUDGetCollection {
+	return entity.CRUDGetCollection{
+		ID: reqParams.ID,
+	}
+}
+
 func ToCRUDGetCollections(reqParams dto.GetCollectionsRequest) entity.CRUDGetCollections {
 	return entity.CRUDGetCollections{
 		Issuer: reqParams.Issuer,
@@ -194,6 +200,20 @@ func ToCRUDGetCollections(reqParams dto.GetCollectionsRequest) entity.CRUDGetCol
 		Name:   reqParams.Name,
 	}
 }
+
+func ToCollectionResponse(collection *entity.Collection) *dto.CollectionResponse {
+	ret := &dto.CollectionResponse{
+		ID:                collection.ID,
+		CollectionName:    collection.Title,
+		CollectionSymbol:  collection.Symbol,
+		CollectionAddress: collection.Address,
+		Issuer:            collection.Issuer,
+		TotalIssued:       uint64(collection.TotalIssued),
+		TotalRevoked:      uint64(collection.TotalRevoked),
+	}
+	return ret
+}
+
 
 func ToCollectionResponses(collections []*entity.Collection) []*dto.CollectionResponse {
 	ret := []*dto.CollectionResponse{}

@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -26,7 +27,27 @@ func newCollectionApi(collectionSvc services.ICollectionService) *collectionApi 
 
 func (api *collectionApi) setupRoute(rg *gin.RouterGroup) {
 	rg.GET("", api.getCollections)
+	rg.GET(":collectionId", api.getCollectionInfo)
 	rg.POST("", api.createCollection)
+}
+
+func (api * collectionApi) getCollectionInfo(ctx *gin.Context) {
+	ctx.Set(constants.Prefix, uuid.MsgWithUUID("get-collection-info"))
+
+	dtoGetCollection := dto.GetCollectionRequest{}
+
+	collectionIdStr, _ := strconv.ParseUint(ctx.Param("collectionId"), 10, 32)
+	dtoGetCollection.ID = uint(collectionIdStr)
+
+	if collection, err := api.collectionSvc.GetCollectionInfo(ctx,
+		transformers.ToCRUDGetCollection(dtoGetCollection),
+	); err != nil {
+		restErr := transformers.RestErrTransformerInstance().Transform(err)
+		log.Errorln(ctx, restErr)
+		transformers.ResponseErr(ctx, restErr)
+	} else {
+		transformers.ResponseOK(ctx, transformers.ToCollectionResponse(collection))
+	}
 }
 
 func (api *collectionApi) getCollections(ctx *gin.Context) {

@@ -120,3 +120,14 @@ func (s *collectionService) GetCollections(
 	}
 	return ret, nil
 }
+
+func (s *collectionService) GetCollectionInfo(
+	ctx *gin.Context, 
+	crudGetCollection entity.CRUDGetCollection,
+) (*entity.Collection, *errors.DomainError) {
+	ret, err := s.collectionRepo.GetCollectionById(ctx, crudGetCollection.ID)
+	if err != nil {
+		return nil, transformers.DomainErrTransformerInstance().Transform(err)
+	}
+	return ret, nil
+}

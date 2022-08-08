@@ -7,6 +7,10 @@ type CRUDCreateCollection struct {
 	Platform string
 }
 
+type CRUDGetCollection struct {
+	ID           uint
+}
+
 type CRUDGetCollections struct {
 	Issuer string
 	Limit  uint64

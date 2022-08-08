@@ -5,6 +5,10 @@ type CreateCollectionRequest struct {
 	Platform string `json:"platform"`
 }
 
+type GetCollectionRequest struct {
+	ID		uint   `json:"id"`
+}
+
 type GetCollectionsRequest struct {
 	Issuer string `form:"issuer,required"`
 	Limit  uint64 `form:"limit,required"`

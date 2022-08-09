@@ -3,6 +3,7 @@ import {
   CertificateCollection,
   read as readCollection,
 } from "api/certificate-collections";
+import { upload } from "api/imgur";
 import { MetaMask } from "components/MetaMaskProvider";
 import { platform } from "const";
 import * as utils from "utils";
@@ -114,11 +115,7 @@ const issue = async (
   cert: Certificate
 ) => {
   cert.platform = platform.toString();
-  const imgUrl = await utils.pushToIpfs(cert.imgFiles![0]);
-  if (imgUrl instanceof Error) {
-    throw imgUrl;
-  }
-  cert.certImage = imgUrl;
+  cert.certImage = await upload(cert.imgFiles![0]);
 
   const certData = CertificateToCertData(cert);
   const certHash = utils.hashCert(certData);

@@ -24,6 +24,7 @@ const NewCertificatePage = () => {
       id: 0,
       certNftId: 0,
       collectionId: collection.id,
+      collectionAddress: collection.collectionAddress,
       certTitle: collection.collectionName,
       certImage: "",
       issuedAt: Date.now(),

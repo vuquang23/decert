@@ -146,6 +146,12 @@ const CertificateContent = ({
               </>
             )}
           </p>
+          <hr />
+          <p className="text-secondary">
+            NFT ID: <span className="text-code">{cert.certNftId}</span>
+            <br />
+            Collection address: <Address address={cert.collectionAddress} />
+          </p>
         </>
       ) : (
         <CertificateContentPlaceholder />

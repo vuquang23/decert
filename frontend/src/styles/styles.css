@@ -90,3 +90,7 @@
 .clickable {
   cursor: pointer;
 }
+
+.text-code {
+  color: var(--bs-code-color);
+}

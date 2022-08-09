@@ -17,6 +17,7 @@ interface Certificate extends Omit<CertData, "issuedAt" | "expiredAt"> {
   id: number;
   certNftId: number;
   collectionId: number;
+  collectionAddress: string;
   issuedAt: number;
   expiredAt: number | "null";
   imgFiles?: FileList;
@@ -47,10 +48,14 @@ const CertificateToCertData = (cert: Certificate): utils.CertData => ({
   platform: cert.platform,
 });
 
-const APICertificateToCertificate = (value: APICertificate): Certificate => ({
+const APICertificateToCertificate = async (
+  value: APICertificate
+): Promise<Certificate> => ({
   id: value.id,
   certNftId: value.certNftId,
   collectionId: value.collectionId,
+  collectionAddress: (await readCollection(value.collectionId))
+    .collectionAddress,
   ...value.certData,
   issuedAt: parseInt(value.certData.issuedAt),
   expiredAt: value.expiredAt !== "null" ? parseInt(value.expiredAt) : "null",
@@ -101,9 +106,13 @@ const readAll = ({
         ? { collectionId: collectionId.toString() }
         : {}),
     })
-  ).then((data) =>
-    (data as APICertificate[]).map((item) => APICertificateToCertificate(item))
-  );
+  )
+    .then((data) =>
+      (data as APICertificate[]).map(async (item) =>
+        APICertificateToCertificate(item)
+      )
+    )
+    .then((promises) => Promise.all(promises));
 
 //==============================================================================
 // Issue
@@ -142,11 +151,8 @@ const issue = async (
 //==============================================================================
 
 const verify = async (cert: Certificate) => {
-  const collectionAddress = (await readCollection(cert.collectionId))
-    .collectionAddress;
-
   const isVerified = await utils.verifyCert(CertificateToCertData(cert), {
-    certAddress: collectionAddress,
+    certAddress: cert.collectionAddress,
     certId: cert.certNftId,
   });
 

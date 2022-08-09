@@ -95,7 +95,7 @@ const readAll = ({
     new URLSearchParams({
       limit: (limit ?? 0).toString(),
       offset: (offset ?? 0).toString(),
-      ...(receiver !== undefined ? { receiver: receiver } : {}),
+      ...(receiver !== undefined ? { receiverAddress: receiver } : {}),
       ...(collectionId !== undefined
         ? { collectionId: collectionId.toString() }
         : {}),

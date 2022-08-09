@@ -1,6 +1,7 @@
 import {
   CertificateCollection,
   create,
+  read,
   readAll,
 } from "api/certificate-collections";
 import { Popover } from "bootstrap";
@@ -15,7 +16,7 @@ import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
 import { arrayFromSize, handleRejectMetaMaskPromise } from "helper";
 import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
-import { NavigateFunction, useNavigate } from "react-router-dom";
+import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const itemsPerPage = 5;
@@ -23,6 +24,7 @@ const itemsPerPage = 5;
 const CollectionsPage = () => {
   const metaMask = useMetaMask();
   const navigate = useNavigate();
+  const { state } = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
 
   const fetchCollections = useCallback(
@@ -33,9 +35,35 @@ const CollectionsPage = () => {
 
   const {
     array: certCollections,
+    setArrayItem,
     page,
     setPage,
   } = useTableState(itemsPerPage, fetchCollections, navigate);
+
+  useEffect(() => {
+    if (state === null) {
+      return () => {};
+    }
+    const collection = state as CertificateCollection;
+
+    let counter = 0;
+
+    const fetchCollection = () =>
+      counter < 5 &&
+      read(collection.id).then((value) => {
+        counter++;
+        if (counter < 5 && value.totalIssued !== collection.totalIssued) {
+          counter = 5;
+          setArrayItem(value, (item) => item.id === value.id);
+        }
+      });
+    setInterval(fetchCollection, 3000);
+
+    return () => {
+      counter = 5;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   return (
     <>

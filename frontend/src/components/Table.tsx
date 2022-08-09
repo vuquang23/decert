@@ -149,6 +149,20 @@ const useTableState = <T,>(
   return {
     array: array,
     page: page,
+    setArrayItem: (item: T, predicate: (item: T) => boolean) =>
+      setArray((prev) => {
+        if (prev === undefined) {
+          return prev;
+        }
+        const result = [...prev];
+        const index = result.findIndex(predicate);
+        if (index !== -1) {
+          result[index] = item;
+          return result;
+        } else {
+          return prev;
+        }
+      }),
     setPage: (page: number) =>
       setPage((prevPage) => {
         if (page > prevPage) {

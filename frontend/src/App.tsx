@@ -39,7 +39,7 @@ const RequiredMetaMask = ({ children }: { children: JSX.Element }) => {
   const metaMask = useMetaMask();
   return metaMask.isReady ? (
     metaMask.address.length === 0 ? (
-      <Navigate to="/" />
+      <Navigate to="/" replace />
     ) : (
       children
     )

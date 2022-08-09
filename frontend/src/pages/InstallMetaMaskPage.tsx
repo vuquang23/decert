@@ -4,7 +4,7 @@ import { Navigate } from "react-router-dom";
 
 const InstallMetaMaskPage = () =>
   (window as any).ethereum !== undefined ? (
-    <Navigate to="/" />
+    <Navigate to="/" replace />
   ) : (
     <ErrorPage
       svg={<Image className="h-100" />}

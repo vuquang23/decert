@@ -11,12 +11,20 @@ import {
 } from "helper";
 import { useState } from "react";
 import { FormProvider, useForm, useFormContext } from "react-hook-form";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const NewCertificatePage = () => {
-  const location = useLocation();
-  const collection = location.state as CertificateCollection;
+  const { state } = useLocation();
+  return state !== null ? (
+    <PageContent collection={state as CertificateCollection} />
+  ) : (
+    <Navigate to="/notfound" replace />
+  );
+};
+
+const PageContent = ({ collection }: { collection: CertificateCollection }) => {
+  const navigate = useNavigate();
   const [image, setImage] = useState<File>();
   const metaMask = useMetaMask();
   const form = useForm<Certificate>({
@@ -30,7 +38,6 @@ const NewCertificatePage = () => {
       issuedAt: Date.now(),
     },
   });
-  const navigate = useNavigate();
 
   const submitHandler = (cert: Certificate) => {
     BootstrapSwal.fire({
@@ -48,7 +55,7 @@ const NewCertificatePage = () => {
           title: "Transaction broadcast!",
         })
       )
-      .then(() => navigate("/collections"))
+      .then(() => navigate("/collections", { state: collection }))
       .catch((reason) => handleRejectMetaMaskPromise(reason, navigate));
   };
 

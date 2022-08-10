@@ -16,13 +16,17 @@ const CertificatePage = () => {
   useEffect(() => {
     read(parseInt(certId!))
       .then((cert) => {
-        if (cert === undefined || cert.revocation !== undefined) {
+        console.log("CERT", cert)
+        if (cert === undefined) {
           throw new NotFoundError();
         }
         setCert(cert);
         return verify(cert);
       })
-      .then((verifyState) => setVerifyState(verifyState))
+      .then((verifyState) => {
+        console.log("VERIFY STATE", verifyState)
+        setVerifyState(verifyState);
+      })
       .catch((reason) => {
         if (reason instanceof NotFoundError) {
           navigate("/notfound");
@@ -170,6 +174,8 @@ const State = ({ verifyState }: { verifyState: VerifyState }) => {
       return <Callout color="danger" text="Expired" />;
     case VerifyState.Invalid:
       return <Callout color="danger" text="Invalid" />;
+    case VerifyState.Revoked:
+      return <Callout color="danger" text="Revoked" />;
     default:
       return <CalloutPlaceholder />;
   }

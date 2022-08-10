@@ -6,7 +6,7 @@ import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
 import { arrayFromSize, handleRejectMetaMaskPromise } from "helper";
 import { NotFoundError } from "pages/NotFoundPage";
-import { createContext, useCallback, useContext, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
@@ -208,7 +208,7 @@ const RevokeButton = ({ cert }: { cert: Certificate }) => {
           icon: "warning",
           title: "Do you want to revoke this certificate?",
           showConfirmButton: true,
-          confirmButtonText: "Create",
+          confirmButtonText: "Revoke",
           showCancelButton: true,
           showLoaderOnConfirm: true,
           input: "text",

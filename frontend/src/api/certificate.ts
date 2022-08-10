@@ -74,6 +74,7 @@ enum VerifyState {
   Verified,
   Expired,
   Invalid,
+  Revoked,
 }
 
 //==============================================================================
@@ -151,20 +152,34 @@ const issue = async (
 //==============================================================================
 
 const verify = async (cert: Certificate) => {
-  const isVerified = await utils.verifyCert(CertificateToCertData(cert), {
-    certAddress: cert.collectionAddress,
-    certId: cert.certNftId,
-  });
-
-  return isVerified
-    ? isExpired(cert)
-      ? VerifyState.Expired
-      : VerifyState.Verified
-    : VerifyState.Invalid;
+  try {
+    if (isExpired(cert)) {
+      return VerifyState.Expired
+    } else if (isRevoked(cert)) {
+      return VerifyState.Revoked
+    } else {
+      const isVerified = await utils.verifyCert(CertificateToCertData(cert), {
+        certAddress: cert.collectionAddress,
+        certId: cert.certNftId,
+      });
+    
+      return isVerified
+        ? VerifyState.Verified
+        : VerifyState.Invalid;
+    }
+  } catch (e) {
+    console.error("Verification error", e)
+    return VerifyState.Invalid;
+  }
 };
 
 const isExpired = (cert: Certificate) =>
   cert.expiredAt !== "null" && cert.expiredAt - Date.now() <= 0;
+
+const isRevoked = (cert: Certificate) => {
+  let revokedAt = cert?.revocation?.revokedAt?.getTime() || Date.now() + 1000000000;
+  return revokedAt - Date.now() <= 0;
+}
 
 //==============================================================================
 // Revoke

@@ -58,7 +58,7 @@ const APICertificateToCertificate = async (
     .collectionAddress,
   ...value.certData,
   issuedAt: parseInt(value.certData.issuedAt),
-  expiredAt: value.expiredAt !== "null" ? parseInt(value.expiredAt) : "null",
+  expiredAt: value.expiredAt !== "null" ? parseInt(value.certData.expiredAt) : "null",
   ...(value.revokedAt !== "null"
     ? {
         revocation: {

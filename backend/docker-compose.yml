@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+    cms-api:
+        image: vochidat0/phishing-email-cms-api:latest
+        env_file:
+            - .env
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        networks:
+            - pe-network
+        ports:
+            - "9011:8000"
+
+networks:
+  pe-network:
+    driver: bridge

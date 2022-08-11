@@ -1,0 +1,96 @@
+.z-index-2 {
+  z-index: 2;
+}
+
+.z-index-1 {
+  z-index: 1;
+}
+
+.homepage-bg {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url(../assets/background.jpg);
+  background-size: cover;
+}
+
+.pagination {
+  --bs-pagination-color: var(--bs-dark);
+  --bs-pagination-border-color: var(--bs-dark);
+  --bs-pagination-hover-color: var(--bs-dark);
+  --bs-pagination-focus-color: var(--bs-light);
+  --bs-pagination-focus-bg: var(--bs-dark);
+  --bs-pagination-focus-box-shadow: 0 0 0 0.25rem rgba(var(--bs-dark-rgb), 0.25);
+  --bs-pagination-active-bg: var(--bs-dark);
+  --bs-pagination-active-border-color: var(--bs-dark);
+}
+
+@media (max-width: 575.98px) {
+  .bg-dark-sm {
+    /* .bg-dark */
+    --bs-bg-opacity: 1;
+    background-color: rgba(var(--bs-dark-rgb), var(--bs-bg-opacity)) !important;
+  }
+}
+
+.animation-none {
+  animation: none;
+}
+
+.crop {
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  object-position: center;
+}
+
+.flex-grow-2 {
+  flex-grow: 2 !important;
+}
+
+.hover-shadow {
+  transition: box-shadow 0.5s;
+}
+
+.hover-shadow:hover {
+  /* https://www.w3schools.com/css/css3_shadows.asp */
+  box-shadow: 0 10px 16px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%) !important;
+}
+
+.bd-callout {
+  padding: 1.25rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  background-color: var(--bd-callout-bg, var(--bs-gray-100));
+  border-left: 0.25rem solid var(--bd-callout-border, var(--bs-gray-300));
+}
+
+.bd-callout-success {
+  /* --bs-teal */
+  --bd-callout-bg: rgba(32, 201, 151, 0.075);
+  --bd-callout-border: rgba(32, 201, 151, 0.5);
+}
+
+.bd-callout-danger {
+  --bd-callout-bg: rgba(var(--bs-danger-rgb), 0.075);
+  --bd-callout-border: rgba(var(--bs-danger-rgb), 0.5);
+}
+
+.h-85 {
+  height: 85%;
+}
+
+/* https://css-tricks.com/line-clampin/ */
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  word-break: var(--word-break, "none");
+  overflow: hidden;
+  hyphens: auto;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.text-code {
+  color: var(--bs-code-color);
+}

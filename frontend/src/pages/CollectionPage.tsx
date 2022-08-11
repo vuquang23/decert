@@ -6,13 +6,13 @@ import ParagraphPlaceholder from "components/ParagraphPlaceholder";
 import { Row, RowPlaceholder, Table, useTableState } from "components/Table";
 import { arrayFromSize, handleRejectMetaMaskPromise } from "helper";
 import { NotFoundError } from "pages/NotFoundPage";
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 
 const ChangeCounterContext = createContext(() => {});
 
-const itemsPerPage = 5;
+const itemsPerPage = 25;
 
 const CollectionPage = () => {
   const navigate = useNavigate();
@@ -104,7 +104,7 @@ const CertsTable = ({
     <Table
       columnHeaders={["Receiver", "Issued at", "Expired at", "Description", ""]}
       columnsClassName={columnsClassName}
-      itemsPerPage={5}
+      itemsPerPage={25}
       page={page}
       setPage={setPage}
       rows={

@@ -19,7 +19,7 @@ import { LegacyRef, useCallback, useEffect, useRef, useState } from "react";
 import { NavigateFunction, useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-const itemsPerPage = 5;
+const itemsPerPage = 25;
 
 const CollectionsPage = () => {
   const metaMask = useMetaMask();

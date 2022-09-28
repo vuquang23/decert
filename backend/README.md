@@ -13,5 +13,5 @@ go run cmd/main m -down 0
 ## API Server
 
 ```shell
-go run cmd/main api
+go run cmd/main.go api
 ```
